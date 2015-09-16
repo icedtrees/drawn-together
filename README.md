@@ -7,9 +7,10 @@
 2. Install [node.js](http://nodejs.org/)
   * `curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.26.1/install.sh | bash`
   * `source ~/.profile`
-  * `nvm install v0.12.6`
-  * `nvm use v0.12.6`
-  * `nvm alias default v0.12.6`
+  * `nvm install v0.12.4`
+  * `nvm use v0.12.4`
+  * `nvm alias default v0.12.4`
+  * Try v0.10.25 if the above fails
 3. Install [MongoDB](https://www.mongodb.org/downloads)
   * `sudo apt-get install mongodb`
 4. Run `npm install -g bower`
