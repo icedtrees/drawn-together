@@ -37,7 +37,7 @@
   * `rvm install ruby`
   * `rvm use ruby --default`
   * `rvm rubygems current`
-  * `gem install sass
+  * `gem install sass`
 
 Note:
 * May need for PhantomJS as a dependency `sudo apt-get install libfontconfig`
