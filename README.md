@@ -33,6 +33,9 @@
   * `rvm rubygems current`
   * `gem install sass`
 
+Note:
+* May need for PhantomJS as a dependency `sudo apt-get install libfontconfig`
+
 * Run application: grunt
 * Run with TLS: sh ./scripts/generate-ssl-certs.sh
 * Test: grunt test
