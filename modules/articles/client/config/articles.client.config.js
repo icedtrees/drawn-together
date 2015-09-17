@@ -8,7 +8,8 @@ angular.module('articles').run(['Menus',
       title: 'Articles',
       state: 'articles',
       type: 'dropdown',
-      roles: ['*']
+      roles: ['*'],
+      position: 9999
     });
 
     // Add the dropdown list item
