@@ -34,3 +34,16 @@
   min-height: 150px;
   max-height: 150px;
 }
+
+::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+  text-transform: capitalize;
+}
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+  text-transform: capitalize;
+}
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+  text-transform: capitalize;
+}
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  text-transform: capitalize;
+}
