@@ -11,3 +11,14 @@ angular.module('game').run(['Menus',
     });
   }
 ]);
+
+// Configure Game settings
+angular.module('game').service('GameSettings', function() {
+  var MAX_MESSAGES = 12;
+
+  return {
+    getMaxMessages: function () {
+      return MAX_MESSAGES;
+    }
+  };
+});

@@ -1,11 +1,10 @@
 'use strict';
 
 // Create the 'game' controller
-angular.module('game').controller('GameController', ['$scope', '$location', 'Authentication', 'Socket',
-  function ($scope, $location, Authentication, Socket) {
+angular.module('game').controller('GameController', ['$scope', '$location', 'Authentication', 'Socket', 'GameSettings',
+  function ($scope, $location, Authentication, Socket, GameSettings) {
     // Create a messages array
     $scope.messages = [];
-    var MAX_MESSAGES = 12; // maximum number of messages
 
     // If user is not signed in then redirect back home
     if (!Authentication.user) {
@@ -20,9 +19,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     // Add an event listener to the 'gameMessage' event
     Socket.on('gameMessage', function (message) {
       $scope.messages.unshift(message);
-
-      // delete old messages if MAX_MESSAGES is exceeded
-      if ($scope.messages.length > MAX_MESSAGES) {
+      if ($scope.messages.length > GameSettings.getMaxMessages()) {
         $scope.messages.pop();
       }
     });
