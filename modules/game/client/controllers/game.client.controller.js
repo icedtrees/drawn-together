@@ -19,7 +19,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     // Add an event listener to the 'gameMessage' event
     Socket.on('gameMessage', function (message) {
       $scope.messages.unshift(message);
-      if ($scope.messages.length > GameSettings.getMaxMessages()) {
+      if ($scope.messages.length > GameSettings.MAX_MESSAGES) {
         $scope.messages.pop();
       }
     });
