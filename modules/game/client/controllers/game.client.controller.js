@@ -13,17 +13,27 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     }
 
     // Make sure the Socket is connected
+    console.log('socket??');
     if (!Socket.socket) {
       Socket.connect();
+    } else {
+      console.log('trying');
+      Socket.emit('requestState', {});
     }
 
     // Add an event listener to the 'gameMessage' event
     Socket.on('gameMessage', function (message) {
-      $scope.messages.unshift(message);
+      if (message.type === 'userlist') {
+        $scope.userlist = message.data;
+      } else if (message.type === 'message' || message.type === 'status') { // TODO handle status differently
+        $scope.messages.unshift(message);
 
-      // delete old messages if MAX_MESSAGES is exceeded
-      if ($scope.messages.length > MAX_MESSAGES) {
-        $scope.messages.pop();
+        // delete old messages if MAX_MESSAGES is exceeded
+        if ($scope.messages.length > MAX_MESSAGES) {
+          $scope.messages.pop();
+        }
+      } else {
+        console.log('Message type', message.type, 'unknown:', message);
       }
     });
 
