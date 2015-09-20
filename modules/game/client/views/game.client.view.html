@@ -17,7 +17,7 @@
   <ul class="list-unstyled">
     <!-- List all messages -->
     <li class="col-xs-12 col-md-offset-4 col-md-4 game-message" ng-repeat="message in messages">
-      <small class="pull-right text-muted" ng-bind="message.created | date:'mediumTime'"></small>
+      <small class="pull-right text-muted" am-time-ago="message.created"></small>
       <img ng-src="{{message.profileImageURL}}" alt="{{message.username}}" class="pull-left game-profile-image" />
       <div class="pull-left game-message-details">
         <strong ng-bind="message.username"></strong>
