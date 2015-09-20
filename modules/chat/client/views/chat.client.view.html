@@ -1,17 +1,26 @@
 <!-- The chat view -->
-<section class="container" ng-controller="ChatController">
+
   <div class="page-header">
     <h1>Chat Example</h1>
   </div>
-  <div class="col-xs-12 col-md-3" ng-submit="sendMessage();">
+  <div class="col-xs-12 col-md-3">
     <p>Right sidebar (for later?)</p>
+
     <p> Might have details of rooms/lobbies as well as who is online in that room</p>
   </div>
-  <div class="col-xs-12 col-md-6" ng-submit="sendMessage();">
-    <p class="text-center">Canvas goes here</p>
+  <div class="col-xs-12 col-md-6">
+    <h3 class="text-center">Canvas goes here</h3>
+
+
+    <div id="canvasDiv"></div>
+    <!--<script type="text/javascript" src="../../../../scripts/chat.client.view.js"></script>-->
+    <script>
+      drawingApp.init();
+    </script>
 
   </div>
 
+<section class="container" ng-controller="ChatController">
   <!-- The message form -->
   <div class="col-xs-12 col-md-3">
     <form class="col-xs-12 col-md-12" ng-submit="sendMessage();">
@@ -19,9 +28,9 @@
         <div class="input-group">
           <input type="text" id="messageText" name="messageText" class="form-control" ng-model="messageText"
                  placeholder="Enter new message">
-        <span class="input-group-btn">
-          <button type="submit" class="btn btn-primary" ng-disabled="!messageText.length">Submit</button>
-        </span>
+            <span class="input-group-btn">
+              <button type="submit" class="btn btn-primary" ng-disabled="!messageText.length">Submit</button>
+            </span>
         </div>
       </fieldset>
     </form>
@@ -41,3 +50,7 @@
     </ul>
   </div>
 </section>
+
+
+
+
