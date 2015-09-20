@@ -30,6 +30,16 @@ module.exports = function (io, socket) {
     });
   }
 
+  // Send an updated version of the userlist whenever a user requests an update of the
+  // current server state.
+  socket.on('requestState', function() {
+    // Send a list of connected users
+    io.emit('gameMessage', {
+      type: 'userlist',
+      data: Object.keys(users).sort()
+    });
+  });
+
   // Send a chat messages to all connected sockets when a message is received
   socket.on('gameMessage', function (message) {
     message.type = 'message';
