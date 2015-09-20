@@ -183,4 +183,4 @@ var drawingApp = (function () {
     return {
         init: init
     };
-}());
+}()).init();
