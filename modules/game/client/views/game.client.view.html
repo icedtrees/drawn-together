@@ -42,7 +42,7 @@
           </div>
         </li>
       </ul>
-      <button ng-click="finishDrawing();">Finish Drawing</button>
+      <button ng-disabled="!isDrawer()" ng-click="finishDrawing();">Finish Drawing</button>
     </div>
   </div>
 </section>

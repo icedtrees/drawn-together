@@ -71,13 +71,20 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       this.messageText = '';
     };
 
+    // Returns true if we are currently the drawer and false otherwise
+    $scope.isDrawer = function () {
+      for (var i = 0; i < $scope.users.length; i++) {
+        if ($scope.users[i].username === Authentication.user.username && $scope.users[i].drawer) {
+          return true;
+        }
+      }
+      return false;
+    };
+
     // Send a 'finished drawing' message to the server. Must be the current drawer
     $scope.finishDrawing = function () {
-      for (var i = 0; i < $scope.users.length; i++) {
-        // If we actually are a drawer
-        if ($scope.users[i].username === Authentication.user.username && $scope.users[i].drawer) {
-          Socket.emit('finishDrawing');
-        }
+      if ($scope.isDrawer()) {
+        Socket.emit('finishDrawing');
       }
     };
 

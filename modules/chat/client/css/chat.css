@@ -13,3 +13,7 @@
   width: 28px;
   border-radius: 50%;
 }
+
+button:disabled {
+  color: grey;
+}
