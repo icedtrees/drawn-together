@@ -52,7 +52,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
      * ]
      */
     Socket.on('userUpdate', function (data) {
-      $scope.users = data;
+      console.log(data);
+      $scope.users = data.sort(function (a, b) {
+        return a.username > b.username;
+      });
     });
 
     // Create a controller method for sending messages
