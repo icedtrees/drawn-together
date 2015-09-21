@@ -52,7 +52,6 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
      * ]
      */
     Socket.on('userUpdate', function (data) {
-      console.log(data);
       $scope.users = data.sort(function (a, b) {
         return a.username > b.username;
       });
