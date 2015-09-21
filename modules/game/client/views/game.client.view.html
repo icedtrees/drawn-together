@@ -3,44 +3,48 @@
   <div class="page-header">
     <h1>Game Example</h1>
   </div>
-  <div class="row">
-    <div class="col-md-8">
-      <!-- The message form -->
-      <form class="col-xs-12 col-md-offset-4 col-md-4" ng-submit="sendMessage();">
-        <fieldset class="row">
-          <div class="input-group">
-            <input type="text" id="messageText" name="messageText" class="form-control" ng-model="messageText" placeholder="Enter new message">
+  <div class="col-xs-12 col-md-3">
+    <h3>Connected Users</h3>
+    <ul class="list-unstyled">
+      <!-- List all messages -->
+      <li class="col-xs-12 col-md-offset-4 col-md-4" ng-repeat="user in userlist">
+        <div class="pull-left">
+          <strong ng-bind="user"></strong>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- The message form -->
+  <div class="col-xs-12 col-md-3" style="border:1px solid #d3d3d3;">
+    <form class="col-xs-12 col-md-12" ng-submit="sendMessage();">
+      <fieldset class="row">
+        <div class="input-group">
+          <input type="text" id="messageText" name="messageText" class="form-control" ng-model="messageText" placeholder="Enter new message">
             <span class="input-group-btn">
               <button type="submit" class="btn btn-primary" ng-disabled="!messageText.length">Submit</button>
             </span>
-          </div>
-        </fieldset>
-      </form>
-      <ul class="list-unstyled">
-        <!-- List all messages -->
-        <li class="col-xs-12 col-md-offset-4 col-md-4 game-message" ng-repeat="message in messages">
-          <small class="pull-right text-muted" am-time-ago="message.created"></small>
-          <img ng-src="{{message.profileImageURL}}" alt="{{message.username}}" class="pull-left game-profile-image" />
-          <div class="pull-left game-message-details">
-            <strong ng-bind="message.username"></strong>
-            <br>
-            <span ng-bind="message.text"></span>
-          </div>
-        </li>
-      </ul>
-    </div>
+        </div>
+      </fieldset>
+    </form>
 
-    <!-- The user list -->
-    <div class="col-md-4">
-      <h3>Connected Users</h3>
-      <ul class="list-unstyled">
-        <!-- List all messages -->
-        <li class="col-xs-12 col-md-offset-4 col-md-4" ng-repeat="user in userlist">
-          <div class="pull-left">
-            <strong ng-bind="user"></strong>
-          </div>
-        </li>
-      </ul>
-    </div>
+    <ul class="list-unstyled">
+      <!-- List all messages -->
+      <li class="col-xs-12 col-md-12 game-message" ng-repeat="message in messages">
+        <small class="pull-right text-muted" am-time-ago="message.created"></small>
+        <img ng-src="{{message.profileImageURL}}" alt="{{message.username}}" class="pull-left game-profile-image" />
+        <div class="pull-left game-message-details">
+          <strong ng-bind="message.username"></strong>
+          <br>
+          <span ng-bind="message.text"></span>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="col-xs-12 col-md-6" >
+    <h3 class="text-center">Canvas goes here</h3>
+    <!--TODO: make the canvas dimensions based on window size-->
+    <canvas id="canvas" width="500" height="500" style="border:1px solid #d3d3d3;"></canvas>
   </div>
 </section>
