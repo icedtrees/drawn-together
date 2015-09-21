@@ -72,6 +72,16 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       this.messageText = '';
     };
 
+    // Send a 'finished drawing' message to the server. Must be the current drawer
+    $scope.finishDrawing = function () {
+      for (var i = 0; i < $scope.users.length; i++) {
+        // If we actually are a drawer
+        if ($scope.users[i].username === Authentication.user.username && $scope.users[i].drawer) {
+          Socket.emit('finishDrawing');
+        }
+      }
+    };
+
     // Remove the event listener when the controller instance is destroyed
     $scope.$on('$destroy', function () {
       Socket.removeListener('gameMessage');

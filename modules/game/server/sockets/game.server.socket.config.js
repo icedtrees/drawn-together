@@ -46,7 +46,7 @@ module.exports = function (io, socket) {
 
   // Send an updated version of the userlist whenever a user requests an update of the
   // current server state.
-  socket.on('requestState', function() {
+  socket.on('requestState', function () {
     // Send a list of connected userConnects
     socket.emit('userUpdate', getUserList(users));
   });
@@ -62,12 +62,27 @@ module.exports = function (io, socket) {
     io.emit('gameMessage', message);
   });
 
+  // Current drawer has finished drawing
+  socket.on('finishDrawing', function () {
+    // If the user who submitted this message actually is a drawer
+    // TODO expand to multiple drawers
+    if (users.length > 0 && users[0] === username) {
+      users.push(users.shift());
+
+      // Send user list with updated drawers
+      io.emit('userUpdate', getUserList(users));
+    }
+  });
+
   // Decrement user reference count, and remove from in-memory store if it hits 0
   socket.on('disconnect', function () {
     userConnects[username]--;
     if (userConnects[username] === 0) {
       delete userConnects[username];
-      users.splice(users.indexOf(username), 1);
+      var idx = users.indexOf(username);
+      if (idx !== -1) {
+        users.splice(idx, 1);
+      }
 
       // Emit the status event when a socket client is disconnected
       io.emit('gameMessage', {
