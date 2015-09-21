@@ -1,0 +1,48 @@
+<!-- The game view -->
+<section class="container" ng-controller="GameController">
+  <div class="page-header">
+    <h1>Game Example</h1>
+  </div>
+  <div class="row">
+    <div class="col-md-8">
+      <!-- The message form -->
+      <form class="col-xs-12 col-md-offset-4 col-md-4" ng-submit="sendMessage();">
+        <fieldset class="row">
+          <div class="input-group">
+            <input type="text" id="messageText" name="messageText" class="form-control" ng-model="messageText" placeholder="Enter new message">
+            <span class="input-group-btn">
+              <button type="submit" class="btn btn-primary" ng-disabled="!messageText.length">Submit</button>
+            </span>
+          </div>
+        </fieldset>
+      </form>
+      <ul class="list-unstyled">
+        <!-- List all messages -->
+        <li class="col-xs-12 col-md-offset-4 col-md-4 game-message" ng-repeat="message in messages">
+          <small class="pull-right text-muted" am-time-ago="message.created"></small>
+          <img ng-src="{{message.profileImageURL}}" alt="{{message.username}}" class="pull-left game-profile-image" />
+          <div class="pull-left game-message-details">
+            <strong ng-bind="message.username"></strong>
+            <br>
+            <span ng-bind="message.text"></span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- The user list -->
+    <div class="col-md-4">
+      <h3>Connected Users</h3>
+      <ul class="list-unstyled">
+        <!-- List all messages -->
+        <li class="col-xs-12 col-md-offset-4 col-md-4" ng-repeat="user in users">
+          <div class="pull-left">
+            <div ng-if="user.drawer"><strong ng-bind="user.username"></strong></div>
+            <div ng-if="!user.drawer"><span ng-bind="user.username"></span></div>
+          </div>
+        </li>
+      </ul>
+      <button ng-disabled="!isDrawer()" ng-click="finishDrawing();">Finish Drawing</button>
+    </div>
+  </div>
+</section>

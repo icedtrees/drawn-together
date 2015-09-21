@@ -1,19 +1,15 @@
-.chat-message {
+.game-message {
   margin-top: 10px;
   padding-top: 10px;
 }
-.chat-message:not(:first-child) {
+.game-message:not(:first-child) {
   border-top: 1px solid #e7e7e7;
 }
-.chat-message-details {
+.game-message-details {
   margin-left: 10px;
 }
-.chat-profile-image {
+.game-profile-image {
   height: 28px;
   width: 28px;
   border-radius: 50%;
-}
-
-button:disabled {
-  color: grey;
 }

@@ -267,6 +267,19 @@ module.exports = function (grunt) {
     });
   });
 
+  grunt.task.registerTask('install', 'install the backend and frontend dependencies', function() {
+      var exec = require('child_process').exec;
+      var cb = this.async();
+      exec('npm install', {cwd: './backend'}, function(err, stdout, stderr) {
+          console.log(stdout);
+          cb();
+      });
+      exec('bower install', {cwd: './frontend'}, function(err, stdout, stderr) {
+          console.log(stdout);
+          cb();
+      });
+  });
+
   // Lint CSS and JavaScript files.
   grunt.registerTask('lint', ['sass', 'less', 'jshint', 'csslint']);
 
@@ -274,7 +287,7 @@ module.exports = function (grunt) {
   grunt.registerTask('build', ['env:dev', 'lint', 'ngAnnotate', 'uglify', 'cssmin']);
 
   // Run the project tests
-  grunt.registerTask('test', ['env:test', 'lint', 'mkdir:upload', 'copy:localConfig', 'server', 'mochaTest', 'karma:unit']);
+  grunt.registerTask('test', ['env:test', 'install', 'lint', 'mkdir:upload', 'copy:localConfig', 'server', 'mochaTest', 'karma:unit']);
   grunt.registerTask('test:server', ['env:test', 'lint', 'server', 'mochaTest']);
   grunt.registerTask('test:client', ['env:test', 'lint', 'server', 'karma:unit']);
   // Run project coverage
