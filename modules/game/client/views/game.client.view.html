@@ -35,12 +35,14 @@
       <h3>Connected Users</h3>
       <ul class="list-unstyled">
         <!-- List all messages -->
-        <li class="col-xs-12 col-md-offset-4 col-md-4" ng-repeat="user in userlist">
+        <li class="col-xs-12 col-md-offset-4 col-md-4" ng-repeat="user in users">
           <div class="pull-left">
-            <strong ng-bind="user"></strong>
+            <div ng-if="user.drawer"><strong ng-bind="user.username"></strong></div>
+            <div ng-if="!user.drawer"><span ng-bind="user.username"></span></div>
           </div>
         </li>
       </ul>
+      <button ng-disabled="!isDrawer()" ng-click="finishDrawing();">Finish Drawing</button>
     </div>
   </div>
 </section>
