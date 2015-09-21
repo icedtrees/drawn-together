@@ -23,21 +23,15 @@ module.exports = function (io, socket) {
       username: username
     });
 
-    // Send a list of connected users
-    io.emit('gameMessage', {
-      type: 'userlist',
-      data: Object.keys(users).sort()
-    });
+    // Notify everyone about the new joined user
+    io.emit('userUpdate', Object.keys(users).sort());
   }
 
   // Send an updated version of the userlist whenever a user requests an update of the
   // current server state.
   socket.on('requestState', function() {
     // Send a list of connected users
-    io.emit('gameMessage', {
-      type: 'userlist',
-      data: Object.keys(users).sort()
-    });
+    socket.emit('userUpdate', Object.keys(users).sort());
   });
 
   // Send a chat messages to all connected sockets when a message is received
@@ -66,10 +60,7 @@ module.exports = function (io, socket) {
       });
 
       // Send updated list of users now that one has disconnected
-      io.emit('gameMessage', {
-        type: 'userlist',
-        data: Object.keys(users).sort()
-      });
+      io.emit('userUpdate', Object.keys(users).sort());
     }
   });
 };

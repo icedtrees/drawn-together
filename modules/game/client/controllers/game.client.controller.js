@@ -5,6 +5,8 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
   function ($scope, $location, Authentication, Socket) {
     // Create a messages array
     $scope.messages = [];
+    $scope.users = [];
+
     var MAX_MESSAGES = 12; // maximum number of messages
 
     // If user is not signed in then redirect back home
@@ -13,28 +15,44 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     }
 
     // Make sure the Socket is connected
-    console.log('socket??');
     if (!Socket.socket) {
       Socket.connect();
     } else {
-      console.log('trying');
-      Socket.emit('requestState', {});
+      // We are already connected but in a new window - request to be brought up to scratch
+      Socket.emit('requestState');
     }
 
-    // Add an event listener to the 'gameMessage' event
+    /* Add an event listener to the 'gameMessage' event
+     *
+     * message =
+     * {
+     *   type: 'message' or 'status'
+     *   created: Date.now()
+     *   profileImageURL: some valid url
+     *   username: user who posted the message
+     * }
+     */
     Socket.on('gameMessage', function (message) {
-      if (message.type === 'userlist') {
-        $scope.userlist = message.data;
-      } else if (message.type === 'message' || message.type === 'status') { // TODO handle status differently
-        $scope.messages.unshift(message);
+      $scope.messages.unshift(message);
 
-        // delete old messages if MAX_MESSAGES is exceeded
-        if ($scope.messages.length > MAX_MESSAGES) {
-          $scope.messages.pop();
-        }
-      } else {
-        console.log('Message type', message.type, 'unknown:', message);
+      // delete old messages if MAX_MESSAGES is exceeded
+      if ($scope.messages.length > MAX_MESSAGES) {
+        $scope.messages.pop();
       }
+    });
+
+    /* Add an event listener to the 'userUpdate' event
+     *
+     * data =
+     * [
+     *   {
+     *     username: string
+     *     drawer: bool
+     *   }
+     * ]
+     */
+    Socket.on('userUpdate', function (data) {
+      $scope.users = data;
     });
 
     // Create a controller method for sending messages
@@ -54,6 +72,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     // Remove the event listener when the controller instance is destroyed
     $scope.$on('$destroy', function () {
       Socket.removeListener('gameMessage');
+      //Socket.removeListener('userUpdate');
     });
   }
 ]);
