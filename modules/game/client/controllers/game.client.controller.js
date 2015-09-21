@@ -1,8 +1,8 @@
 'use strict';
 
 // Create the 'game' controller
-angular.module('game').controller('GameController', ['$scope', '$location', 'Authentication', 'Socket',
-  function ($scope, $location, Authentication, Socket) {
+angular.module('game').controller('GameController', ['$scope', '$location', 'Authentication', 'Socket', 'GameSettings',
+  function ($scope, $location, Authentication, Socket, GameSettings) {
     // Create a messages array
     $scope.messages = [];
     $scope.users = [];
