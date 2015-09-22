@@ -31,11 +31,11 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
      * }
      */
     Socket.on('gameMessage', function (message) {
-      $scope.messages.unshift(message);
+      $scope.messages.push(message);
 
       // delete old messages if MAX_MESSAGES is exceeded
       if ($scope.messages.length > GameSettings.MAX_MESSAGES) {
-        $scope.messages.pop();
+        $scope.messages.shift();
       }
     });
 
