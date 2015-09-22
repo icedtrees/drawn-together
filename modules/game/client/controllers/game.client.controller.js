@@ -6,6 +6,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     // Create a messages array
     $scope.messages = [];
     $scope.users = [];
+    $scope.canvas = null;
 
     var MAX_MESSAGES = 12; // maximum number of messages
 
@@ -39,6 +40,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       if ($scope.messages.length > MAX_MESSAGES) {
         $scope.messages.pop();
       }
+    });
+
+    Socket.on('canvasMessage', function (message) {
+      $scope.canvas.draw(message.lastX, message.lastY, message.currentX, message.currentY);
     });
 
     /* Add an event listener to the 'userUpdate' event

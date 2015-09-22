@@ -62,6 +62,11 @@ module.exports = function (io, socket) {
     io.emit('gameMessage', message);
   });
 
+  socket.on('canvasMessage', function (message) {
+    // Emit the 'canvasMessage' event
+    io.emit('canvasMessage', message);
+  });
+
   // Current drawer has finished drawing
   socket.on('finishDrawing', function () {
     // If the user who submitted this message actually is a drawer
