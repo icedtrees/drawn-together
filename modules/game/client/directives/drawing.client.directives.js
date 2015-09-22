@@ -43,8 +43,7 @@ angular.module('game').directive("dtDrawing", ['Socket',
               lastX: element.lastX,
               lastY: element.lastY,
               currentX: element.currentX,
-              currentY: element.currentY,
-              text: element.currentX
+              currentY: element.currentY
             };
 
             Socket.emit('canvasMessage', message);
@@ -52,9 +51,7 @@ angular.module('game').directive("dtDrawing", ['Socket',
             // set current coordinates to last one
             element.lastX = element.currentX;
             element.lastY = element.currentY;
-
           }
-
         });
         element.bind('mouseup', function (event) {
           // stop element.drawing

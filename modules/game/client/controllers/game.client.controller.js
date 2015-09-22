@@ -42,8 +42,19 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       }
     });
 
+    /*
+     * var message =
+     * {
+     *   lastX: last X position of cursor on the canvas
+     *   lastY: last Y position
+     *   currentX: current X position
+     *   currentY: current Y position
+     * };
+     */
     Socket.on('canvasMessage', function (message) {
-      $scope.canvas.draw(message.lastX, message.lastY, message.currentX, message.currentY);
+      if ($scope.canvas) {
+        $scope.canvas.draw(message.lastX, message.lastY, message.currentX, message.currentY);
+      }
     });
 
     /* Add an event listener to the 'userUpdate' event
