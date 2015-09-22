@@ -7,8 +7,6 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     $scope.messages = [];
     $scope.users = [];
 
-    var MAX_MESSAGES = 12; // maximum number of messages
-
     // If user is not signed in then redirect back home
     if (!Authentication.user) {
       $location.path('/');
@@ -36,7 +34,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       $scope.messages.push(message);
 
       // delete old messages if MAX_MESSAGES is exceeded
-      if ($scope.messages.length > MAX_MESSAGES) {
+      if ($scope.messages.length > GameSettings.MAX_MESSAGES) {
         $scope.messages.shift();
       }
     });
