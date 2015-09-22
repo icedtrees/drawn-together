@@ -18,8 +18,8 @@
   </div>
 
   <!-- Chat stuff -->
-  <div class="col-xs-12 col-md-3" style="border:1px solid #d3d3d3;">
-    <div class="game-message-box" scroll-glue>
+  <div class="col-xs-12 col-md-3" style="border:1px solid #d3d3d3;padding:0px;">
+    <div class="game-message-box" style="margin:0px;" scroll-glue>
       <ul class="list-unstyled">
         <!-- List all messages -->
         <li class="col-xs-12 col-md-12 game-message" ng-repeat="message in messages">
@@ -35,17 +35,19 @@
     </div>
 
     <!-- The message form -->
-    <form class="col-xs-12 col-md-12" ng-submit="sendMessage();">
-      <fieldset class="row">
-        <div class="input-group">
-          <input type="text" id="messageText" name="messageText" class="form-control" ng-model="messageText" placeholder="Enter new message">
-            <span class="input-group-btn">
-              <button type="submit" class="btn btn-primary" ng-disabled="!messageText.length">Submit</button>
-            </span>
-        </div>
-      </fieldset>
-    </form>
-  </div>
+	<div style="padding:5px;" class="col-xs-12 col-md-12">
+	    <form class="col-xs-12 col-md-12" ng-submit="sendMessage();">
+	      <fieldset class="row">
+	        <div class="input-group">
+	          <input type="text" id="messageText" name="messageText" class="form-control" ng-model="messageText" placeholder="Enter new message">
+	            <span class="input-group-btn">
+	              <button type="submit" class="btn btn-primary" ng-disabled="!messageText.length">Submit</button>
+	            </span>
+	        </div>
+	      </fieldset>
+	    </form>
+  	</div>
+  	</div>
   <div class="col-xs-12 col-md-6" >
     <h3 class="text-center">Canvas goes here</h3>
     <!--TODO: make the canvas dimensions based on window size-->
