@@ -8,8 +8,6 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     $scope.users = [];
     $scope.canvas = null;
 
-    var MAX_MESSAGES = 12; // maximum number of messages
-
     // If user is not signed in then redirect back home
     if (!Authentication.user) {
       $location.path('/');
@@ -34,11 +32,11 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
      * }
      */
     Socket.on('gameMessage', function (message) {
-      $scope.messages.unshift(message);
+      $scope.messages.push(message);
 
       // delete old messages if MAX_MESSAGES is exceeded
-      if ($scope.messages.length > MAX_MESSAGES) {
-        $scope.messages.pop();
+      if ($scope.messages.length > GameSettings.MAX_MESSAGES) {
+        $scope.messages.shift();
       }
     });
 
