@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('game').directive("dt-drawing", function () {
+angular.module('game').directive("dtDrawing", function () {
   return {
     restrict: "A",
     link: function (scope, element) {
