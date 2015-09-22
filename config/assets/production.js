@@ -18,7 +18,8 @@ module.exports = {
         'public/lib/angular-file-upload/angular-file-upload.min.js',
         'public/lib/owasp-password-strength-test/owasp-password-strength-test.js',
         'public/lib/moment/min/moment.min.js',
-        'public/lib/angular-moment/angular-moment.min.js'  // moment must come before angular-moment
+        'public/lib/angular-moment/angular-moment.min.js',  // moment must come before angular-moment
+        'public/lib/angular-scroll-glue/src/scrollglue.js'
       ]
     },
     css: 'public/dist/application.min.css',

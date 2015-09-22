@@ -18,7 +18,8 @@ module.exports = {
         'public/lib/angular-file-upload/angular-file-upload.js',
         'public/lib/owasp-password-strength-test/owasp-password-strength-test.js',
         'public/lib/moment/moment.js',
-        'public/lib/angular-moment/angular-moment.js' // moment must come before angular-moment
+        'public/lib/angular-moment/angular-moment.js', // moment must come before angular-moment
+        'public/lib/angular-scroll-glue/src/scrollglue.js'
       ],
       tests: ['public/lib/angular-mocks/angular-mocks.js']
     },

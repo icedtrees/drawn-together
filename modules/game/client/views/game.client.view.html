@@ -19,18 +19,20 @@
 
   <!-- Chat stuff -->
   <div class="col-xs-12 col-md-3" style="border:1px solid #d3d3d3;">
-    <ul class="list-unstyled">
-      <!-- List all messages -->
-      <li class="col-xs-12 col-md-12 game-message" ng-repeat="message in messages">
-        <small class="pull-right text-muted" am-time-ago="message.created"></small>
-        <img ng-src="{{message.profileImageURL}}" alt="{{message.username}}" class="pull-left game-profile-image" />
-        <div class="pull-left game-message-details">
-          <strong ng-bind="message.username"></strong>
-          <br>
-          <span ng-bind="message.text"></span>
-        </div>
-      </li>
-    </ul>
+    <div class="game-message-box" scroll-glue>
+      <ul class="list-unstyled">
+        <!-- List all messages -->
+        <li class="col-xs-12 col-md-12 game-message" ng-repeat="message in messages">
+          <small class="pull-right text-muted" am-time-ago="message.created"></small>
+          <img ng-src="{{message.profileImageURL}}" alt="{{message.username}}" class="pull-left game-profile-image" />
+          <div class="pull-left game-message-details">
+            <strong ng-bind="message.username"></strong>
+            <br>
+            <span ng-bind="message.text"></span>
+          </div>
+        </li>
+      </ul>
+    </div>
 
     <!-- The message form -->
     <form class="col-xs-12 col-md-12" ng-submit="sendMessage();">
