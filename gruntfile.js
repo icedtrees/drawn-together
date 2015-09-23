@@ -267,6 +267,15 @@ module.exports = function (grunt) {
     });
   });
 
+  grunt.task.registerTask('install', 'install the backend and frontend dependencies', function() {
+      var exec = require('child_process').exec;
+      var cb = this.async();
+      exec('npm install', {}, function(err, stdout, stderr) {
+          console.log(stdout);
+          cb();
+      });
+  });
+
   // Lint CSS and JavaScript files.
   grunt.registerTask('lint', ['sass', 'less', 'jshint', 'csslint']);
 
@@ -274,18 +283,18 @@ module.exports = function (grunt) {
   grunt.registerTask('build', ['env:dev', 'lint', 'ngAnnotate', 'uglify', 'cssmin']);
 
   // Run the project tests
-  grunt.registerTask('test', ['env:test', 'lint', 'mkdir:upload', 'copy:localConfig', 'server', 'mochaTest', 'karma:unit']);
-  grunt.registerTask('test:server', ['env:test', 'lint', 'server', 'mochaTest']);
-  grunt.registerTask('test:client', ['env:test', 'lint', 'server', 'karma:unit']);
+  grunt.registerTask('test', ['install', 'env:test', 'lint', 'mkdir:upload', 'copy:localConfig', 'server', 'mochaTest', 'karma:unit']);
+  grunt.registerTask('test:server', ['install', 'env:test', 'lint', 'server', 'mochaTest']);
+  grunt.registerTask('test:client', ['install', 'env:test', 'lint', 'server', 'karma:unit']);
   // Run project coverage
   grunt.registerTask('coverage', ['env:test', 'lint', 'mocha_istanbul:coverage']);
 
   // Run the project in development mode
-  grunt.registerTask('default', ['env:dev', 'lint', 'mkdir:upload', 'copy:localConfig', 'concurrent:default']);
+  grunt.registerTask('default', ['install', 'env:dev', 'lint', 'mkdir:upload', 'copy:localConfig', 'concurrent:default']);
 
   // Run the project in debug mode
-  grunt.registerTask('debug', ['env:dev', 'lint', 'mkdir:upload', 'copy:localConfig', 'concurrent:debug']);
+  grunt.registerTask('debug', ['install', 'env:dev', 'lint', 'mkdir:upload', 'copy:localConfig', 'concurrent:debug']);
 
   // Run the project in production mode
-  grunt.registerTask('prod', ['build', 'env:prod', 'mkdir:upload', 'copy:localConfig', 'concurrent:default']);
+  grunt.registerTask('prod', ['install', 'build', 'env:prod', 'mkdir:upload', 'copy:localConfig', 'concurrent:default']);
 };

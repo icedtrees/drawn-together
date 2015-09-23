@@ -1,14 +1,52 @@
 'use strict';
 
 // TODO Change this from an in-memory store into actual database stuff
-// Array of users in a queue
+
+// TODO put this in a better place
+var NUM_DRAWERS = 1;
+// Array of users in a queue. First NUM_DRAWERS users are drawers
 var users = [];
 // Dictionary counting number of connects made by each user
 var userConnects = {};
+/* Array of draw actions
+ * drawHistory = [
+ *   {
+ *     type: 'line'
+ *     x1: last x pos
+ *     y1: last y pos
+ *     x2: cur x pos
+ *     y2: cur y pos
+ *     stroke: colour code
+ *   },
+ *   {
+ *     type: 'rect'
+ *     x: last x pos
+ *     y: last y pos
+ *     width: cur x pos
+ *     height: cur y pos
+ *     fill: colour code
+ *     stroke: colour code
+ *   },
+ *   {
+ *     type: 'clear'
+ *   }
+ * ]
+ */
+var drawHistory = [];
 
+/*
+ * Transforms an array of usernames into an array of
+ * [
+ *   {
+ *     username: name
+ *     drawer: true|false
+ *   }
+ * ]
+ * based on their position in the queue (first NUM_DRAWERS
+ * usernames are drawers).
+ */
 function getUserList(users) {
   var userList = [];
-  var NUM_DRAWERS = 1;
   for (var i = 0; i < users.length; i++) {
     userList.push({username: users[i], drawer: false});
     if (i < NUM_DRAWERS) {
@@ -17,6 +55,18 @@ function getUserList(users) {
   }
 
   return userList;
+}
+
+/*
+ * Returns true if the given username is a current drawer, false otherwise
+ */
+function isDrawer(users, username) {
+  for (var i = 0; i < users.length && i < NUM_DRAWERS; i++) {
+    if (users[i] === username) {
+      return true;
+    }
+    return false;
+  }
 }
 
 // Create the chat configuration
@@ -40,8 +90,8 @@ module.exports = function (io, socket) {
       username: username
     });
 
-    // Notify everyone about the new joined user
-    io.emit('userUpdate', getUserList(users));
+    // Notify everyone about the new joined user (not the sender though)
+    socket.broadcast.emit('userUpdate', getUserList(users));
   }
 
   // Send an updated version of the userlist whenever a user requests an update of the
@@ -49,8 +99,11 @@ module.exports = function (io, socket) {
   socket.on('requestState', function () {
     // Send a list of connected userConnects
     socket.emit('userUpdate', getUserList(users));
-  });
 
+    // Send the draw history to the user
+    socket.emit('updateDrawHistory', drawHistory);
+  });
+  
   // Send a chat messages to all connected sockets when a message is received
   socket.on('gameMessage', function (message) {
     message.type = 'message';
@@ -62,15 +115,31 @@ module.exports = function (io, socket) {
     io.emit('gameMessage', message);
   });
 
+  // Send a canvas drawing command to all connected sockets when a message is received
+  socket.on('canvasMessage', function (message) {
+    if (isDrawer(users, username)) {
+      if (message.type === 'clear') {
+        drawHistory = [];
+      } else {
+        drawHistory.push(message);
+      }
+
+      // Emit the 'canvasMessage' event
+      socket.broadcast.emit('canvasMessage', message);
+    }
+  });
+
   // Current drawer has finished drawing
   socket.on('finishDrawing', function () {
     // If the user who submitted this message actually is a drawer
-    // TODO expand to multiple drawers
-    if (users.length > 0 && users[0] === username) {
+    if (isDrawer(users, username)) {
       users.push(users.shift());
 
       // Send user list with updated drawers
       io.emit('userUpdate', getUserList(users));
+
+      io.emit('canvasMessage', {type: 'clear'});
+      drawHistory = [];
     }
   });
 
