@@ -101,7 +101,7 @@ module.exports = function (io, socket) {
       // Send user list with updated drawers
       io.emit('userUpdate', getUserList(users));
 
-      // io.emit (TODO CLEAR CANVAS GOES HERE)
+      io.emit('canvasMessage', {type: 'clear'});
       drawHistory = [];
     }
   });
