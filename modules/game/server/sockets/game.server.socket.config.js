@@ -40,8 +40,8 @@ module.exports = function (io, socket) {
       username: username
     });
 
-    // Notify everyone about the new joined user
-    io.emit('userUpdate', getUserList(users));
+    // Notify everyone about the new joined user (not the sender though)
+    socket.broadcast.emit('userUpdate', getUserList(users));
   }
 
   // Send an updated version of the userlist whenever a user requests an update of the

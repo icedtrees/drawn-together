@@ -15,7 +15,9 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
 
     // Make sure the Socket is connected
     if (!Socket.socket) {
-      Socket.connect();
+      Socket.connect(function () {
+        Socket.emit('requestState');
+      });
     } else {
       // We are already connected but in a new window - request to be brought up to scratch
       Socket.emit('requestState');
