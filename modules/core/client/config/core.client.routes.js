@@ -14,6 +14,13 @@ angular.module('core').config(['$stateProvider', '$urlRouterProvider',
     // Home state routing
     $stateProvider
     // Note: 'home' is routed to the game module!
+    .state('home', {
+      url: '/',
+      templateUrl: 'modules/game/client/views/game.client.view.html',
+      data: {
+        ignoreState: true
+      }
+    })
     .state('not-found', {
       url: '/not-found',
       templateUrl: 'modules/core/client/views/404.client.view.html',

@@ -93,14 +93,16 @@
       describe('$scope.signup()', function () {
         it('should register with correct data', function () {
           // Test expected GET request
-          scope.authentication.user = 'Fred';
-          $httpBackend.when('POST', '/api/auth/signup').respond(200, 'Fred');
+          scope.authentication.user = 'Bob';
+          $httpBackend.when('POST', '/api/auth/signup').respond(200, 'Bob');
+          console.log($location.url());
 
           scope.signup(true);
           $httpBackend.flush();
+          console.log($location.url());
 
           // test scope value
-          expect(scope.authentication.user).toBe('Fred');
+          expect(scope.authentication.user).toBe('Bob');
           expect(scope.error).toEqual(null);
           expect($location.url()).toBe('/');
         });
