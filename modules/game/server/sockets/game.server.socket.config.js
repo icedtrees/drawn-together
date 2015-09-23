@@ -1,7 +1,10 @@
 'use strict';
 
 // TODO Change this from an in-memory store into actual database stuff
-// Array of users in a queue
+
+// TODO put this in a better place
+var NUM_DRAWERS = 1;
+// Array of users in a queue. First NUM_DRAWERS users are drawers
 var users = [];
 // Dictionary counting number of connects made by each user
 var userConnects = {};
@@ -31,9 +34,19 @@ var userConnects = {};
  */
 var drawHistory = [];
 
+/*
+ * Transforms an array of usernames into an array of
+ * [
+ *   {
+ *     username: name
+ *     drawer: true|false
+ *   }
+ * ]
+ * based on their position in the queue (first NUM_DRAWERS
+ * usernames are drawers).
+ */
 function getUserList(users) {
   var userList = [];
-  var NUM_DRAWERS = 1;
   for (var i = 0; i < users.length; i++) {
     userList.push({username: users[i], drawer: false});
     if (i < NUM_DRAWERS) {
@@ -42,6 +55,18 @@ function getUserList(users) {
   }
 
   return userList;
+}
+
+/*
+ * Returns true if the given username is a current drawer, false otherwise
+ */
+function isDrawer(users, username) {
+  for (var i = 0; i < users.length && i < NUM_DRAWERS; i++) {
+    if (users[i] === username) {
+      return true;
+    }
+    return false;
+  }
 }
 
 // Create the chat configuration
@@ -92,21 +117,22 @@ module.exports = function (io, socket) {
 
   // Send a canvas drawing command to all connected sockets when a message is received
   socket.on('canvasMessage', function (message) {
-    if (message.type === 'clear') {
-      drawHistory = [];
-    } else {
-      drawHistory.push(message);
-    }
+    if (isDrawer(users, username)) {
+      if (message.type === 'clear') {
+        drawHistory = [];
+      } else {
+        drawHistory.push(message);
+      }
 
-    // Emit the 'canvasMessage' event
-    socket.broadcast.emit('canvasMessage', message);
+      // Emit the 'canvasMessage' event
+      socket.broadcast.emit('canvasMessage', message);
+    }
   });
 
   // Current drawer has finished drawing
   socket.on('finishDrawing', function () {
     // If the user who submitted this message actually is a drawer
-    // TODO expand to multiple drawers
-    if (users.length > 0 && users[0] === username) {
+    if (isDrawer(users, username)) {
       users.push(users.shift());
 
       // Send user list with updated drawers
