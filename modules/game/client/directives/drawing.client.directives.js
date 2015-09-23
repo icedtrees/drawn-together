@@ -84,7 +84,7 @@ angular.module('game').directive('dtDrawing', ['Socket',
             case 'rect':
               element.ctx.fillStyle = message.fill;
               element.ctx.strokeStyle = message.stroke;
-              element.ctx.fillRect(message.x1, message.y1, message.x2, message.y2);
+              element.ctx.fillRect(message.x, message.y, message.width, message.height);
               break;
             case 'clear':
               element.ctx.clearRect(0, 0, element[0].width, element[0].height);

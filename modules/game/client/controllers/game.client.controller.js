@@ -74,8 +74,6 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     });
 
     Socket.on('updateDrawHistory', function (drawHistory) {
-      // TODO clear canvas first?
-
       drawHistory.forEach(function(message) {
         $scope.canvas.draw(message);
       });

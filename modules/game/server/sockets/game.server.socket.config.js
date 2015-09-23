@@ -8,13 +8,24 @@ var userConnects = {};
 /* Array of draw actions
  * drawHistory = [
  *   {
- *     type: 'line|rect'
+ *     type: 'line'
  *     x1: last x pos
  *     y1: last y pos
  *     x2: cur x pos
  *     y2: cur y pos
+ *     stroke: colour code
+ *   },
+ *   {
+ *     type: 'rect'
+ *     x: last x pos
+ *     y: last y pos
+ *     width: cur x pos
+ *     height: cur y pos
  *     fill: colour code
  *     stroke: colour code
+ *   },
+ *   {
+ *     type: 'clear'
  *   }
  * ]
  */
