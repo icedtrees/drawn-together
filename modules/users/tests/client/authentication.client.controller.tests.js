@@ -95,11 +95,9 @@
           // Test expected GET request
           scope.authentication.user = 'Bob';
           $httpBackend.when('POST', '/api/auth/signup').respond(200, 'Bob');
-          console.log($location.url());
 
           scope.signup(true);
           $httpBackend.flush();
-          console.log($location.url());
 
           // test scope value
           expect(scope.authentication.user).toBe('Bob');

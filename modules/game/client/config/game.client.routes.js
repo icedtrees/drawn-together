@@ -8,6 +8,7 @@ angular.module('game').config(['$stateProvider',
         url: '/',
         templateUrl: 'modules/game/client/views/game.client.view.html',
         data: {
+          ignoreState: true,
           roles: ['user', 'admin']
         }
       });
