@@ -88,7 +88,7 @@ module.exports = function (io, socket) {
     }
 
     // Emit the 'canvasMessage' event
-    io.emit('canvasMessage', message);
+    socket.broadcast.emit('canvasMessage', message);
   });
 
   // Current drawer has finished drawing

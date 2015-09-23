@@ -71,6 +71,7 @@ angular.module('game').directive('dtDrawing', ['Socket',
         element.draw = function (message) {
           switch(message.type) {
             case 'line':
+              element.ctx.beginPath();
               // line from
               element.ctx.moveTo(message.x1, message.y1);
               // to
