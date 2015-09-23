@@ -86,7 +86,7 @@ module.exports = function (io, socket) {
       io.emit('userUpdate', getUserList(users));
 
       // io.emit (TODO CLEAR CANVAS GOES HERE)
-	  drawHistory = [];
+      drawHistory = [];
     }
   });
 

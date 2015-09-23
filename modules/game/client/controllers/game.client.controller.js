@@ -70,14 +70,14 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
         return a.username > b.username;
       });
     });
-	
-	Socket.on('updateDrawHistory', function (drawHistory) {
+
+    Socket.on('updateDrawHistory', function (drawHistory) {
       // TODO clear canvas first?
 
       drawHistory.forEach(function(message) {
         $scope.canvas.draw(message.lastX, message.lastY, message.currentX, message.currentY);
       });
-	});
+    });
 
     // Create a controller method for sending messages
     $scope.sendMessage = function () {
