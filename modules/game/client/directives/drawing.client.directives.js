@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('game').directive("dtDrawing", ['Socket',
+angular.module('game').directive('dtDrawing', ['Socket',
   function (Socket) {
     return {
       restrict: "A",
@@ -37,15 +37,16 @@ angular.module('game').directive("dtDrawing", ['Socket',
               element.currentY = event.layerY - event.currentTarget.offsetTop;
             }
 
-            element.draw(element.lastX, element.lastY, element.currentX, element.currentY);
-
             var message = {
-              lastX: element.lastX,
-              lastY: element.lastY,
-              currentX: element.currentX,
-              currentY: element.currentY
+              type: 'line',
+              x1: element.lastX,
+              y1: element.lastY,
+              x2: element.currentX,
+              y2: element.currentY,
+              fill: undefined,
+              stroke: '#4bf'
             };
-
+            element.draw(message);
             Socket.emit('canvasMessage', message);
 
             // set current coordinates to last one
@@ -58,19 +59,40 @@ angular.module('game').directive("dtDrawing", ['Socket',
           element.drawing = false;
         });
 
-        element.draw = function (lX, lY, cX, cY) {
-          // line from
-          element.ctx.moveTo(lX, lY);
-          // to
-          element.ctx.lineTo(cX, cY);
-          // color
-          element.ctx.strokeStyle = "#4bf";
-          // draw it
-          element.ctx.stroke();
+        element.draw = function (command) {
+          switch(command.type) {
+            case 'line':
+              // line from
+              element.ctx.moveTo(command.x1, command.y1);
+              // to
+              element.ctx.lineTo(command.x2, command.y2);
+              // color
+              element.ctx.strokeStyle = command.stroke;
+              // draw it
+              element.ctx.stroke();
+              break;
+            case 'rect':
+              element.ctx.fillStyle = command.fill;
+              element.ctx.strokeStyle = command.stroke;
+              element.ctx.fillRect(command.x1, command.y1, command.x2, command.y2);
+              break;
+
+            default:
+              console.log('Draw command type unknown: ' + command.type);
+          }
+
         };
 
         element.clear = function () {
-          element.ctx.clearRect(0, 0, element.width, element.height);
+          element.draw({
+            type: 'rect',
+            x1: 0,
+            y1: 0,
+            x2: element[0].width,
+            y2: element[0].height,
+            fill: '#fff',
+            stroke: undefined
+          });
         };
       }
     };

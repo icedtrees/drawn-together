@@ -45,15 +45,15 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     /*
      * var message =
      * {
-     *   lastX: last X position of cursor on the canvas
-     *   lastY: last Y position
-     *   currentX: current X position
-     *   currentY: current Y position
+     *   x1: last X position of cursor on the canvas
+     *   y1: last Y position
+     *   x2: current X position
+     *   y2: current Y position
      * };
      */
     Socket.on('canvasMessage', function (message) {
       if ($scope.canvas) {
-        $scope.canvas.draw(message.lastX, message.lastY, message.currentX, message.currentY);
+        $scope.canvas.draw(message);
       }
     });
 
@@ -77,7 +77,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       // TODO clear canvas first?
 
       drawHistory.forEach(function(message) {
-        $scope.canvas.draw(message.lastX, message.lastY, message.currentX, message.currentY);
+        $scope.canvas.draw(message);
       });
     });
 

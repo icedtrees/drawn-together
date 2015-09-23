@@ -5,7 +5,19 @@
 var users = [];
 // Dictionary counting number of connects made by each user
 var userConnects = {};
-// Array of draw actions
+/* Array of draw actions
+ * drawHistory = [
+ *   {
+ *     type: 'line|rect'
+ *     x1: last x pos
+ *     y1: last y pos
+ *     x2: cur x pos
+ *     y2: cur y pos
+ *     fill: colour code
+ *     stroke: colour code
+ *   }
+ * ]
+ */
 var drawHistory = [];
 
 function getUserList(users) {
