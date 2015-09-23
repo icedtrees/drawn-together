@@ -7,8 +7,6 @@ var users = [];
 var userConnects = {};
 // Array of draw actions
 var drawHistory = [];
-// TODO add to draw history on each draw
-// TODO add requestDrawHistory message for client to send to server
 
 
 function getUserList(users) {
@@ -46,7 +44,7 @@ module.exports = function (io, socket) {
     });
 
 	// Send the draw history to the user
-	// socket.emit('requestDrawHistory', drawHistory);
+    socket.emit('updateDrawHistory', drawHistory);
 	
     // Notify everyone about the new joined user
     io.emit('userUpdate', getUserList(users));
@@ -57,7 +55,6 @@ module.exports = function (io, socket) {
   socket.on('requestState', function () {
     // Send a list of connected userConnects
     socket.emit('userUpdate', getUserList(users));
-	socket.emit
   });
   
   // Send a chat messages to all connected sockets when a message is received
@@ -74,6 +71,7 @@ module.exports = function (io, socket) {
   // Send a canvas drawing command to all connected sockets when a message is received
   socket.on('canvasMessage', function (message) {
     // Emit the 'canvasMessage' event
+    drawHistory.push(message);
     io.emit('canvasMessage', message);
   });
 
@@ -86,7 +84,8 @@ module.exports = function (io, socket) {
 
       // Send user list with updated drawers
       io.emit('userUpdate', getUserList(users));
-	  
+
+
 	  drawHistory = [];
     }
   });
