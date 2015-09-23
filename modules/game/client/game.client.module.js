@@ -1,4 +1,4 @@
 'use strict';
 
 // Use Applicaion configuration module to register a new module
-ApplicationConfiguration.registerModule('game', ['angularMoment']);
+ApplicationConfiguration.registerModule('game', ['angularMoment', 'luegg.directives']);

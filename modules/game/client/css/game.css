@@ -13,3 +13,12 @@
   width: 28px;
   border-radius: 50%;
 }
+
+.game-message-box {
+  height: 500px;
+  overflow-y: scroll;
+}
+
+button:disabled {
+  color: grey;
+}
