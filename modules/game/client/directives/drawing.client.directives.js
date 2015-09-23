@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('game').directive("dtDrawing", ['Socket',
+angular.module('game').directive('dtDrawing', ['Socket',
   function (Socket) {
     return {
       restrict: "A",
@@ -12,6 +12,9 @@ angular.module('game').directive("dtDrawing", ['Socket',
         element.drawing = false;
         
         element.bind('mousedown', function (event) {
+          if (!scope.isDrawer()) {
+            return;
+          }
           if (event.offsetX !== undefined) {
             element.lastX = event.offsetX;
             element.lastY = event.offsetY;
@@ -27,6 +30,9 @@ angular.module('game').directive("dtDrawing", ['Socket',
 
         });
         element.bind('mousemove', function (event) {
+          if (!scope.isDrawer()) {
+            return;
+          }
           if (element.drawing) {
             // get current mouse position
             if (event.offsetX !== undefined) {
@@ -37,15 +43,16 @@ angular.module('game').directive("dtDrawing", ['Socket',
               element.currentY = event.layerY - event.currentTarget.offsetTop;
             }
 
-            element.draw(element.lastX, element.lastY, element.currentX, element.currentY);
-
             var message = {
-              lastX: element.lastX,
-              lastY: element.lastY,
-              currentX: element.currentX,
-              currentY: element.currentY
+              type: 'line',
+              x1: element.lastX,
+              y1: element.lastY,
+              x2: element.currentX,
+              y2: element.currentY,
+              fill: undefined,
+              stroke: '#4bf'
             };
-
+            element.draw(message);
             Socket.emit('canvasMessage', message);
 
             // set current coordinates to last one
@@ -54,23 +61,37 @@ angular.module('game').directive("dtDrawing", ['Socket',
           }
         });
         element.bind('mouseup', function (event) {
+          if (!scope.isDrawer()) {
+            return;
+          }
           // stop element.drawing
           element.drawing = false;
         });
 
-        element.draw = function (lX, lY, cX, cY) {
-          // line from
-          element.ctx.moveTo(lX, lY);
-          // to
-          element.ctx.lineTo(cX, cY);
-          // color
-          element.ctx.strokeStyle = "#4bf";
-          // draw it
-          element.ctx.stroke();
-        };
-
-        element.clear = function () {
-          element.ctx.clearRect(0, 0, element.width, element.height);
+        element.draw = function (message) {
+          switch(message.type) {
+            case 'line':
+              element.ctx.beginPath();
+              // line from
+              element.ctx.moveTo(message.x1, message.y1);
+              // to
+              element.ctx.lineTo(message.x2, message.y2);
+              // color
+              element.ctx.strokeStyle = message.stroke;
+              // draw it
+              element.ctx.stroke();
+              break;
+            case 'rect':
+              element.ctx.fillStyle = message.fill;
+              element.ctx.strokeStyle = message.stroke;
+              element.ctx.fillRect(message.x, message.y, message.width, message.height);
+              break;
+            case 'clear':
+              element.ctx.clearRect(0, 0, element[0].width, element[0].height);
+              break;
+            default:
+              console.log('Draw message type unknown: ' + message.type);
+          }
         };
       }
     };
