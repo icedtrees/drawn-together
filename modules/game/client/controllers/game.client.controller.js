@@ -56,6 +56,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
         return a.username > b.username;
       });
     });
+	
+	Socket.on('requestDrawHistory') {
+		// send draw history
+	}
 
     // Create a controller method for sending messages
     $scope.sendMessage = function () {
