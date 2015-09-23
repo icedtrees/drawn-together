@@ -1,72 +1,78 @@
 'use strict';
 
-angular.module('game').directive("dtDrawing", function () {
-  return {
-    restrict: "A",
-    link: function (scope, element) {
-      var ctx = element[0].getContext('2d');
-      var currentX;
-      var currentY;
+angular.module('game').directive("dtDrawing", ['Socket',
+  function (Socket) {
+    return {
+      restrict: "A",
+      link: function (scope, element) {
+        scope.canvas = element;
+        element.ctx = element[0].getContext('2d');
 
-      // variable that decides if something should be drawn on mousemove
-      var drawing = false;
-
-      // the last coordinates before the current move
-      var lastX;
-      var lastY;
-
-      element.bind('mousedown', function (event) {
-        if (event.offsetX !== undefined) {
-          lastX = event.offsetX;
-          lastY = event.offsetY;
-        } else { // Firefox compatibility
-          lastX = event.layerX - event.currentTarget.offsetLeft;
-          lastY = event.layerY - event.currentTarget.offsetTop;
-        }
-
-        // begins new line
-        ctx.beginPath();
-
-        drawing = true;
-      });
-      element.bind('mousemove', function (event) {
-        if (drawing) {
-          // get current mouse position
+        // variable that decides if something should be drawn on mousemove
+        element.drawing = false;
+        
+        element.bind('mousedown', function (event) {
           if (event.offsetX !== undefined) {
-            currentX = event.offsetX;
-            currentY = event.offsetY;
-          } else {
-            currentX = event.layerX - event.currentTarget.offsetLeft;
-            currentY = event.layerY - event.currentTarget.offsetTop;
+            element.lastX = event.offsetX;
+            element.lastY = event.offsetY;
+          } else { // Firefox compatibility
+            element.lastX = event.layerX - event.currentTarget.offsetLeft;
+            element.lastY = event.layerY - event.currentTarget.offsetTop;
           }
 
-          draw(lastX, lastY, currentX, currentY);
+          // begins new line
+          element.ctx.beginPath();
 
-          // set current coordinates to last one
-          lastX = currentX;
-          lastY = currentY;
-        }
+          element.drawing = true;
 
-      });
-      element.bind('mouseup', function (event) {
-        // stop drawing
-        drawing = false;
-      });
+        });
+        element.bind('mousemove', function (event) {
+          if (element.drawing) {
+            // get current mouse position
+            if (event.offsetX !== undefined) {
+              element.currentX = event.offsetX;
+              element.currentY = event.offsetY;
+            } else {
+              element.currentX = event.layerX - event.currentTarget.offsetLeft;
+              element.currentY = event.layerY - event.currentTarget.offsetTop;
+            }
 
-      function draw(lX, lY, cX, cY) {
-        // line from
-        ctx.moveTo(lX, lY);
-        // to
-        ctx.lineTo(cX, cY);
-        // color
-        ctx.strokeStyle = "#4bf";
-        // draw it
-        ctx.stroke();
+            element.draw(element.lastX, element.lastY, element.currentX, element.currentY);
+
+            var message = {
+              lastX: element.lastX,
+              lastY: element.lastY,
+              currentX: element.currentX,
+              currentY: element.currentY
+            };
+
+            Socket.emit('canvasMessage', message);
+
+            // set current coordinates to last one
+            element.lastX = element.currentX;
+            element.lastY = element.currentY;
+          }
+        });
+        element.bind('mouseup', function (event) {
+          // stop element.drawing
+          element.drawing = false;
+        });
+
+        element.draw = function (lX, lY, cX, cY) {
+          // line from
+          element.ctx.moveTo(lX, lY);
+          // to
+          element.ctx.lineTo(cX, cY);
+          // color
+          element.ctx.strokeStyle = "#4bf";
+          // draw it
+          element.ctx.stroke();
+        };
+
+        element.clear = function () {
+          element.ctx.clearRect(0, 0, element.width, element.height);
+        };
       }
-
-      function clear() {
-        ctx.clearRect(0, 0, element.width, element.height);
-      }
-    }
-  };
-});
+    };
+  }
+]);

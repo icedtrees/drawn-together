@@ -6,6 +6,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     // Create a messages array
     $scope.messages = [];
     $scope.users = [];
+    $scope.canvas = null;
 
     // If user is not signed in then redirect back home
     if (!Authentication.user) {
@@ -36,6 +37,21 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       // delete old messages if MAX_MESSAGES is exceeded
       if ($scope.messages.length > GameSettings.MAX_MESSAGES) {
         $scope.messages.shift();
+      }
+    });
+
+    /*
+     * var message =
+     * {
+     *   lastX: last X position of cursor on the canvas
+     *   lastY: last Y position
+     *   currentX: current X position
+     *   currentY: current Y position
+     * };
+     */
+    Socket.on('canvasMessage', function (message) {
+      if ($scope.canvas) {
+        $scope.canvas.draw(message.lastX, message.lastY, message.currentX, message.currentY);
       }
     });
 
