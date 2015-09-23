@@ -81,7 +81,11 @@ module.exports = function (io, socket) {
 
   // Send a canvas drawing command to all connected sockets when a message is received
   socket.on('canvasMessage', function (message) {
-    drawHistory.push(message);
+    if (message.type === 'clear') {
+      drawHistory = [];
+    } else {
+      drawHistory.push(message);
+    }
 
     // Emit the 'canvasMessage' event
     io.emit('canvasMessage', message);

@@ -12,6 +12,9 @@ angular.module('game').directive('dtDrawing', ['Socket',
         element.drawing = false;
         
         element.bind('mousedown', function (event) {
+          if (!scope.isDrawer()) {
+            return;
+          }
           if (event.offsetX !== undefined) {
             element.lastX = event.offsetX;
             element.lastY = event.offsetY;
@@ -27,6 +30,9 @@ angular.module('game').directive('dtDrawing', ['Socket',
 
         });
         element.bind('mousemove', function (event) {
+          if (!scope.isDrawer()) {
+            return;
+          }
           if (element.drawing) {
             // get current mouse position
             if (event.offsetX !== undefined) {
@@ -55,44 +61,36 @@ angular.module('game').directive('dtDrawing', ['Socket',
           }
         });
         element.bind('mouseup', function (event) {
+          if (!scope.isDrawer()) {
+            return;
+          }
           // stop element.drawing
           element.drawing = false;
         });
 
-        element.draw = function (command) {
-          switch(command.type) {
+        element.draw = function (message) {
+          switch(message.type) {
             case 'line':
               // line from
-              element.ctx.moveTo(command.x1, command.y1);
+              element.ctx.moveTo(message.x1, message.y1);
               // to
-              element.ctx.lineTo(command.x2, command.y2);
+              element.ctx.lineTo(message.x2, message.y2);
               // color
-              element.ctx.strokeStyle = command.stroke;
+              element.ctx.strokeStyle = message.stroke;
               // draw it
               element.ctx.stroke();
               break;
             case 'rect':
-              element.ctx.fillStyle = command.fill;
-              element.ctx.strokeStyle = command.stroke;
-              element.ctx.fillRect(command.x1, command.y1, command.x2, command.y2);
+              element.ctx.fillStyle = message.fill;
+              element.ctx.strokeStyle = message.stroke;
+              element.ctx.fillRect(message.x1, message.y1, message.x2, message.y2);
               break;
-
+            case 'clear':
+              element.ctx.clearRect(0, 0, element[0].width, element[0].height);
+              break;
             default:
-              console.log('Draw command type unknown: ' + command.type);
+              console.log('Draw message type unknown: ' + message.type);
           }
-
-        };
-
-        element.clear = function () {
-          element.draw({
-            type: 'rect',
-            x1: 0,
-            y1: 0,
-            x2: element[0].width,
-            y2: element[0].height,
-            fill: '#fff',
-            stroke: undefined
-          });
         };
       }
     };

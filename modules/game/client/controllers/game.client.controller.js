@@ -112,6 +112,16 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       }
     };
 
+    $scope.clearDrawing = function () {
+      if ($scope.isDrawer()) {
+        var message = {
+          type: 'clear',
+        };
+        $scope.canvas.draw(message);
+        Socket.emit('canvasMessage', message);
+      }
+    };
+
     // Remove the event listener when the controller instance is destroyed
     $scope.$on('$destroy', function () {
       Socket.removeListener('gameMessage');
