@@ -1,13 +1,12 @@
 'use strict';
 
 // Create the 'game' controller
-angular.module('game').controller('GameController', ['$scope', '$location', 'Authentication', 'Socket',
-  function ($scope, $location, Authentication, Socket) {
+angular.module('game').controller('GameController', ['$scope', '$location', 'Authentication', 'Socket', 'GameSettings',
+  function ($scope, $location, Authentication, Socket, GameSettings) {
     // Create a messages array
     $scope.messages = [];
     $scope.users = [];
-
-    var MAX_MESSAGES = 12; // maximum number of messages
+    $scope.canvas = null;
 
     // If user is not signed in then redirect back home
     if (!Authentication.user) {
@@ -16,7 +15,9 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
 
     // Make sure the Socket is connected
     if (!Socket.socket) {
-      Socket.connect();
+      Socket.connect(function () {
+        Socket.emit('requestState');
+      });
     } else {
       // We are already connected but in a new window - request to be brought up to scratch
       Socket.emit('requestState');
@@ -33,11 +34,26 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
      * }
      */
     Socket.on('gameMessage', function (message) {
-      $scope.messages.unshift(message);
+      $scope.messages.push(message);
 
       // delete old messages if MAX_MESSAGES is exceeded
-      if ($scope.messages.length > MAX_MESSAGES) {
-        $scope.messages.pop();
+      if ($scope.messages.length > GameSettings.MAX_MESSAGES) {
+        $scope.messages.shift();
+      }
+    });
+
+    /*
+     * var message =
+     * {
+     *   x1: last X position of cursor on the canvas
+     *   y1: last Y position
+     *   x2: current X position
+     *   y2: current Y position
+     * };
+     */
+    Socket.on('canvasMessage', function (message) {
+      if ($scope.canvas) {
+        $scope.canvas.draw(message);
       }
     });
 
@@ -54,6 +70,12 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     Socket.on('userUpdate', function (data) {
       $scope.users = data.sort(function (a, b) {
         return a.username > b.username;
+      });
+    });
+
+    Socket.on('updateDrawHistory', function (drawHistory) {
+      drawHistory.forEach(function(message) {
+        $scope.canvas.draw(message);
       });
     });
 
@@ -85,6 +107,16 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     $scope.finishDrawing = function () {
       if ($scope.isDrawer()) {
         Socket.emit('finishDrawing');
+      }
+    };
+
+    $scope.clearDrawing = function () {
+      if ($scope.isDrawer()) {
+        var message = {
+          type: 'clear',
+        };
+        $scope.canvas.draw(message);
+        Socket.emit('canvasMessage', message);
       }
     };
 
