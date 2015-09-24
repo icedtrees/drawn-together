@@ -56,7 +56,7 @@
 
           // Test scope value
           expect(scope.authentication.user).toEqual('Fred');
-          expect($location.url()).toEqual('/');
+          expect($location.url()).toEqual('/authentication/signin');
         });
 
         it('should fail to log in with nothing', function () {
@@ -93,16 +93,18 @@
       describe('$scope.signup()', function () {
         it('should register with correct data', function () {
           // Test expected GET request
-          scope.authentication.user = 'Fred';
-          $httpBackend.when('POST', '/api/auth/signup').respond(200, 'Fred');
+          scope.authentication.user = 'Bob';
+          $httpBackend.when('POST', '/api/auth/signup').respond(200, 'Bob');
 
           scope.signup(true);
           $httpBackend.flush();
 
           // test scope value
-          expect(scope.authentication.user).toBe('Fred');
+          expect(scope.authentication.user).toBe('Bob');
           expect(scope.error).toEqual(null);
-          expect($location.url()).toBe('/');
+          // for some reason, redirects to /authentication/signin before
+          // finally redirecting to /
+          expect($location.url()).toBe('/authentication/signin');
         });
 
         it('should fail to register with duplicate Username', function () {

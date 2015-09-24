@@ -8,9 +8,9 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     $scope.users = [];
     $scope.canvas = null;
 
-    // If user is not signed in then redirect back home
+    // If user is not signed in then redirect to signin page
     if (!Authentication.user) {
-      $location.path('/');
+      $location.path('/authentication/signin');
     }
 
     // Make sure the Socket is connected
