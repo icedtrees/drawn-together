@@ -1,6 +1,5 @@
 'use strict';
 
-// TODO Change this from an in-memory store into actual database stuff
 // Array of users in a queue
 var users = [];
 // Dictionary counting number of connects made by each user
@@ -71,7 +70,6 @@ module.exports = function (io, socket) {
   // Current drawer has finished drawing
   socket.on('finishDrawing', function () {
     // If the user who submitted this message actually is a drawer
-    // TODO expand to multiple drawers
     if (users.length > 0 && users[0] === username) {
       users.push(users.shift());
 
