@@ -33,8 +33,8 @@
         });
       }));
 
-      it('should redirect logged out user to /', function () {
-        expect($location.path).toHaveBeenCalledWith('/');
+      it('should redirect logged out user to /authentication/signin', function () {
+        expect($location.path).toHaveBeenCalledWith('/authentication/signin');
       });
     });
 

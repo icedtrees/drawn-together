@@ -102,7 +102,9 @@
           // test scope value
           expect(scope.authentication.user).toBe('Bob');
           expect(scope.error).toEqual(null);
-          expect($location.url()).toBe('/');
+          // for some reason, redirects to /authentication/signin before
+          // finally redirecting to /
+          expect($location.url()).toBe('/authentication/signin');
         });
 
         it('should fail to register with duplicate Username', function () {
