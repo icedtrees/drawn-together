@@ -7,15 +7,12 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     $scope.messages = [];
     $scope.users = [];
     $scope.canvas = null;
+    // Set default pen colour
+    $scope.penColour = '#ff0000';
 
     // If user is not signed in then redirect to signin page
     if (!Authentication.user) {
       $location.path('/authentication/signin');
-    }
-
-    // Set default pen colour
-    if (!$scope.penColour) {
-      $scope.penColour = '#ff0000';
     }
 
     // Make sure the Socket is connected
