@@ -86,6 +86,7 @@ function isDrawer(users, username) {
 // Create the game configuration
 module.exports = function (io, socket) {
   var username = socket.request.user.username;
+  socket.join(username);
 
   // Add user to in-memory store if necessary, or simply increment counter
   // to account for multiple windows open
@@ -121,7 +122,9 @@ module.exports = function (io, socket) {
     });
     // Send the draw history to the user
     socket.emit('updateDrawHistory', drawHistory);
-    socket.to('').emit('topic', topicList[0]);
+    if (isDrawer(users, username)) {
+      socket.emit('topic', topicList[0]);
+    }
   });
   
   // Send a chat message to all connected sockets when a message is received
