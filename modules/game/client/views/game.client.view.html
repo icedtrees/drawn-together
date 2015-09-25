@@ -58,6 +58,8 @@
   <div class="col-xs-12 col-md-1">
     <h3 class="text-center">Drawing settings</h3>
     <input colorpicker="hex" type="text" name="penColour" ng-model="penColour" size="5" maxlength="7"/>
+    <br><br>
+    <button ng-disabled="!isDrawer()" ng-click="useEraser();">Eraser</button>
   </div>
 
 </section>

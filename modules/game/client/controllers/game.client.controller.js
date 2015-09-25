@@ -120,6 +120,12 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       }
     };
 
+    $scope.useEraser = function () {
+      if ($scope.isDrawer()) {
+        $scope.penColour = '#ffffff';
+      }
+    }
+
     // Remove the event listener when the controller instance is destroyed
     $scope.$on('$destroy', function () {
       Socket.removeListener('gameMessage');
