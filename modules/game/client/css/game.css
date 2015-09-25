@@ -31,4 +31,5 @@ button:disabled {
   white-space: -o-pre-wrap;   /* Opera 7 */
   word-break: break-all;      /* This is the important one */
   word-wrap: break-word;      /* IE */
+  display: inline-block;      /* Firefox and IE */
 }
