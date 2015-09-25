@@ -184,6 +184,7 @@ module.exports = function (io, socket) {
         type: 'status',
         text: 'disconnected',
         created: Date.now(),
+        profileImageURL: socket.request.user.profileImageURL,
         username: username
       };
       gameMessages.push(message);
