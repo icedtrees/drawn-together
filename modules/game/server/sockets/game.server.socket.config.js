@@ -66,8 +66,8 @@ function isDrawer(users, username) {
     if (users[i] === username) {
       return true;
     }
-    return false;
   }
+  return false;
 }
 
 // Create the chat configuration
