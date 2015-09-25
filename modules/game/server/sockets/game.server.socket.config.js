@@ -1,5 +1,8 @@
 'use strict';
 
+// Levenshtein-Damerau distance library (for calculating distance between words)
+var ld = require('levenshtein-damerau');
+
 var NUM_DRAWERS = 1;
 // Array of users in a queue. First NUM_DRAWERS users are drawers
 var users = [];
@@ -87,7 +90,7 @@ module.exports = function (io, socket) {
     // Emit the status event when a new socket client is connected
     var message = {
       type: 'status',
-      text: 'Is now connected',
+      text: 'is now connected',
       created: Date.now(),
       profileImageURL: socket.request.user.profileImageURL,
       username: username
@@ -112,27 +115,37 @@ module.exports = function (io, socket) {
     socket.emit('updateDrawHistory', drawHistory);
   });
   
-  // Send a chat messages to all connected sockets when a message is received
+  // Send a chat message to all connected sockets when a message is received
   socket.on('gameMessage', function (message) {
     message.type = 'message';
     message.created = Date.now();
     message.profileImageURL = socket.request.user.profileImageURL;
     message.username = username;
 
-    if (message.text === drawingPrompt) {
-      // correct guess: tell everyone that the guesser was right
-      // send the user's guess to themselves only
-      // later on their message should be greyed out or something to indicate only they can see it
+    // Remove punctuation and spaces from message and convert to lowercase.
+    var guess = message.text.toLowerCase().replace(/[^\w]/g, "");
+
+    if (guess === drawingPrompt) {
+      // correct guess
+      
+      // send the user's guess to themselves
+      // TODO their message should be greyed out or something to indicate only they can see it
       socket.emit('gameMessage', message);
 
+      // TODO send user's guess to the drawer/s
+
       // alert everyone in the room that they were correct
-      message.text = message.username + " has guesssed the prompt!";
+      message.text = message.username + " has guessed the prompt!";
       io.emit('gameMessage', message);
-    } else if (message.text.indexOf(drawingPrompt) > -1) { // if message contains drawingPrompt
-      // close guess: tell the guesser they are close
-      // later on their message should be greyed out or something to indicate only they can see it
+    } else if (guess.indexOf(drawingPrompt) > -1 || ld(drawingPrompt, guess) < 3) {
+      // if message contains drawingPrompt or word-distance is < 3 it is a close guess
+
+      // tell the guesser that their guess was close
+      // TODO their message should be greyed out or something to indicate only they can see it
       message.text += "\nYour guess is close!";
       socket.emit('gameMessage', message);
+
+      // TODO tell the drawer/s the guess
     } else {
       // incorrect guess: emit message to everyone
       gameMessages.push(message);
@@ -182,7 +195,7 @@ module.exports = function (io, socket) {
       // Emit the status event when a socket client is disconnected
       var message = {
         type: 'status',
-        text: 'disconnected',
+        text: 'is now disconnected',
         created: Date.now(),
         profileImageURL: socket.request.user.profileImageURL,
         username: username
