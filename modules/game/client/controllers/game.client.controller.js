@@ -13,6 +13,11 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       $location.path('/authentication/signin');
     }
 
+    // Set default pen colour
+    if (!$scope.penColour) {
+      $scope.penColour = '#ff0000';
+    }
+
     // Make sure the Socket is connected
     if (!Socket.socket) {
       Socket.connect(function () {
@@ -124,7 +129,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       if ($scope.isDrawer()) {
         $scope.penColour = '#ffffff';
       }
-    }
+    };
 
     // Remove the event listener when the controller instance is destroyed
     $scope.$on('$destroy', function () {
