@@ -34,6 +34,8 @@ var drawHistory = [];
 // Every chat message sent
 var gameMessages = [];
 
+var drawingPrompt = "whale";
+
 /*
  * Transforms an array of usernames into an array of
  * [
@@ -117,10 +119,26 @@ module.exports = function (io, socket) {
     message.profileImageURL = socket.request.user.profileImageURL;
     message.username = username;
 
-    gameMessages.push(message);
+    if (message.text === drawingPrompt) {
+      // correct guess: tell everyone that the guesser was right
+      // send the user's guess to themselves only
+      // later on their message should be greyed out or something to indicate only they can see it
+      socket.emit('gameMessage', message);
 
-    // Emit the 'gameMessage' event
-    io.emit('gameMessage', message);
+      // alert everyone in the room that they were correct
+      message.text = message.username + " has guesssed the prompt!";
+      io.emit('gameMessage', message);
+    } else if (message.text.indexOf(drawingPrompt) > -1) { // if message contains drawingPrompt
+      // close guess: tell the guesser they are close
+      // later on their message should be greyed out or something to indicate only they can see it
+      message.text += "\nYour guess is close!";
+      socket.emit('gameMessage', message);
+    } else {
+      // incorrect guess: emit message to everyone
+      gameMessages.push(message);
+
+      io.emit('gameMessage', message);
+    }
   });
 
   // Send a canvas drawing command to all connected sockets when a message is received
