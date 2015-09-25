@@ -4,7 +4,8 @@
 var users = [];
 // Dictionary counting number of connects made by each user
 var userConnects = {};
-var chatMessages = [];
+// Every chat message sent
+var gameMessages = [];
 
 function getUserList(users) {
   var userList = [];
@@ -39,7 +40,7 @@ module.exports = function (io, socket) {
       profileImageURL: socket.request.user.profileImageURL,
       username: username
     };
-    chatMessages.push(message);
+    gameMessages.push(message);
     io.emit('gameMessage', message);
 
     // Notify everyone about the new joined user (not the sender though)
@@ -51,7 +52,7 @@ module.exports = function (io, socket) {
   socket.on('requestState', function () {
     // Send a list of connected userConnects
     socket.emit('userUpdate', getUserList(users));
-    chatMessages.forEach(function(message) {
+    gameMessages.forEach(function(message) {
       socket.emit('gameMessage', message);
     });
   });
@@ -63,7 +64,7 @@ module.exports = function (io, socket) {
     message.profileImageURL = socket.request.user.profileImageURL;
     message.username = username;
 
-    chatMessages.push(message);
+    gameMessages.push(message);
 
     // Emit the 'gameMessage' event
     io.emit('gameMessage', message);
@@ -103,7 +104,7 @@ module.exports = function (io, socket) {
         created: Date.now(),
         username: username
       };
-      chatMessages.push(message);
+      gameMessages.push(message);
       io.emit('gameMessage', message);
 
       // Send updated list of userConnects now that one has disconnected
