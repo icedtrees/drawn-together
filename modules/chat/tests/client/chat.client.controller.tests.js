@@ -85,8 +85,8 @@
           scope.$destroy();
         });
 
-        it('should remove chatMessage listener', function () {
-          expect(Socket.socket.cbs.chatMessage).toBeUndefined();
+        it('should remove gameMessage listener', function () {
+          expect(Socket.socket.cbs.gameMessage).toBeUndefined();
         });
       });
     });

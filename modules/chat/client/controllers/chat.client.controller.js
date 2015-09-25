@@ -16,8 +16,8 @@ angular.module('chat').controller('ChatController', ['$scope', '$location', 'Aut
       Socket.connect();
     }
 
-    // Add an event listener to the 'chatMessage' event
-    Socket.on('chatMessage', function (message) {
+    // Add an event listener to the 'gameMessage' event
+    Socket.on('gameMessage', function (message) {
       $scope.messages.unshift(message);
     });
 
@@ -28,8 +28,8 @@ angular.module('chat').controller('ChatController', ['$scope', '$location', 'Aut
         text: this.messageText
       };
 
-      // Emit a 'chatMessage' message event
-      Socket.emit('chatMessage', message);
+      // Emit a 'gameMessage' message event
+      Socket.emit('gameMessage', message);
 
       // Clear the message text
       this.messageText = '';
@@ -37,7 +37,7 @@ angular.module('chat').controller('ChatController', ['$scope', '$location', 'Aut
 
     // Remove the event listener when the controller instance is destroyed
     $scope.$on('$destroy', function () {
-      Socket.removeListener('chatMessage');
+      Socket.removeListener('gameMessage');
     });
   }
 ]);
