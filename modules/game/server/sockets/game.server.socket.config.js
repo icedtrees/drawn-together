@@ -125,7 +125,7 @@ module.exports = function (io, socket) {
       io.emit('gameMessage', message);
     } else if (message.text.indexOf(drawingPrompt) > -1) { // if message contains drawingPrompt
       // close guess: tell the guesser they are close
-      message.text = "Your guess is close!";
+      message.text += "\nYour guess is close!";
       socket.emit('gameMessage', message);
     } else {
       // incorrect guess: emit message to everyone
