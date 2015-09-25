@@ -7,6 +7,8 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     $scope.messages = [];
     $scope.users = [];
     $scope.canvas = null;
+    // Set default pen colour
+    $scope.penColour = '#ff0000';
 
     // If user is not signed in then redirect to signin page
     if (!Authentication.user) {
@@ -117,6 +119,12 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
         };
         $scope.canvas.draw(message);
         Socket.emit('canvasMessage', message);
+      }
+    };
+
+    $scope.useEraser = function () {
+      if ($scope.isDrawer()) {
+        $scope.penColour = '#ffffff';
       }
     };
 
