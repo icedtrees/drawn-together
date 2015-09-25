@@ -1,14 +1,14 @@
 'use strict';
 
 /**
- * Chat client controller tests
+ * Game client controller tests
  */
 (function () {
-  describe('ChatController', function () {
+  describe('GameController', function () {
     //Initialize global variables
     var scope,
       Socket,
-      ChatController,
+      GameController,
       $timeout,
       $location,
       Authentication;
@@ -28,7 +28,7 @@
       beforeEach(inject(function ($controller, $rootScope, _Socket_, _Authentication_, _$timeout_, _$location_) {
         Authentication.user = undefined;
         spyOn($location, 'path');
-        ChatController = $controller('ChatController', {
+        GameController = $controller('GameController', {
           $scope: scope,
         });
       }));
@@ -45,7 +45,7 @@
           roles: ['user']
         };
 
-        ChatController = $controller('ChatController', {
+        GameController = $controller('GameController', {
           $scope: scope,
         });
       }));
@@ -57,6 +57,11 @@
       it('should define messages array', function () {
         expect(scope.messages).toBeDefined();
         expect(scope.messages.length).toBe(0);
+      });
+
+      it('should define users array', function () {
+        expect(scope.users).toBeDefined();
+        expect(scope.users.length).toBe(0);
       });
 
       describe('sendMessage', function () {

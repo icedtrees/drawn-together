@@ -1,0 +1,35 @@
+.game-message {
+  margin-top: 10px;
+  padding-top: 10px;
+}
+.game-message:not(:first-child) {
+  border-top: 1px solid #e7e7e7;
+}
+.game-message-details {
+  margin-left: 10px;
+}
+.game-profile-image {
+  height: 28px;
+  width: 28px;
+  border-radius: 50%;
+}
+
+.game-message-box {
+  height: 500px;
+  overflow-y: scroll;
+}
+
+button:disabled {
+  color: grey;
+}
+
+/* Source: http://snipplr.com/view/10979/css-cross-browser-word-wrap */
+.wordwrap {
+  white-space: pre-wrap;      /* CSS3 */
+  white-space: -moz-pre-wrap; /* Firefox */
+  white-space: -pre-wrap;     /* Opera <7 */
+  white-space: -o-pre-wrap;   /* Opera 7 */
+  word-break: break-all;      /* This is the important one */
+  word-wrap: break-word;      /* IE */
+  display: inline-block;      /* Firefox and IE */
+}
