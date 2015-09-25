@@ -1,8 +1,5 @@
 'use strict';
 
-// TODO Change this from an in-memory store into actual database stuff
-
-// TODO put this in a better place
 var NUM_DRAWERS = 1;
 // Array of users in a queue. First NUM_DRAWERS users are drawers
 var users = [];
@@ -34,6 +31,9 @@ var userConnects = {};
  */
 var drawHistory = [];
 
+// Every chat message sent
+var gameMessages = [];
+
 /*
  * Transforms an array of usernames into an array of
  * [
@@ -45,6 +45,7 @@ var drawHistory = [];
  * based on their position in the queue (first NUM_DRAWERS
  * usernames are drawers).
  */
+
 function getUserList(users) {
   var userList = [];
   for (var i = 0; i < users.length; i++) {
@@ -82,13 +83,15 @@ module.exports = function (io, socket) {
     users.push(username);
 
     // Emit the status event when a new socket client is connected
-    io.emit('gameMessage', {
+    var message = {
       type: 'status',
       text: 'Is now connected',
       created: Date.now(),
       profileImageURL: socket.request.user.profileImageURL,
       username: username
-    });
+    };
+    gameMessages.push(message);
+    io.emit('gameMessage', message);
 
     // Notify everyone about the new joined user (not the sender though)
     socket.broadcast.emit('userUpdate', getUserList(users));
@@ -99,7 +102,10 @@ module.exports = function (io, socket) {
   socket.on('requestState', function () {
     // Send a list of connected userConnects
     socket.emit('userUpdate', getUserList(users));
-
+    // Send the chat message history to the user
+    gameMessages.forEach(function(message) {
+      socket.emit('gameMessage', message);
+    });
     // Send the draw history to the user
     socket.emit('updateDrawHistory', drawHistory);
   });
@@ -110,6 +116,8 @@ module.exports = function (io, socket) {
     message.created = Date.now();
     message.profileImageURL = socket.request.user.profileImageURL;
     message.username = username;
+
+    gameMessages.push(message);
 
     // Emit the 'gameMessage' event
     io.emit('gameMessage', message);
@@ -154,12 +162,14 @@ module.exports = function (io, socket) {
       }
 
       // Emit the status event when a socket client is disconnected
-      io.emit('gameMessage', {
+      var message = {
         type: 'status',
         text: 'disconnected',
         created: Date.now(),
         username: username
-      });
+      };
+      gameMessages.push(message);
+      io.emit('gameMessage', message);
 
       // Send updated list of userConnects now that one has disconnected
       io.emit('userUpdate', getUserList(users));
