@@ -50,7 +50,7 @@ angular.module('game').directive('dtDrawing', ['Socket',
               x2: element.currentX,
               y2: element.currentY,
               fill: undefined,
-              stroke: '#4bf'
+              stroke: scope.penColour
             };
             element.draw(message);
             Socket.emit('canvasMessage', message);
