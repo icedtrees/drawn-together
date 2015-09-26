@@ -153,6 +153,12 @@ module.exports = function (io, socket) {
   
   // Send a chat message to all connected sockets when a message is received
   socket.on('gameMessage', function (message) {
+    // The current drawer cannot chat
+    if (isDrawer(users, username)) {
+      console.log('Drawer chatting');
+      return;
+    }
+
     message.type = 'message';
     message.created = Date.now();
     message.profileImageURL = socket.request.user.profileImageURL;
