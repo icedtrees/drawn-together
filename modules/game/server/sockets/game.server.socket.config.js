@@ -138,14 +138,19 @@ module.exports = function (io, socket) {
     var guess = message.text.toLowerCase();
     var topic = topicList[0].toLowerCase();
 
+    var i;
+
     if (guess === topic) {
       // correct guess
-      
+
+      // send user's guess to the drawer/s
+      for (i = 0; i < NUM_DRAWERS; i++) {
+        io.to(users[i]).emit('gameMessage', message);
+      }
+
       // send the user's guess to themselves
       // TODO their message should be greyed out or something to indicate only they can see it
       socket.emit('gameMessage', message);
-
-      // TODO send user's guess to the drawer/s
 
       // alert everyone in the room that they were correct
       message.text = message.username + " has guessed the prompt!";
@@ -153,12 +158,15 @@ module.exports = function (io, socket) {
     } else if (guess.indexOf(topic) > -1 || levenshtein.get(topic, guess) < 3) {
       // if message contains drawing prompt or word-distance is < 3 it is a close guess
 
+      // tell the drawer/s the guess
+      for (i = 0; i < NUM_DRAWERS; i++) {
+        io.to(users[i]).emit('gameMessage', message);
+      }
+
       // tell the guesser that their guess was close
       // TODO their message should be greyed out or something to indicate only they can see it
       message.text += "\nYour guess is close!";
       socket.emit('gameMessage', message);
-
-      // TODO tell the drawer/s the guess
     } else {
       // incorrect guess: emit message to everyone
       gameMessages.push(message);
