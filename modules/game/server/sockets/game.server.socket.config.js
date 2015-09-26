@@ -1,7 +1,7 @@
 'use strict';
 
-// Levenshtein-Damerau distance library (for calculating distance between words)
-var ld = require('levenshtein-damerau');
+// Levenshtein distance library (for calculating distance between words)
+var levenshtein = require('fast-levenshtein');
 
 var NUM_DRAWERS = 1;
 // Array of users in a queue. First NUM_DRAWERS users are drawers
@@ -135,7 +135,7 @@ module.exports = function (io, socket) {
     message.username = username;
 
     // Remove punctuation and spaces from message and convert to lowercase.
-    var guess = message.text.toLowerCase().replace(/[^\w]/g, "");
+    var guess = message.text.toLowerCase().replace(/[^\w ]/g, "");
 
     if (guess === topicList[0]) {
       // correct guess
@@ -149,7 +149,7 @@ module.exports = function (io, socket) {
       // alert everyone in the room that they were correct
       message.text = message.username + " has guessed the prompt!";
       io.emit('gameMessage', message);
-    } else if (guess.indexOf(topicList[0]) > -1 || ld(topicList[0], guess) < 3) {
+    } else if (guess.indexOf(topicList[0]) > -1 || levenshtein.get(topicList[0], guess) < 3) {
       // if message contains drawing prompt or word-distance is < 3 it is a close guess
 
       // tell the guesser that their guess was close
