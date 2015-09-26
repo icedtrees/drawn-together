@@ -7,6 +7,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     $scope.messages = [];
     $scope.users = [];
     $scope.canvas = null;
+    $scope.GameSettings = GameSettings;
     // Set default pen colour
     $scope.penColour = '#ff0000';
 
