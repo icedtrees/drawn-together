@@ -105,7 +105,7 @@ module.exports = function (io, socket) {
       username: username
     };
     gameMessages.push(message);
-    io.emit('gameMessage', message);
+    socket.broadcast.emit('gameMessage', message);
 
     // Notify everyone about the new joined user (not the sender though)
     socket.broadcast.emit('userUpdate', getUserList(users));
