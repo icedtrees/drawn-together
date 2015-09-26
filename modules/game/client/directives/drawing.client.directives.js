@@ -29,16 +29,16 @@ angular.module('game').directive('dtDrawing', ['Socket',
           element.drawing = true;
 
         });
-		
+
         element.bind('mousemove', function (event) {
           if (!scope.isDrawer()) {
             return;
           }
-		  
-		  if (event.which === 0) {
+  
+          if (event.which === 0) {
             // if no mouse button
             element.drawing = false;
-		  }
+          }
           
           if (element.drawing) {
             // get current mouse position
@@ -67,7 +67,7 @@ angular.module('game').directive('dtDrawing', ['Socket',
             element.lastY = element.currentY;
           }
         });
-		
+
         element.bind('mouseup', function (event) {
           if (!scope.isDrawer()) {
             return;
