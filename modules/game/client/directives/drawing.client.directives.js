@@ -34,7 +34,7 @@ angular.module('game').directive('dtDrawing', ['Socket',
             return;
           }
 		  
-		  if (event.which == 0) {
+		  if (event.which === 0) {
 			  // if no mouse button
 			  element.drawing = false;
 		  }
