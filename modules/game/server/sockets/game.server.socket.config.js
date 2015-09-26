@@ -87,21 +87,23 @@ function isDrawer(users, username) {
 }
 
 function advanceRound(io) {
-  users.push(users.shift());
+  if (roundEnding) {
+    users.push(users.shift());
 
-  // Send user list with updated drawers
-  io.emit('userUpdate', getUserList(users));
+    // Send user list with updated drawers
+    io.emit('userUpdate', getUserList(users));
 
-  io.emit('canvasMessage', {type: 'clear'});
-  drawHistory = [];
+    io.emit('canvasMessage', {type: 'clear'});
+    drawHistory = [];
 
-  // Explain what the word was
-  io.emit('gameMessage', {text: 'The topic was ' + topicList[0]});
+    // Explain what the word was
+    io.emit('gameMessage', {text: 'The topic was ' + topicList[0]});
 
-  // Select a new topic and send it to the new drawer
-  topicList.push(topicList.shift());
-  for (var i = 0; i < NUM_DRAWERS; i++) {
-    io.to(users[i]).emit('topic', topicList[0]);
+    // Select a new topic and send it to the new drawer
+    topicList.push(topicList.shift());
+    for (var i = 0; i < NUM_DRAWERS; i++) {
+      io.to(users[i]).emit('topic', topicList[0]);
+    }    
   }
 
   roundEnding = false;
@@ -182,17 +184,18 @@ module.exports = function (io, socket) {
       // TODO their message should be greyed out or something to indicate only they can see it
       socket.emit('gameMessage', message);
 
+      var timetoend = 20;
       // alert everyone in the room that they were correct
-      message.text = message.username + " has guessed the prompt! The round will end in 20 seconds.";
+      message.text = message.username + " has guessed the prompt! The round will end in " + timetoend + " seconds.";
       io.emit('gameMessage', message);
 
-      // End the round in 20 seconds
+      // End the round in timetoend seconds
       // TODO variable time
       if (!roundEnding) {
         roundEnding = true;
         setTimeout(function () {
           advanceRound(io);
-        }, 20 * 1000);
+        }, timetoend * 1000);
       }
     } else if (guess.indexOf(topic) > -1 || levenshtein.get(topic, guess) < 3) {
       // if message contains drawing prompt or word-distance is < 3 it is a close guess
@@ -232,6 +235,7 @@ module.exports = function (io, socket) {
   socket.on('finishDrawing', function () {
     // If the user who submitted this message actually is a drawer
     if (isDrawer(users, username)) {
+      roundEnding = true;
       advanceRound(io);
     }
   });
