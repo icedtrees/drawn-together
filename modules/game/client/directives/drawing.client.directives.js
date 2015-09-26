@@ -34,12 +34,12 @@ angular.module('game').directive('dtDrawing', ['Socket',
           if (!scope.isDrawer()) {
             return;
           }
-  
+
           if (event.which === 0) {
             // if no mouse button
             element.drawing = false;
           }
-          
+
           if (element.drawing) {
             // get current mouse position
             if (event.offsetX !== undefined) {
