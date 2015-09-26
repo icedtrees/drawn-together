@@ -184,18 +184,18 @@ module.exports = function (io, socket) {
       // TODO their message should be greyed out or something to indicate only they can see it
       socket.emit('gameMessage', message);
 
-      var timetoend = 20;
+      var timeToEnd = 20;
       // alert everyone in the room that they were correct
-      message.text = message.username + " has guessed the prompt! The round will end in " + timetoend + " seconds.";
+      message.text = message.username + " has guessed the prompt! The round will end in " + timeToEnd + " seconds.";
       io.emit('gameMessage', message);
 
-      // End the round in timetoend seconds
+      // End the round in timeToEnd seconds
       // TODO variable time
       if (!roundEnding) {
         roundEnding = true;
         setTimeout(function () {
           advanceRound(io);
-        }, timetoend * 1000);
+        }, timeToEnd * 1000);
       }
     } else if (guess.indexOf(topic) > -1 || levenshtein.get(topic, guess) < 3) {
       // if message contains drawing prompt or word-distance is < 3 it is a close guess
