@@ -37,7 +37,15 @@ var drawHistory = [];
 // Every chat message sent
 var gameMessages = [];
 
-var drawingPrompt = "whale";
+// First one is the current topic
+var topicList = ['sunset', 'iced tea', 'fruit', 'top', 'mouse trap'];
+// Shuffle the topic list in-place using Knuth shuffle
+for (var i = topicList.length - 2; i > 0; i--) {
+  var j = Math.floor(Math.random() * i);
+  var temp = topicList[j];
+  topicList[j] = topicList[i];
+  topicList[i] = temp;
+}
 
 /*
  * Transforms an array of usernames into an array of
@@ -75,9 +83,10 @@ function isDrawer(users, username) {
   return false;
 }
 
-// Create the chat configuration
+// Create the game configuration
 module.exports = function (io, socket) {
   var username = socket.request.user.username;
+  socket.join(username);
 
   // Add user to in-memory store if necessary, or simply increment counter
   // to account for multiple windows open
@@ -96,7 +105,7 @@ module.exports = function (io, socket) {
       username: username
     };
     gameMessages.push(message);
-    io.emit('gameMessage', message);
+    socket.broadcast.emit('gameMessage', message);
 
     // Notify everyone about the new joined user (not the sender though)
     socket.broadcast.emit('userUpdate', getUserList(users));
@@ -113,6 +122,9 @@ module.exports = function (io, socket) {
     });
     // Send the draw history to the user
     socket.emit('updateDrawHistory', drawHistory);
+    if (isDrawer(users, username)) {
+      socket.emit('topic', topicList[0]);
+    }
   });
   
   // Send a chat message to all connected sockets when a message is received
@@ -125,7 +137,7 @@ module.exports = function (io, socket) {
     // Remove punctuation and spaces from message and convert to lowercase.
     var guess = message.text.toLowerCase().replace(/[^\w]/g, "");
 
-    if (guess === drawingPrompt) {
+    if (guess === topicList[0]) {
       // correct guess
       
       // send the user's guess to themselves
@@ -137,8 +149,8 @@ module.exports = function (io, socket) {
       // alert everyone in the room that they were correct
       message.text = message.username + " has guessed the prompt!";
       io.emit('gameMessage', message);
-    } else if (guess.indexOf(drawingPrompt) > -1 || ld(drawingPrompt, guess) < 3) {
-      // if message contains drawingPrompt or word-distance is < 3 it is a close guess
+    } else if (guess.indexOf(topicList[0]) > -1 || ld(topicList[0], guess) < 3) {
+      // if message contains drawing prompt or word-distance is < 3 it is a close guess
 
       // tell the guesser that their guess was close
       // TODO their message should be greyed out or something to indicate only they can see it
@@ -179,6 +191,12 @@ module.exports = function (io, socket) {
 
       io.emit('canvasMessage', {type: 'clear'});
       drawHistory = [];
+
+      // Select a new topic and send it to the new drawer
+      topicList.push(topicList.shift());
+      for (var i = 0; i < NUM_DRAWERS; i++) {
+        io.to(users[i]).emit('topic', topicList[0]);
+      }
     }
   });
 
