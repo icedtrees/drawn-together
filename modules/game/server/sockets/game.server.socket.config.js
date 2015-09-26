@@ -95,6 +95,9 @@ function advanceRound(io) {
   io.emit('canvasMessage', {type: 'clear'});
   drawHistory = [];
 
+  // Explain what the word was
+  io.emit('gameMessage', {text: 'The topic was ' + topicList[0]});
+
   // Select a new topic and send it to the new drawer
   topicList.push(topicList.shift());
   for (var i = 0; i < NUM_DRAWERS; i++) {
