@@ -83,6 +83,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       });
     });
 
+    Socket.on('topic', function (topic) {
+      $scope.topic = topic;
+    });
+
     // Create a controller method for sending messages
     $scope.sendMessage = function () {
       // Create a new message object

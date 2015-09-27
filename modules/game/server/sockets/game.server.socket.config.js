@@ -1,7 +1,7 @@
 'use strict';
 
-// Levenshtein-Damerau distance library (for calculating distance between words)
-var ld = require('levenshtein-damerau');
+// Levenshtein distance library (for calculating distance between words)
+var levenshtein = require('fast-levenshtein');
 
 var NUM_DRAWERS = 1;
 // Array of users in a queue. First NUM_DRAWERS users are drawers
@@ -37,7 +37,18 @@ var drawHistory = [];
 // Every chat message sent
 var gameMessages = [];
 
-var drawingPrompt = "whale";
+// First one is the current topic
+var topicList = ['sunset', 'iced tea', 'fruit', 'top', 'mouse trap'];
+// Shuffle the topic list in-place using Knuth shuffle
+for (var i = topicList.length - 2; i > 0; i--) {
+  var j = Math.floor(Math.random() * i);
+  var temp = topicList[j];
+  topicList[j] = topicList[i];
+  topicList[i] = temp;
+}
+
+// If the word has been guessed and round is ending
+var roundEnding = false;
 
 /*
  * Transforms an array of usernames into an array of
@@ -75,9 +86,33 @@ function isDrawer(users, username) {
   return false;
 }
 
-// Create the chat configuration
+function advanceRound(io) {
+  if (roundEnding) {
+    users.push(users.shift());
+
+    // Send user list with updated drawers
+    io.emit('userUpdate', getUserList(users));
+
+    io.emit('canvasMessage', {type: 'clear'});
+    drawHistory = [];
+
+    // Explain what the word was
+    io.emit('gameMessage', {text: 'The topic was ' + topicList[0]});
+
+    // Select a new topic and send it to the new drawer
+    topicList.push(topicList.shift());
+    for (var i = 0; i < NUM_DRAWERS; i++) {
+      io.to(users[i]).emit('topic', topicList[0]);
+    }    
+  }
+
+  roundEnding = false;
+}
+
+// Create the game configuration
 module.exports = function (io, socket) {
   var username = socket.request.user.username;
+  socket.join(username);
 
   // Add user to in-memory store if necessary, or simply increment counter
   // to account for multiple windows open
@@ -96,7 +131,7 @@ module.exports = function (io, socket) {
       username: username
     };
     gameMessages.push(message);
-    io.emit('gameMessage', message);
+    socket.broadcast.emit('gameMessage', message);
 
     // Notify everyone about the new joined user (not the sender though)
     socket.broadcast.emit('userUpdate', getUserList(users));
@@ -113,39 +148,67 @@ module.exports = function (io, socket) {
     });
     // Send the draw history to the user
     socket.emit('updateDrawHistory', drawHistory);
+    if (isDrawer(users, username)) {
+      socket.emit('topic', topicList[0]);
+    }
   });
   
   // Send a chat message to all connected sockets when a message is received
   socket.on('gameMessage', function (message) {
+    // The current drawer cannot chat
+    if (isDrawer(users, username)) {
+      console.log('Drawer chatting');
+      return;
+    }
+
     message.type = 'message';
     message.created = Date.now();
     message.profileImageURL = socket.request.user.profileImageURL;
     message.username = username;
 
-    // Remove punctuation and spaces from message and convert to lowercase.
-    var guess = message.text.toLowerCase().replace(/[^\w]/g, "");
+    // Compare the lower-cased versions
+    var guess = message.text.toLowerCase();
+    var topic = topicList[0].toLowerCase();
 
-    if (guess === drawingPrompt) {
+    var i;
+
+    if (guess === topic) {
       // correct guess
-      
+
+      // send user's guess to the drawer/s
+      for (i = 0; i < NUM_DRAWERS; i++) {
+        io.to(users[i]).emit('gameMessage', message);
+      }
+
       // send the user's guess to themselves
       // TODO their message should be greyed out or something to indicate only they can see it
       socket.emit('gameMessage', message);
 
-      // TODO send user's guess to the drawer/s
-
+      var timeToEnd = 20;
       // alert everyone in the room that they were correct
-      message.text = message.username + " has guessed the prompt!";
+      message.text = message.username + " has guessed the prompt! The round will end in " + timeToEnd + " seconds.";
       io.emit('gameMessage', message);
-    } else if (guess.indexOf(drawingPrompt) > -1 || ld(drawingPrompt, guess) < 3) {
-      // if message contains drawingPrompt or word-distance is < 3 it is a close guess
+
+      // End the round in timeToEnd seconds
+      // TODO variable time
+      if (!roundEnding) {
+        roundEnding = true;
+        setTimeout(function () {
+          advanceRound(io);
+        }, timeToEnd * 1000);
+      }
+    } else if (guess.indexOf(topic) > -1 || levenshtein.get(topic, guess) < 3) {
+      // if message contains drawing prompt or word-distance is < 3 it is a close guess
+
+      // tell the drawer/s the guess
+      for (i = 0; i < NUM_DRAWERS; i++) {
+        io.to(users[i]).emit('gameMessage', message);
+      }
 
       // tell the guesser that their guess was close
       // TODO their message should be greyed out or something to indicate only they can see it
       message.text += "\nYour guess is close!";
       socket.emit('gameMessage', message);
-
-      // TODO tell the drawer/s the guess
     } else {
       // incorrect guess: emit message to everyone
       gameMessages.push(message);
@@ -172,13 +235,8 @@ module.exports = function (io, socket) {
   socket.on('finishDrawing', function () {
     // If the user who submitted this message actually is a drawer
     if (isDrawer(users, username)) {
-      users.push(users.shift());
-
-      // Send user list with updated drawers
-      io.emit('userUpdate', getUserList(users));
-
-      io.emit('canvasMessage', {type: 'clear'});
-      drawHistory = [];
+      roundEnding = true;
+      advanceRound(io);
     }
   });
 
