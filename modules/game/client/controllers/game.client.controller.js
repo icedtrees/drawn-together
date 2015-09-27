@@ -10,6 +10,8 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     // Set default pen colour
     $scope.penColour = '#ff0000';
 
+    $scope.mouseState = 0;
+
     // If user is not signed in then redirect to signin page
     if (!Authentication.user) {
       $location.path('/authentication/signin');

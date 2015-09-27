@@ -1,80 +1,107 @@
 'use strict';
 
+/*
+ * Get the coordinates of a mouse event relative to a canvas element
+ *
+ * http://stackoverflow.com/questions/10449890/detect-mouse-click-location-within-canvas
+ */
+function getMouse(e, canvas) {
+  var element = canvas, offsetX = 0, offsetY = 0, mx, my;
+
+  // Compute the total offset. It's possible to cache this if you want
+  if (element.offsetParent !== undefined) {
+    do {
+      offsetX += element.offsetLeft;
+      offsetY += element.offsetTop;
+    } while ((element = element.offsetParent));
+  }
+
+  // Add padding and border style widths to offset
+  // Also add the <html> offsets in case there's a position:fixed bar (like the stumbleupon bar)
+  // This part is not strictly necessary, it depends on your styling
+  // offsetX += stylePaddingLeft + styleBorderLeft + htmlLeft;
+  // offsetY += stylePaddingTop + styleBorderTop + htmlTop;
+
+  mx = e.pageX - offsetX;
+  my = e.pageY - offsetY;
+
+  // We return a simple javascript object with x and y defined
+  return {x: mx, y: my};
+}
+
 angular.module('game').directive('dtDrawing', ['Socket',
   function (Socket) {
     return {
       restrict: "A",
       link: function (scope, element) {
+        var body = angular.element(document.body);
         scope.canvas = element;
         element.ctx = element[0].getContext('2d');
 
         // variable that decides if something should be drawn on mousemove
         element.drawing = false;
         
-        element.bind('mousedown', function (event) {
-          if (!scope.isDrawer()) {
-            return;
-          }
-          if (event.offsetX !== undefined) {
-            element.lastX = event.offsetX;
-            element.lastY = event.offsetY;
-          } else { // Firefox compatibility
-            element.lastX = event.layerX - event.currentTarget.offsetLeft;
-            element.lastY = event.layerY - event.currentTarget.offsetTop;
-          }
+        body.bind('mousedown', function (e) {
+          var mouse = getMouse(e, element[0]);
+
+          element.lastX = mouse.x;
+          element.lastY = mouse.y;
 
           // begins new line
           element.ctx.beginPath();
 
           element.drawing = true;
 
+          // Update mouse state
+          scope.mouseState |= (1 << (e.which - 1));
         });
 
-        element.bind('mousemove', function (event) {
+        body.bind('mousemove', function (e) {
+          // If the left mouse button is down
+          if (scope.mouseState & 1) {
+            element.drawSegment(e);
+          }
+        });
+
+        body.bind('mouseup', function (e) {
+          // Update mouse state
+          scope.mouseState &= ~(1 << (e.which - 1));
+
+          // Finish drawing the current line if left mouse button was released
+          if (!(scope.mouseState & 1)) {
+            element.drawSegment(e);
+          }
+        });
+
+        /*
+         * Given a mouse event, update the last and cur values attached to
+         * this element and perform the draw (as well as notifying the server)
+         */
+        element.drawSegment = function(e) {
           if (!scope.isDrawer()) {
             return;
           }
 
-          if (event.which === 0) {
-            // if no mouse button
-            element.drawing = false;
-          }
+          var mouse = getMouse(e, element[0]);
+          element.curX = mouse.x;
+          element.curY = mouse.y;
 
-          if (element.drawing) {
-            // get current mouse position
-            if (event.offsetX !== undefined) {
-              element.currentX = event.offsetX;
-              element.currentY = event.offsetY;
-            } else {
-              element.currentX = event.layerX - event.currentTarget.offsetLeft;
-              element.currentY = event.layerY - event.currentTarget.offsetTop;
-            }
+          var message = {
+            type: 'line',
+            x1: element.lastX,
+            y1: element.lastY,
+            x2: element.curX,
+            y2: element.curY,
+            fill: undefined,
+            stroke: scope.penColour
+          };
+          element.draw(message);
+          Socket.emit('canvasMessage', message);
 
-            var message = {
-              type: 'line',
-              x1: element.lastX,
-              y1: element.lastY,
-              x2: element.currentX,
-              y2: element.currentY,
-              fill: undefined,
-              stroke: scope.penColour
-            };
-            element.draw(message);
-            Socket.emit('canvasMessage', message);
-
-            // set current coordinates to last one
-            element.lastX = element.currentX;
-            element.lastY = element.currentY;
-          }
-        });
-
-        element.bind('mouseup', function (event) {
-          if (!scope.isDrawer()) {
-            return;
-          }
-          // stop element.drawing
-          element.drawing = false;
-        });
+          // set current coordinates to last one
+          element.lastX = element.curX;
+          element.lastY = element.curY;
+        };
 
         element.draw = function (message) {
           switch(message.type) {
