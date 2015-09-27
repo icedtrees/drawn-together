@@ -49,6 +49,13 @@ angular.module('game').directive('dtDrawing', ['Socket',
         body.bind('mousedown', function (e) {
           var mouse = getMouse(e, element[0]);
 
+          // Prevent the default action of turning into highlight cursor
+          // if it is mouseDowning on the canvas
+          if (mouse.x >= 0 && mouse.x <= element[0].width &&
+              mouse.y >= 0 && mouse.y <= element[0].height) {
+            e.preventDefault();
+          }
+
           element.lastX = mouse.x;
           element.lastY = mouse.y;
 
