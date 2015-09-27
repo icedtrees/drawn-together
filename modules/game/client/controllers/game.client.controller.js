@@ -10,6 +10,8 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     // Set default pen colour
     $scope.penColour = '#ff0000';
 
+    $scope.messageText = '';
+
     // If user is not signed in then redirect to signin page
     if (!Authentication.user) {
       $location.path('/authentication/signin');
@@ -87,16 +89,22 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
 
     // Create a controller method for sending messages
     $scope.sendMessage = function () {
+      // Disallow empty messages
+      if (/^\s*$/.test($scope.messageText)) {
+        $scope.messageText = '';
+        return;
+      }
+
       // Create a new message object
       var message = {
-        text: this.messageText
+        text: $scope.messageText
       };
 
       // Emit a 'gameMessage' message event
       Socket.emit('gameMessage', message);
 
       // Clear the message text
-      this.messageText = '';
+      $scope.messageText = '';
     };
 
     // Returns true if we are currently the drawer and false otherwise
