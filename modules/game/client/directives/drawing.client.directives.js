@@ -29,6 +29,11 @@ function getMouse(e, canvas) {
   return {x: mx, y: my};
 }
 
+// TODO during client/server code refactor, place these in a constants file
+var MOUSE_LEFT = 0;
+var MOUSE_MIDDLE = 1;
+var MOUSE_RIGHT = 2;
+
 angular.module('game').directive('dtDrawing', ['Socket',
   function (Socket) {
     return {
@@ -53,22 +58,22 @@ angular.module('game').directive('dtDrawing', ['Socket',
           element.drawing = true;
 
           // Update mouse state
-          scope.mouseState |= (1 << (e.which - 1));
+          scope.mouseState[e.which - 1] = true;
         });
 
         body.bind('mousemove', function (e) {
           // If the left mouse button is down
-          if (scope.mouseState & 1) {
+          if (scope.mouseState[MOUSE_LEFT]) {
             element.drawSegment(e);
           }
         });
 
         body.bind('mouseup', function (e) {
           // Update mouse state
-          scope.mouseState &= ~(1 << (e.which - 1));
+          scope.mouseState[e.which - 1] = false;
 
           // Finish drawing the current line if left mouse button was released
-          if (!(scope.mouseState & 1)) {
+          if (!scope.mouseState[MOUSE_LEFT]) {
             element.drawSegment(e);
           }
         });
