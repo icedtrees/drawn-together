@@ -11,16 +11,16 @@ angular.module('game').directive('dtDrawing', ['Socket',
         // variable that decides if something should be drawn on mousemove
         element.drawing = false;
         
-        element.bind('mousedown', function (event) {
+        element.bind('mousedown', function (e) {
           if (!scope.isDrawer()) {
             return;
           }
-          if (event.offsetX !== undefined) {
-            element.lastX = event.offsetX;
-            element.lastY = event.offsetY;
+          if (e.offsetX !== undefined) {
+            element.lastX = e.offsetX;
+            element.lastY = e.offsetY;
           } else { // Firefox compatibility
-            element.lastX = event.layerX - event.currentTarget.offsetLeft;
-            element.lastY = event.layerY - event.currentTarget.offsetTop;
+            element.lastX = e.layerX - e.currentTarget.offsetLeft;
+            element.lastY = e.layerY - e.currentTarget.offsetTop;
           }
 
           // begins new line
@@ -28,19 +28,20 @@ angular.module('game').directive('dtDrawing', ['Socket',
 
           element.drawing = true;
 
+          e.preventDefault();
         });
-        element.bind('mousemove', function (event) {
+        element.bind('mousemove', function (e) {
           if (!scope.isDrawer()) {
             return;
           }
           if (element.drawing) {
             // get current mouse position
-            if (event.offsetX !== undefined) {
-              element.currentX = event.offsetX;
-              element.currentY = event.offsetY;
+            if (e.offsetX !== undefined) {
+              element.currentX = e.offsetX;
+              element.currentY = e.offsetY;
             } else {
-              element.currentX = event.layerX - event.currentTarget.offsetLeft;
-              element.currentY = event.layerY - event.currentTarget.offsetTop;
+              element.currentX = e.layerX - e.currentTarget.offsetLeft;
+              element.currentY = e.layerY - e.currentTarget.offsetTop;
             }
 
             var message = {
@@ -60,7 +61,7 @@ angular.module('game').directive('dtDrawing', ['Socket',
             element.lastY = element.currentY;
           }
         });
-        element.bind('mouseup', function (event) {
+        element.bind('mouseup', function (e) {
           if (!scope.isDrawer()) {
             return;
           }

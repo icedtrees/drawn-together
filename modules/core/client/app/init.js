@@ -15,7 +15,7 @@ angular.module(ApplicationConfiguration.applicationModuleName).config(['$locatio
 angular.module(ApplicationConfiguration.applicationModuleName).run(function ($rootScope, $state, Authentication) {
 
   // Check authentication before changing state
-  $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+  $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
     if (toState.data && toState.data.roles && toState.data.roles.length > 0) {
       var allowed = false;
       if (Authentication.user !== undefined) {
@@ -30,7 +30,7 @@ angular.module(ApplicationConfiguration.applicationModuleName).run(function ($ro
       }
 
       if (!allowed) {
-        event.preventDefault();
+        e.preventDefault();
         if (Authentication.user !== undefined && typeof Authentication.user === 'object') {
           $state.go('forbidden');
         } else {
@@ -41,7 +41,7 @@ angular.module(ApplicationConfiguration.applicationModuleName).run(function ($ro
   });
 
   // Record previous state
-  $rootScope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
+  $rootScope.$on('$stateChangeSuccess', function (e, toState, toParams, fromState, fromParams) {
     if (!fromState.data || !fromState.data.ignoreState) {
       $state.previous = {
         state: fromState,
