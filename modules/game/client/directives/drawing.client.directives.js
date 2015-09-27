@@ -28,6 +28,7 @@ angular.module('game').directive('dtDrawing', ['Socket',
 
           element.drawing = true;
 
+          event.preventDefault();
         });
         element.bind('mousemove', function (event) {
           if (!scope.isDrawer()) {
