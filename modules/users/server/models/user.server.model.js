@@ -74,7 +74,7 @@ var UserSchema = new Schema({
     required: 'Provider is required'
   },
   providerData: {},
-  additionalProvidersData: {},
+  additionalProvidersData: {}, // Gives us the flexibility to easily add social integration later on.
   roles: {
     type: [{
       type: String,
