@@ -157,7 +157,11 @@ module.exports = function (io, socket) {
   socket.on('gameMessage', function (message) {
     // The current drawer cannot chat
     if (isDrawer(users, username)) {
-      console.log('Drawer chatting');
+      return;
+    }
+
+    // Disallow empty messages
+    if (/^\s*$/.test(message.text)) {
       return;
     }
 
