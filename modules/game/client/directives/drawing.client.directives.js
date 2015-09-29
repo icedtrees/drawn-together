@@ -114,7 +114,6 @@ angular.module('game').directive('dtDrawing', ['Socket',
             y1: element.lastY,
             x2: element.curX,
             y2: element.curY,
-            fill: undefined,
             stroke: scope.penColour
           };
           element.draw(message);
