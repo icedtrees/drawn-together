@@ -3,6 +3,8 @@
 // Levenshtein distance library (for calculating distance between words)
 var levenshtein = require('fast-levenshtein');
 
+var MAX_MSG_LEN = 65;
+
 var NUM_DRAWERS = 1;
 // Array of users in a queue. First NUM_DRAWERS users are drawers
 var users = [];
@@ -160,8 +162,8 @@ module.exports = function (io, socket) {
       return;
     }
 
-    // Disallow empty messages
-    if (/^\s*$/.test(message.text)) {
+    // Disallow messages that are empty or longer than MAX_MSG_LEN characters
+    if (/^\s*$/.test(message.text) || message.text.length > MAX_MSG_LEN) {
       return;
     }
 
