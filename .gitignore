@@ -247,6 +247,9 @@ node_modules
 # Possibly created by whatever webserver/middleware we have?
 public/*
 
+# Profile picture uploads from user
+modules/users/client/img/profile/uploads/*
+
 #################
 ## WebStorm
 #################

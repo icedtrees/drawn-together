@@ -52,15 +52,5 @@ angular.module('users').controller('AuthenticationController', ['$scope', '$stat
         $scope.error = response.message;
       });
     };
-
-    // OAuth provider request
-    $scope.callOauthProvider = function (url) {
-      if ($state.previous && $state.previous.href) {
-        url += '?redirect_to=' + encodeURIComponent($state.previous.href);
-      }
-
-      // Effectively call OAuth authentication route:
-      $window.location.href = url;
-    };
   }
 ]);
