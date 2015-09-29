@@ -49,11 +49,23 @@ angular.module('game').directive('dtDrawing', ['Socket',
         body.bind('mousedown', function (e) {
           var mouse = getMouse(e, element[0]);
 
-          // Prevent the default action of turning into highlight cursor
-          // if it is mouseDowning on the canvas
-          if (mouse.x >= 0 && mouse.x <= element[0].width &&
-              mouse.y >= 0 && mouse.y <= element[0].height) {
+          // If the mouseDown event was within the canvas
+          if (mouse.x >= 0 && mouse.x < element[0].width &&
+              mouse.y >= 0 && mouse.y < element[0].height) {
+            // Prevent the default action of turning into highlight cursor
             e.preventDefault();
+
+            // We started dragging from within so drawing is true
+            element.drawing = true;
+
+            // Also unhighlight anything that may be highlighted
+            if (document.selection) {
+              // IE
+              document.selection.empty();
+            } else {
+              // Other browsers
+              window.getSelection().removeAllRanges();
+            }
           }
 
           element.lastX = mouse.x;
@@ -62,15 +74,13 @@ angular.module('game').directive('dtDrawing', ['Socket',
           // begins new line
           element.ctx.beginPath();
 
-          element.drawing = true;
-
           // Update mouse state
           scope.mouseState[e.which - 1] = true;
         });
 
         body.bind('mousemove', function (e) {
           // If the left mouse button is down
-          if (scope.mouseState[MOUSE_LEFT]) {
+          if (element.drawing) {
             element.drawSegment(e);
           }
         });
@@ -79,9 +89,9 @@ angular.module('game').directive('dtDrawing', ['Socket',
           // Update mouse state
           scope.mouseState[e.which - 1] = false;
 
-          // Finish drawing the current line if left mouse button was released
+          // Set drawing to false if left mouse button is now released
           if (!scope.mouseState[MOUSE_LEFT]) {
-            element.drawSegment(e);
+            element.drawing = false;
           }
         });
 
