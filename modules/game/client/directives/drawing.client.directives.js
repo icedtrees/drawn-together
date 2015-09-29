@@ -39,14 +39,14 @@ angular.module('game').directive('dtDrawing', ['Socket',
     return {
       restrict: "A",
       link: function (scope, element) {
-        var body = angular.element(document.body);
+        var doc = angular.element(document);
         scope.canvas = element;
         element.ctx = element[0].getContext('2d');
 
         // variable that decides if something should be drawn on mousemove
         element.drawing = false;
         
-        body.bind('mousedown', function (e) {
+        doc.bind('mousedown', function (e) {
           var mouse = getMouse(e, element[0]);
 
           // If the mouseDown event was within the canvas
@@ -78,14 +78,14 @@ angular.module('game').directive('dtDrawing', ['Socket',
           scope.mouseState[e.which - 1] = true;
         });
 
-        body.bind('mousemove', function (e) {
+        doc.bind('mousemove', function (e) {
           // If the left mouse button is down
           if (element.drawing) {
             element.drawSegment(e);
           }
         });
 
-        body.bind('mouseup', function (e) {
+        doc.bind('mouseup', function (e) {
           // Update mouse state
           scope.mouseState[e.which - 1] = false;
 
