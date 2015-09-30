@@ -57,7 +57,7 @@
   <!-- Drawing settings -->
   <div class="col-xs-12 col-md-1">
     <h3 class="text-center">Drawing settings</h3>
-    <input colorpicker="hex" type="text" name="penColour" ng-model="penColour" colorpicker-is-open="true" size="5" maxlength="7"/>
+    <input colorpicker="hex" type="text" name="penColour" ng-model="penColour" ng-change="mouseMode = 'pen'" colorpicker-is-open="true" size="5" maxlength="7"/>
     <button ng-disabled="mouseMode === 'pen'" ng-click="mouseMode = 'pen'">Pen</button>
     <input type="range" ng-model="penWidth" ng-change="mouseMode = 'pen'" min="{{GameSettings.MIN_PEN_WIDTH}}" max="{{GameSettings.MAX_PEN_WIDTH}}">
     <button ng-disabled="mouseMode === 'eraser'" ng-click="mouseMode = 'eraser'">Eraser</button>

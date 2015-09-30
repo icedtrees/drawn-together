@@ -7,9 +7,9 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     $scope.messages = [];
     $scope.users = [];
     $scope.canvas = null;
-    $scope.penColour = '#ff0000';
-    $scope.penWidth = 1;
-    $scope.eraserWidth = 30;
+    $scope.penColour = GameSettings.DEFAULT_PEN_COLOUR;
+    $scope.penWidth = GameSettings.DEFAULT_PEN_WIDTH;
+    $scope.eraserWidth = GameSettings.DEFAULT_ERASER_WIDTH;
     $scope.mouseMode = 'pen';
     $scope.GameSettings = GameSettings;
 
