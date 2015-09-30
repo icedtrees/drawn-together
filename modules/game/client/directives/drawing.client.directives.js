@@ -116,10 +116,10 @@ angular.module('game').directive('dtDrawing', ['Socket',
             y2: element.curY
           };
           if (scope.mouseMode === 'pen') {
-            message.stroke = scope.penColour;
+            message.strokeStyle = scope.penColour;
             message.lineWidth = scope.penWidth;
           } else if (scope.mouseMode === 'eraser') {
-            message.stroke = '#ffffff';
+            message.strokeStyle = '#ffffff';
             message.lineWidth = scope.eraserWidth;
           }
           element.draw(message);
@@ -137,13 +137,13 @@ angular.module('game').directive('dtDrawing', ['Socket',
               element.ctx.lineCap = "round";
               element.ctx.moveTo(message.x1, message.y1);
               element.ctx.lineTo(message.x2, message.y2);
-              element.ctx.strokeStyle = message.stroke;
+              element.ctx.strokeStyle = message.strokeStyle;
               element.ctx.lineWidth = message.lineWidth;
               element.ctx.stroke();
               break;
             case 'rect':
-              element.ctx.fillStyle = message.fill;
-              element.ctx.strokeStyle = message.stroke;
+              element.ctx.fillStyle = message.fillStyle;
+              element.ctx.strokeStyle = message.strokeStyle;
               element.ctx.fillRect(message.x, message.y, message.width, message.height);
               break;
             case 'clear':
