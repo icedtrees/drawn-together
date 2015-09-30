@@ -141,7 +141,9 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     // Remove the event listener when the controller instance is destroyed
     $scope.$on('$destroy', function () {
       Socket.removeListener('gameMessage');
-      //Socket.removeListener('userUpdate');
+      Socket.removeListener('canvasMessage');
+      Socket.removeListener('userUpdate');
+      Socket.removeListener('updateDrawHistory');
     });
   }
 ]);

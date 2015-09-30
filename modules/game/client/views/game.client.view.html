@@ -14,13 +14,13 @@
         </div>
       </li>
     </ul>
-    <button ng-disabled="!isDrawer()" ng-click="finishDrawing();">Finish Drawing</button>
-    <button ng-disabled="!isDrawer()" ng-click="clearDrawing();">Clear</button>
+    <button ng-disabled="!isDrawer()" ng-click="finishDrawing()">Finish Drawing</button>
+    <button ng-disabled="!isDrawer()" ng-click="clearDrawing()">Clear</button>
   </div>
 
   <!-- Chat stuff -->
-  <div class="col-xs-12 col-md-3" style="border:1px solid #d3d3d3;padding:0px;">
-    <div class="game-message-box" style="margin:0px;" scroll-glue>
+  <div class="chat-container col-xs-12 col-md-3">
+    <div class="game-message-box" scroll-glue>
       <ul class="list-unstyled">
         <!-- List all messages -->
         <li class="col-xs-12 col-md-12 game-message" ng-repeat="message in messages">
@@ -37,8 +37,8 @@
     </div>
 
     <!-- The message form -->
-    <div style="padding:5px;" class="col-xs-12 col-md-12">
-      <form class="col-xs-12 col-md-12" ng-submit="sendMessage();">
+    <div class="message-form col-xs-12 col-md-12">
+      <form class="col-xs-12 col-md-12" ng-submit="sendMessage()">
         <fieldset class="row">
           <div class="input-group col-xs-12 col-md-12">
             <input ng-disabled="isDrawer()" type="text" id="messageText" name="messageText" class="form-control" ng-model="messageText" ng-trim="false" placeholder="Enter new message">
@@ -51,7 +51,7 @@
   <!-- The canvas -->
   <div class="col-xs-12 col-md-6" >
     <h3 class="text-center" ng-if="isDrawer()">Draw "<span ng-bind="topic"></span>"</h3>
-    <canvas dt-drawing id="canvas" width="500" height="500" style="border:1px solid #d3d3d3"></canvas>
+    <canvas dt-drawing id="canvas" class="canvas" width="500" height="500"></canvas>
   </div>
 
   <!-- Drawing settings -->
