@@ -7,7 +7,7 @@ var NUM_DRAWERS = 1;
 // Array of users in a queue. First NUM_DRAWERS users are drawers
 var users = [];
 // Array of users in the current round who have guessed the prompt
-var correctGuesses = 0;
+var correctGuessers = [];
 // A timeout created to end the round in timeToEnd seconds when someone guesses the prompt
 var timeToEnd = 20;
 var roundTimeout;
@@ -100,10 +100,10 @@ function advanceRound(io) {
 
     io.emit('canvasMessage', {type: 'clear'});
     drawHistory = [];
-    correctGuesses = 0;
+    correctGuessers = [];
 
     // Explain what the word was
-    io.emit('gameMessage', {text: '"Round over! The topic was ' + topicList[0] + '"'});
+    io.emit('gameMessage', {text: 'Round over! The topic was "' + topicList[0] + '"'});
 
     // Select a new topic and send it to the new drawer
     topicList.push(topicList.shift());
@@ -112,12 +112,9 @@ function advanceRound(io) {
     }
 
     // Announce the new drawers
-    var newDrawers = users.slice(0, NUM_DRAWERS).join(", ").replace(/(.*), (.*)$/, "$1 and $2");
-    if (NUM_DRAWERS === 1) {
-      io.emit('gameMessage', {text: newDrawers + " is now drawing."});
-    } else {
-      io.emit('gameMessage', {text: newDrawers + " are now drawing."});
-    }
+    var newDrawers = NUM_DRAWERS === 1 ? users[0] : users.slice(0, NUM_DRAWERS - 1).join(", ") +
+      " and " + users[NUM_DRAWERS - 1];
+    io.emit('gameMessage', {text: newDrawers + (NUM_DRAWERS === 1 ? ' is' : ' are') + ' now drawing.'});
   }
 
   roundEnding = false;
@@ -167,7 +164,7 @@ module.exports = function (io, socket) {
     }
   });
   
-  // Handle messages received from a socket
+  // Handle chat messages
   socket.on('gameMessage', function (message) {
     // The current drawer cannot chat
     if (isDrawer(users, username)) {
@@ -191,23 +188,28 @@ module.exports = function (io, socket) {
     var i;
 
     if (guess === topic) {
-      // correct guess
-      correctGuesses++;
+      // Correct guess
 
-      // send user's guess to the drawer/s
+      // Send user's guess to the drawer/s
       for (i = 0; i < NUM_DRAWERS; i++) {
         io.to(users[i]).emit('gameMessage', message);
       }
 
-      // send the user's guess to themselves
+      // Send the user's guess to themselves
       // TODO their message should be greyed out or something to indicate only they can see it
       socket.emit('gameMessage', message);
 
-      // alert everyone in the room that they were correct
-      io.emit('gameMessage', {text: message.username + " has guessed the prompt!"});
+      if (correctGuessers.indexOf(username) === -1) {
+        correctGuessers.push(username);
+      } else {
+        return; // If they have already guessed the prompt, don't tell everyone again
+      }
+
+      // Alert everyone in the room that they were correct
+      io.emit('gameMessage', {text: username + " has guessed the prompt!"});
 
       // End round if everyone has guessed
-      if (correctGuesses === users.length - NUM_DRAWERS) {
+      if (correctGuessers.length === users.length - NUM_DRAWERS) {
         clearTimeout(roundTimeout);
         roundEnding = true;
         advanceRound(io);
@@ -222,19 +224,19 @@ module.exports = function (io, socket) {
       }
 
     } else if (guess.indexOf(topic) > -1 || levenshtein.get(topic, guess) < 3) {
-      // if message contains drawing prompt or word-distance is < 3 it is a close guess
+      // If message contains drawing prompt or word-distance is < 3 it is a close guess
 
-      // tell the drawer/s the guess
+      // Tell the drawer/s the guess
       for (i = 0; i < NUM_DRAWERS; i++) {
         io.to(users[i]).emit('gameMessage', message);
       }
 
-      // tell the guesser that their guess was close
+      // Tell the guesser that their guess was close
       // TODO their message should be greyed out or something to indicate only they can see it
-      message.text += "\nYour guess is close!";
       socket.emit('gameMessage', message);
+      socket.emit('gameMessage', {text: "Your guess is close!"});
     } else {
-      // incorrect guess: emit message to everyone
+      // Incorrect guess: emit message to everyone
       gameMessages.push(message);
 
       io.emit('gameMessage', message);
