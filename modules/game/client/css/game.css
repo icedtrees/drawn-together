@@ -33,3 +33,7 @@ button:disabled {
   word-wrap: break-word;      /* IE */
   display: inline-block;      /* Firefox and IE */
 }
+
+[colorpicker] {
+  margin-bottom: 200px;
+}

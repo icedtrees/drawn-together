@@ -50,16 +50,18 @@
 
   <!-- The canvas -->
   <div class="col-xs-12 col-md-6" >
-    <h3 class="text-center" ng-if="isDrawer();">Draw "<span ng-bind="topic"></span>"</h3>
-    <canvas dt-drawing id="canvas" width="500" height="500" style="border:1px solid #d3d3d3;"></canvas>
+    <h3 class="text-center" ng-if="isDrawer()">Draw "<span ng-bind="topic"></span>"</h3>
+    <canvas dt-drawing id="canvas" width="500" height="500" style="border:1px solid #d3d3d3"></canvas>
   </div>
 
   <!-- Drawing settings -->
   <div class="col-xs-12 col-md-1">
     <h3 class="text-center">Drawing settings</h3>
     <input colorpicker="hex" type="text" name="penColour" ng-model="penColour" colorpicker-is-open="true" size="5" maxlength="7"/>
-    <br><br>
-    <button ng-disabled="!isDrawer()" ng-click="useEraser();">Eraser</button>
+    <button ng-disabled="mouseMode === 'pen'" ng-click="mouseMode = 'pen'">Pen</button>
+    <input type="range" ng-model="penWidth" ng-change="mouseMode = 'pen'" min="1" max="30">
+    <button ng-disabled="mouseMode === 'eraser'" ng-click="mouseMode = 'eraser'">Eraser</button>
+    <input type="range" ng-model="eraserWidth" ng-change="mouseMode = 'eraser'" min="1" max="100">
   </div>
 
 </section>

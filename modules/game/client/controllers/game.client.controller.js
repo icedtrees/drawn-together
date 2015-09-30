@@ -7,8 +7,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     $scope.messages = [];
     $scope.users = [];
     $scope.canvas = null;
-    // Set default pen colour
     $scope.penColour = '#ff0000';
+    $scope.penWidth = 1;
+    $scope.eraserWidth = 30;
+    $scope.mouseMode = 'pen';
 
     // Left, middle, right mouse button is down, respectively
     $scope.mouseState = [false, false, false];
@@ -133,12 +135,6 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
         };
         $scope.canvas.draw(message);
         Socket.emit('canvasMessage', message);
-      }
-    };
-
-    $scope.useEraser = function () {
-      if ($scope.isDrawer()) {
-        $scope.penColour = '#ffffff';
       }
     };
 
