@@ -110,7 +110,9 @@ function advanceRound(io) {
     for (var i = 0; i < NUM_DRAWERS; i++) {
       io.to(users[i]).emit('topic', topicList[0]);
     }
-    var newDrawers = users.slice(0, NUM_DRAWERS).join(", ").replace(/(.*), (.*?)$/, "$1 and $2");
+
+    // Announce the new drawers
+    var newDrawers = users.slice(0, NUM_DRAWERS).join(", ").replace(/(.*), (.*)$/, "$1 and $2");
     if (NUM_DRAWERS === 1) {
       io.emit('gameMessage', {text: newDrawers + " is now drawing."});
     } else {
@@ -165,7 +167,7 @@ module.exports = function (io, socket) {
     }
   });
   
-  // Handle messages sent from a socket
+  // Handle messages received from a socket
   socket.on('gameMessage', function (message) {
     // The current drawer cannot chat
     if (isDrawer(users, username)) {
@@ -206,9 +208,7 @@ module.exports = function (io, socket) {
 
       // End round if everyone has guessed
       if (correctGuesses === users.length - NUM_DRAWERS) {
-        //if (correctGuesses > 1) { // clear timeout if it has been set
-          clearTimeout(roundTimeout);
-        //}
+        clearTimeout(roundTimeout);
         roundEnding = true;
         advanceRound(io);
       } else if (!roundEnding) {
