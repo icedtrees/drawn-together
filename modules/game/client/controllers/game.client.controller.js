@@ -11,6 +11,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     $scope.penWidth = 1;
     $scope.eraserWidth = 30;
     $scope.mouseMode = 'pen';
+    $scope.GameSettings = GameSettings;
 
     // Left, middle, right mouse button is down, respectively
     $scope.mouseState = [false, false, false];
