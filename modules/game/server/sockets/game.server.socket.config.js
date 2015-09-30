@@ -6,6 +6,11 @@ var levenshtein = require('fast-levenshtein');
 var NUM_DRAWERS = 1;
 // Array of users in a queue. First NUM_DRAWERS users are drawers
 var users = [];
+// Array of users in the current round who have guessed the prompt
+var correctGuesses = 0;
+// A timeout created to end the round in timeToEnd seconds when someone guesses the prompt
+var timeToEnd = 20;
+var roundTimeout;
 // Dictionary counting number of connects made by each user
 var userConnects = {};
 /* Array of draw actions
@@ -95,15 +100,22 @@ function advanceRound(io) {
 
     io.emit('canvasMessage', {type: 'clear'});
     drawHistory = [];
+    correctGuesses = 0;
 
     // Explain what the word was
-    io.emit('gameMessage', {text: 'The topic was ' + topicList[0]});
+    io.emit('gameMessage', {text: '"Round over! The topic was ' + topicList[0] + '"'});
 
     // Select a new topic and send it to the new drawer
     topicList.push(topicList.shift());
     for (var i = 0; i < NUM_DRAWERS; i++) {
       io.to(users[i]).emit('topic', topicList[0]);
-    }    
+    }
+    var newDrawers = users.slice(0, NUM_DRAWERS).join(", ").replace(/(.*), (.*?)$/, "$1 and $2");
+    if (NUM_DRAWERS === 1) {
+      io.emit('gameMessage', {text: newDrawers + " is now drawing."});
+    } else {
+      io.emit('gameMessage', {text: newDrawers + " are now drawing."});
+    }
   }
 
   roundEnding = false;
@@ -153,7 +165,7 @@ module.exports = function (io, socket) {
     }
   });
   
-  // Send a chat message to all connected sockets when a message is received
+  // Handle messages sent from a socket
   socket.on('gameMessage', function (message) {
     // The current drawer cannot chat
     if (isDrawer(users, username)) {
@@ -178,6 +190,7 @@ module.exports = function (io, socket) {
 
     if (guess === topic) {
       // correct guess
+      correctGuesses++;
 
       // send user's guess to the drawer/s
       for (i = 0; i < NUM_DRAWERS; i++) {
@@ -188,19 +201,26 @@ module.exports = function (io, socket) {
       // TODO their message should be greyed out or something to indicate only they can see it
       socket.emit('gameMessage', message);
 
-      var timeToEnd = 20;
       // alert everyone in the room that they were correct
-      message.text = message.username + " has guessed the prompt! The round will end in " + timeToEnd + " seconds.";
-      io.emit('gameMessage', message);
+      io.emit('gameMessage', {text: message.username + " has guessed the prompt!"});
 
-      // End the round in timeToEnd seconds
-      // TODO variable time
-      if (!roundEnding) {
+      // End round if everyone has guessed
+      if (correctGuesses === users.length - NUM_DRAWERS) {
+        //if (correctGuesses > 1) { // clear timeout if it has been set
+          clearTimeout(roundTimeout);
+        //}
         roundEnding = true;
-        setTimeout(function () {
+        advanceRound(io);
+      } else if (!roundEnding) {
+        // Start timer to end round if this is the first correct guess
+        // TODO variable time
+        roundEnding = true;
+        io.emit('gameMessage', {text: "The round will end in " + timeToEnd + " seconds."});
+        roundTimeout = setTimeout(function () {
           advanceRound(io);
         }, timeToEnd * 1000);
       }
+
     } else if (guess.indexOf(topic) > -1 || levenshtein.get(topic, guess) < 3) {
       // if message contains drawing prompt or word-distance is < 3 it is a close guess
 
