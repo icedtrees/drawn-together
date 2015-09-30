@@ -16,7 +16,7 @@ var userConnects = {};
  *     y1: last y pos
  *     x2: cur x pos
  *     y2: cur y pos
- *     stroke: colour code
+ *     strokeStyle: colour code
  *   },
  *   {
  *     type: 'rect'
@@ -25,7 +25,7 @@ var userConnects = {};
  *     width: cur x pos
  *     height: cur y pos
  *     fill: colour code
- *     stroke: colour code
+ *     strokeStyle: colour code
  *   },
  *   {
  *     type: 'clear'

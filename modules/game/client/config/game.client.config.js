@@ -7,5 +7,13 @@ angular.module('game').run(['Menus',
 
 // Configure Game settings
 angular.module('game').constant('GameSettings', {
-  MAX_MESSAGES: 12
+  MAX_MESSAGES: 12,
+  MIN_PEN_WIDTH: 1,
+  DEFAULT_PEN_WIDTH: 1,
+  MAX_PEN_WIDTH: 30,
+  DEFAULT_PEN_COLOUR: '#000000',
+  MIN_ERASER_WIDTH: 1,
+  DEFAULT_ERASER_WIDTH: 30,
+  MAX_ERASER_WIDTH: 100
 });
+
