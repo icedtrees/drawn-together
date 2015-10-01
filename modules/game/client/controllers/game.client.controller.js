@@ -76,15 +76,23 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
      * }
      */
     Socket.on('gameMessage', function (message) {
-      $scope.messages.push(message);
+      if (Array.isArray(message)) {
+        message.forEach(function (m) {
+          $scope.messages.push(m);
+        });
+      } else {
+        $scope.messages.push(message);
+      }
 
       // delete old messages if MAX_MESSAGES is exceeded
-      if ($scope.messages.length > ChatSettings.MAX_MESSAGES) {
+      while ($scope.messages.length > ChatSettings.MAX_MESSAGES) {
         $scope.messages.shift();
       }
     });
 
     /*
+     * Can be a single message or an array of messages
+     *
      * var message =
      * {
      *   x1: last X position of cursor on the canvas
@@ -94,15 +102,13 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
      * };
      */
     Socket.on('canvasMessage', function (message) {
-      if ($scope.canvas) {
+      if (Array.isArray(message)) {
+        message.forEach(function (m) {
+          $scope.canvas.draw(m);
+        });
+      } else {
         $scope.canvas.draw(message);
       }
-    });
-
-    Socket.on('updateDrawHistory', function (drawHistory) {
-      drawHistory.forEach(function(message) {
-        $scope.canvas.draw(message);
-      });
     });
 
     Socket.on('topic', function (topic) {

@@ -112,12 +112,10 @@ module.exports = function (io, socket) {
     socket.emit('gameState', Game.getState());
 
     // Send the chat message history to the user
-    gameMessages.forEach(function(message) {
-      socket.emit('gameMessage', message);
-    });
+    socket.emit('gameMessage', gameMessages);
 
     // Send the draw history to the user
-    socket.emit('updateDrawHistory', drawHistory);
+    socket.emit('canvasMessage', drawHistory);
 
     // Send current topic if they are the drawer
     if (Game.isDrawer(username)) {
