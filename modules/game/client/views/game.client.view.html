@@ -49,19 +49,31 @@
   </div>
 
   <!-- The canvas -->
-  <div class="col-xs-12 col-md-6" >
+  <div class="col-xs-12 col-md-5" >
     <h3 class="text-center" ng-if="isDrawer()">Draw "<span ng-bind="topic"></span>"</h3>
-    <canvas dt-drawing id="canvas" class="canvas" width="500" height="500"></canvas>
+    <canvas dt-drawing id="canvas" class="canvas" width="400" height="400"></canvas>
   </div>
 
   <!-- Drawing settings -->
-  <div class="col-xs-12 col-md-1">
+  <div class="col-xs-12 col-md-2">
     <h3 class="text-center">Drawing settings</h3>
     <input colorpicker="hex" type="text" name="penColour" ng-model="penColour" ng-change="mouseMode = 'pen'" colorpicker-is-open="true" size="5" maxlength="7"/>
-    <button ng-disabled="mouseMode === 'pen'" ng-click="mouseMode = 'pen'">Pen</button>
-    <input type="range" ng-model="penWidth" ng-change="mouseMode = 'pen'" min="{{GameSettings.MIN_PEN_WIDTH}}" max="{{GameSettings.MAX_PEN_WIDTH}}">
-    <button ng-disabled="mouseMode === 'eraser'" ng-click="mouseMode = 'eraser'">Eraser</button>
-    <input type="range" ng-model="eraserWidth" ng-change="mouseMode = 'eraser'" min="{{GameSettings.MIN_ERASER_WIDTH}}" max="{{GameSettings.MAX_ERASER_WIDTH}}">
+    <div class="row">
+      <div class="col-md-3">
+        <button ng-disabled="mouseMode === 'pen'" ng-click="mouseMode = 'pen'"><i class="fa fa-pencil"></i></button>
+      </div>
+      <div class="col-md-9">
+        <input type="range" ng-model="penWidth" ng-change="mouseMode = 'pen'" min="{{GameSettings.MIN_PEN_WIDTH}}" max="{{GameSettings.MAX_PEN_WIDTH}}">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-3">
+        <button ng-disabled="mouseMode === 'eraser'" ng-click="mouseMode = 'eraser'"><i class="fa fa-eraser"></i></button>
+      </div>
+      <div class="col-md-9">
+        <input type="range" ng-model="eraserWidth" ng-change="mouseMode = 'eraser'" min="{{GameSettings.MIN_ERASER_WIDTH}}" max="{{GameSettings.MAX_ERASER_WIDTH}}">
+      </div>
+    </div>
   </div>
 
 </section>
