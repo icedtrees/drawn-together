@@ -68,16 +68,6 @@ describe('User Model Unit Tests:', function () {
       });
     });
 
-    it('should be able to show an error when trying to save without first name', function (done) {
-      var _user1 = new User(user1);
-
-      _user1.firstName = '';
-      _user1.save(function (err) {
-        should.exist(err);
-        done();
-      });
-    });
-
     it('should be able to update an existing user with valid roles without problems', function (done) {
       var _user1 = new User(user1);
 

@@ -3,6 +3,7 @@
 angular.module('users').controller('EditProfileController', ['$scope', '$http', '$location', 'Users', 'Authentication',
   function ($scope, $http, $location, Users, Authentication) {
     $scope.user = Authentication.user;
+    $scope.user.newusername = Authentication.user.username;
 
     // Update a user profile
     $scope.updateUserProfile = function (isValid) {
@@ -21,6 +22,7 @@ angular.module('users').controller('EditProfileController', ['$scope', '$http', 
 
         $scope.success = true;
         Authentication.user = response;
+        Authentication.user.username = $scope.user.newusername;
       }, function (response) {
         $scope.error = response.data.message;
       });

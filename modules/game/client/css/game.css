@@ -44,11 +44,11 @@ button:disabled {
 
 .chat-container {
   border: 1px solid #d3d3d3;
-  padding: 0px;
+  padding: 0;
 }
 
 .game-message-box {
-  margin: 0px;
+  margin: 0;
 }
 
 .message-form {
