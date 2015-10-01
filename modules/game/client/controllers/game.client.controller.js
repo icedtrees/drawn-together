@@ -1,16 +1,19 @@
 'use strict';
 
 // Create the 'game' controller
-angular.module('game').controller('GameController', ['$scope', '$location', 'Authentication', 'Socket', 'GameSettings',
-  function ($scope, $location, Authentication, Socket, GameSettings) {
+angular.module('game').controller('GameController', ['$scope', '$location', 'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings',
+  function ($scope, $location, Authentication, Socket, CanvasSettings, ChatSettings, GameSettings) {
     // Create a messages array
     $scope.messages = [];
     $scope.users = [];
     $scope.canvas = null;
-    $scope.penColour = GameSettings.DEFAULT_PEN_COLOUR;
-    $scope.penWidth = GameSettings.DEFAULT_PEN_WIDTH;
-    $scope.eraserWidth = GameSettings.DEFAULT_ERASER_WIDTH;
+    $scope.penColour = CanvasSettings.DEFAULT_PEN_COLOUR;
+    $scope.penWidth = CanvasSettings.DEFAULT_PEN_WIDTH;
+    $scope.eraserWidth = CanvasSettings.DEFAULT_ERASER_WIDTH;
     $scope.mouseMode = 'pen';
+
+    $scope.CanvasSettings = CanvasSettings;
+    $scope.ChatSettings = ChatSettings;
     $scope.GameSettings = GameSettings;
 
     // Left, middle, right mouse button is down, respectively
@@ -46,7 +49,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       $scope.messages.push(message);
 
       // delete old messages if MAX_MESSAGES is exceeded
-      if ($scope.messages.length > GameSettings.MAX_MESSAGES) {
+      if ($scope.messages.length > ChatSettings.MAX_MESSAGES) {
         $scope.messages.shift();
       }
     });
