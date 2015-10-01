@@ -97,7 +97,10 @@ function advanceRound(io) {
     drawHistory = [];
 
     // Explain what the word was
-    io.emit('gameMessage', {text: 'The topic was ' + topicList[0]});
+    io.emit('gameMessage', {
+      type: 'status',
+      text: 'The topic was ' + topicList[0]
+    });
 
     // Select a new topic and send it to the new drawer
     topicList.push(topicList.shift());
@@ -186,10 +189,12 @@ module.exports = function (io, socket) {
 
       // send the user's guess to themselves
       // TODO their message should be greyed out or something to indicate only they can see it
+      message.type = 'correct-guess';
       socket.emit('gameMessage', message);
 
       var timeToEnd = 20;
       // alert everyone in the room that they were correct
+      message.type = 'status';
       message.text = message.username + " has guessed the prompt! The round will end in " + timeToEnd + " seconds.";
       io.emit('gameMessage', message);
 
@@ -211,6 +216,7 @@ module.exports = function (io, socket) {
 
       // tell the guesser that their guess was close
       // TODO their message should be greyed out or something to indicate only they can see it
+      message.type = 'close-guess';
       message.text += "\nYour guess is close!";
       socket.emit('gameMessage', message);
     } else {

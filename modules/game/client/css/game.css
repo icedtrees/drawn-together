@@ -1,19 +1,28 @@
 .game-message {
-  margin-top: 10px;
   padding-top: 10px;
+  padding-bottom: 10px;
+}
+.game-message.status {
+  background-color: #f5f5f5;
+}
+.game-message.close-guess {
+  background-color: #ffff80;
+}
+.game-message.correct-guess {
+  background-color: #99ff75;
 }
 .game-message:not(:first-child) {
   border-top: 1px solid #e7e7e7;
 }
 .game-message-details {
   margin-left: 10px;
+  font-size: 12px;
 }
 .game-profile-image {
   height: 28px;
   width: 28px;
   border-radius: 50%;
 }
-
 .game-message-box {
   height: 500px;
   overflow-y: scroll;

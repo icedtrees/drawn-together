@@ -23,7 +23,7 @@
     <div class="game-message-box" scroll-glue>
       <ul class="list-unstyled">
         <!-- List all messages -->
-        <li class="col-xs-12 col-md-12 game-message" ng-repeat="message in messages">
+        <li class="col-xs-12 col-md-12 game-message" ng-class="message.type" ng-repeat="message in messages">
           <small class="pull-right text-muted" am-time-ago="message.created"></small>
           <img ng-src="{{message.profileImageURL}}" alt="{{message.username}}" class="pull-left game-profile-image"/>
 
