@@ -37,6 +37,8 @@ module.exports = {
     js: [
       'modules/core/client/app/config.js',
       'modules/core/client/app/init.js',
+      'modules/*/shared/*.js',
+      'modules/*/shared/**/*.js',
       'modules/*/client/*.js',
       'modules/*/client/**/*.js'
     ],
@@ -46,7 +48,7 @@ module.exports = {
   server: {
     gruntConfig: 'gruntfile.js',
     gulpConfig: 'gulpfile.js',
-    allJS: ['server.js', 'config/**/*.js', 'modules/*/server/**/*.js'],
+    allJS: ['server.js', 'config/**/*.js', 'modules/*/shared/*.js', 'modules/*/shared/**/*.js', 'modules/*/server/**/*.js'],
     models: 'modules/*/server/models/**/*.js',
     routes: ['modules/!(core)/server/routes/**/*.js', 'modules/core/server/routes/**/*.js'],
     sockets: 'modules/*/server/sockets/**/*.js',
