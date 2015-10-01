@@ -1,6 +1,6 @@
 'use strict';
 
-var GameSettings = require('../../shared/game.shared.config.js');
+var GameSettings = require('../../shared/config/game.shared.config.js');
 
 // Levenshtein distance library (for calculating distance between words)
 var levenshtein = require('fast-levenshtein');
