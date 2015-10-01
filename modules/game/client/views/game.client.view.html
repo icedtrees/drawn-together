@@ -7,20 +7,20 @@
     <h3>Connected Users</h3>
     <ul class="list-unstyled">
       <!-- List all messages -->
-      <li class="col-xs-12 col-md-offset-4 col-md-4" ng-repeat="user in users">
+      <li class="col-xs-12 col-md-offset-4 col-md-4" ng-repeat="user in Game.userList">
         <div class="pull-left">
-          <div ng-if="user.drawer"><strong ng-bind="user.username"></strong></div>
-          <div ng-if="!user.drawer"><span ng-bind="user.username"></span></div>
+          <div ng-if="Game.isDrawer(user)"><strong ng-bind="user"></strong></div>
+          <div ng-if="!Game.isDrawer(user)"><span ng-bind="user"></span></div>
         </div>
       </li>
     </ul>
-    <button ng-disabled="!isDrawer()" ng-click="finishDrawing();">Finish Drawing</button>
-    <button ng-disabled="!isDrawer()" ng-click="clearDrawing();">Clear</button>
+    <button ng-disabled="!Game.isDrawer(username)" ng-click="finishDrawing()">Finish Drawing</button>
+    <button ng-disabled="!Game.isDrawer(username)" ng-click="clearDrawing()">Clear</button>
   </div>
 
   <!-- Chat stuff -->
-  <div class="col-xs-12 col-md-3" style="border:1px solid #d3d3d3;padding:0px;">
-    <div class="game-message-box" style="margin:0px;" scroll-glue>
+  <div class="chat-container col-xs-12 col-md-3">
+    <div class="game-message-box" scroll-glue>
       <ul class="list-unstyled">
         <!-- List all messages -->
         <li class="col-xs-12 col-md-12 game-message" ng-repeat="message in messages">
@@ -37,11 +37,11 @@
     </div>
 
     <!-- The message form -->
-    <div style="padding:5px;" class="col-xs-12 col-md-12">
-      <form class="col-xs-12 col-md-12" ng-submit="sendMessage();">
+    <div class="message-form col-xs-12 col-md-12">
+      <form class="col-xs-12 col-md-12" ng-submit="sendMessage()">
         <fieldset class="row">
           <div class="input-group col-xs-12 col-md-12">
-            <input ng-disabled="isDrawer()" type="text" id="messageText" name="messageText" class="form-control" ng-model="messageText" placeholder="Enter new message">
+            <input ng-disabled="Game.isDrawer(username)" type="text" id="messageText" name="messageText" class="form-control" ng-model="messageText" ng-trim="false" placeholder="Enter new message">
           </div>
         </fieldset>
       </form>
@@ -50,16 +50,18 @@
 
   <!-- The canvas -->
   <div class="col-xs-12 col-md-6" >
-    <h3 class="text-center" ng-if="isDrawer();">Draw "<span ng-bind="topic"></span>"</h3>
-    <canvas dt-drawing id="canvas" width="500" height="500" style="border:1px solid #d3d3d3;"></canvas>
+    <h3 class="text-center" ng-if="Game.isDrawer(username)">Draw "<span ng-bind="topic"></span>"</h3>
+    <canvas dt-drawing id="canvas" class="canvas" width="500" height="500"></canvas>
   </div>
 
   <!-- Drawing settings -->
   <div class="col-xs-12 col-md-1">
     <h3 class="text-center">Drawing settings</h3>
-    <input colorpicker="hex" type="text" name="penColour" ng-model="penColour" colorpicker-is-open="true" size="5" maxlength="7"/>
-    <br><br>
-    <button ng-disabled="!isDrawer()" ng-click="useEraser();">Eraser</button>
+    <input colorpicker="hex" type="text" name="penColour" ng-model="penColour" ng-change="mouseMode = 'pen'" colorpicker-is-open="true" size="5" maxlength="7"/>
+    <button ng-disabled="mouseMode === 'pen'" ng-click="mouseMode = 'pen'">Pen</button>
+    <input type="range" ng-model="penWidth" ng-change="mouseMode = 'pen'" min="{{GameSettings.MIN_PEN_WIDTH}}" max="{{GameSettings.MAX_PEN_WIDTH}}">
+    <button ng-disabled="mouseMode === 'eraser'" ng-click="mouseMode = 'eraser'">Eraser</button>
+    <input type="range" ng-model="eraserWidth" ng-change="mouseMode = 'eraser'" min="{{GameSettings.MIN_ERASER_WIDTH}}" max="{{GameSettings.MAX_ERASER_WIDTH}}">
   </div>
 
 </section>
