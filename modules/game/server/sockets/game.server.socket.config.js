@@ -1,5 +1,7 @@
 'use strict';
 
+var GameSettings = require('../../shared/game.shared.config.js');
+
 // Levenshtein distance library (for calculating distance between words)
 var levenshtein = require('fast-levenshtein');
 
@@ -216,6 +218,9 @@ module.exports = function (io, socket) {
     } else {
       // incorrect guess: emit message to everyone
       gameMessages.push(message);
+      if (gameMessages.length > GameSettings.MAX_MESSAGES) {
+        gameMessages.shift();
+      }
 
       io.emit('gameMessage', message);
     }
