@@ -8,7 +8,9 @@ angular.module('users').directive('usernameValidator', function() {
         // attr = a dictionary of attributes on the element
         // ctrl = the controller for ngModel.
         link: function(scope, elem, attr, ctrl) {
-            var usernameValidator = function (username) {
+
+            // add a parser into the model that runs when the user updates it.
+            ctrl.$parsers.unshift(function (username) {
                 var isValid = /^[a-z0-9]{1,26}$/.test(username);
                 ctrl.$setValidity('chosenUsername', isValid);
 
@@ -29,10 +31,7 @@ angular.module('users').directive('usernameValidator', function() {
                     scope.usernameErrors = errors;
                     return undefined;
                 }
-            };
-
-            // add a parser into the model that runs when the user updates it.
-            ctrl.$parsers.unshift(usernameValidator);
+            });
         }
     };
 });
