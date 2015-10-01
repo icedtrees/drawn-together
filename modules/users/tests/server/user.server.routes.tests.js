@@ -33,9 +33,6 @@ describe('User CRUD tests', function () {
 
     // Create a new user
     user = new User({
-      firstName: 'Full',
-      lastName: 'Name',
-      displayName: 'Full Name',
       email: 'test@test.com',
       username: credentials.username,
       password: credentials.password,
