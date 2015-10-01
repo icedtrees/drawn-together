@@ -95,7 +95,7 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants',
          * this element and perform the draw (as well as notifying the server)
          */
         element.drawSegment = function(e) {
-          if (!scope.isDrawer()) {
+          if (!scope.Game.isDrawer(scope.username)) {
             return;
           }
 
