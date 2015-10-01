@@ -5,9 +5,8 @@ angular.module('game').run(['Menus',
   function (Menus) {}
 ]);
 
-// Configure Game settings
-angular.module('game').constant('GameSettings', {
-  MAX_MESSAGES: 12,
+// Configure settings and constants
+angular.module('game').constant('CanvasSettings', angular.extend({
   MIN_PEN_WIDTH: 1,
   DEFAULT_PEN_WIDTH: 1,
   MAX_PEN_WIDTH: 30,
@@ -15,5 +14,21 @@ angular.module('game').constant('GameSettings', {
   MIN_ERASER_WIDTH: 1,
   DEFAULT_ERASER_WIDTH: 30,
   MAX_ERASER_WIDTH: 100
+}, window.canvasSettings));
+
+angular.module('game').constant('ChatSettings', angular.extend({
+}, window.chatSettings));
+
+angular.module('game').constant('GameSettings', angular.extend({
+}, window.gameSettings));
+
+angular.module('game').constant('MouseConstants', {
+  MOUSE_LEFT: 0,
+  MOUSE_MIDDLE: 1,
+  MOUSE_RIGHT: 2
 });
 
+// Configure shared code
+angular.module('game').factory('GameLogic', function () {
+  return window.gameLogic;
+});

@@ -1,17 +1,24 @@
 'use strict';
 
 // Create the 'game' controller
-angular.module('game').controller('GameController', ['$scope', '$location', 'Authentication', 'Socket', 'GameSettings',
-  function ($scope, $location, Authentication, Socket, GameSettings) {
-    // Create a messages array
-    $scope.messages = [];
-    $scope.users = [];
-    $scope.canvas = null;
-    $scope.penColour = GameSettings.DEFAULT_PEN_COLOUR;
-    $scope.penWidth = GameSettings.DEFAULT_PEN_WIDTH;
-    $scope.eraserWidth = GameSettings.DEFAULT_ERASER_WIDTH;
-    $scope.mouseMode = 'pen';
+angular.module('game').controller('GameController', ['$scope', '$location', 'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic',
+  function ($scope, $location, Authentication, Socket, CanvasSettings, ChatSettings, GameSettings, GameLogic) {
+    // Settings objects
+    $scope.CanvasSettings = CanvasSettings;
+    $scope.ChatSettings = ChatSettings;
     $scope.GameSettings = GameSettings;
+
+    // Create a messages array to store chat messages
+    $scope.messages = [];
+
+    // Default canvas settings
+    $scope.canvas = null;
+    $scope.penColour = CanvasSettings.DEFAULT_PEN_COLOUR;
+    $scope.penWidth = CanvasSettings.DEFAULT_PEN_WIDTH;
+    $scope.eraserWidth = CanvasSettings.DEFAULT_ERASER_WIDTH;
+    $scope.mouseMode = 'pen';
+
+    $scope.Game = new GameLogic.Game();
 
     // Left, middle, right mouse button is down, respectively
     $scope.mouseState = [false, false, false];
@@ -20,6 +27,8 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     // If user is not signed in then redirect to signin page
     if (!Authentication.user) {
       $location.path('/authentication/signin');
+    } else {
+      $scope.username = Authentication.user.username;
     }
 
     // Make sure the Socket is connected
@@ -32,6 +41,30 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       Socket.emit('requestState');
     }
 
+    /*
+     * Set the game state based on what the server tells us it currently is
+     */
+    Socket.on('gameState', function (state) {
+      $scope.Game.setState(state);
+    });
+
+    /*
+     * A round has finished
+     */
+    Socket.on('advanceRound', function () {
+      $scope.Game.advanceRound();
+    });
+
+    /*
+     * Another user has connected or disconnected.
+     */
+    Socket.on('userConnect', function (user) {
+      $scope.Game.addUser(user);
+    });
+    Socket.on('userDisconnect', function (user) {
+      $scope.Game.removeUser(user);
+    });
+
     /* Add an event listener to the 'gameMessage' event
      *
      * message =
@@ -43,15 +76,23 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
      * }
      */
     Socket.on('gameMessage', function (message) {
-      $scope.messages.push(message);
+      if (Array.isArray(message)) {
+        message.forEach(function (m) {
+          $scope.messages.push(m);
+        });
+      } else {
+        $scope.messages.push(message);
+      }
 
       // delete old messages if MAX_MESSAGES is exceeded
-      if ($scope.messages.length > GameSettings.MAX_MESSAGES) {
+      while ($scope.messages.length > ChatSettings.MAX_MESSAGES) {
         $scope.messages.shift();
       }
     });
 
     /*
+     * Can be a single message or an array of messages
+     *
      * var message =
      * {
      *   x1: last X position of cursor on the canvas
@@ -61,31 +102,13 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
      * };
      */
     Socket.on('canvasMessage', function (message) {
-      if ($scope.canvas) {
+      if (Array.isArray(message)) {
+        message.forEach(function (m) {
+          $scope.canvas.draw(m);
+        });
+      } else {
         $scope.canvas.draw(message);
       }
-    });
-
-    /* Add an event listener to the 'userUpdate' event
-     *
-     * data =
-     * [
-     *   {
-     *     username: string
-     *     drawer: bool
-     *   }
-     * ]
-     */
-    Socket.on('userUpdate', function (data) {
-      $scope.users = data.sort(function (a, b) {
-        return a.username > b.username;
-      });
-    });
-
-    Socket.on('updateDrawHistory', function (drawHistory) {
-      drawHistory.forEach(function(message) {
-        $scope.canvas.draw(message);
-      });
     });
 
     Socket.on('topic', function (topic) {
@@ -112,25 +135,15 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       $scope.messageText = '';
     };
 
-    // Returns true if we are currently the drawer and false otherwise
-    $scope.isDrawer = function () {
-      for (var i = 0; i < $scope.users.length; i++) {
-        if ($scope.users[i].username === Authentication.user.username && $scope.users[i].drawer) {
-          return true;
-        }
-      }
-      return false;
-    };
-
     // Send a 'finished drawing' message to the server. Must be the current drawer
     $scope.finishDrawing = function () {
-      if ($scope.isDrawer()) {
+      if ($scope.Game.isDrawer($scope.username)) {
         Socket.emit('finishDrawing');
       }
     };
 
     $scope.clearDrawing = function () {
-      if ($scope.isDrawer()) {
+      if ($scope.Game.isDrawer($scope.username)) {
         var message = {
           type: 'clear',
         };
