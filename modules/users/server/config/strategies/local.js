@@ -21,17 +21,13 @@ module.exports = function () {
           return done(err);
         }
 
-        if (!user && !user.authenticate(password)) {
+        if (user && user.authenticate && !user.authenticate(password)) {
           return done(null, false, {
-            message: 'Invalid username and password'
+            message: 'Invalid password'
           });
         } else if (!user) {
           return done(null, false, {
             message: 'Invalid username'
-          });
-        } else if (!user.authenticate(password)) {
-          return done(null, false, {
-            message: 'Invalid password'
           });
         }
 
