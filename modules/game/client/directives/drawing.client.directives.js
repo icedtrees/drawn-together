@@ -29,13 +29,8 @@ function getMouse(e, canvas) {
   return {x: mx, y: my};
 }
 
-// TODO during client/server code refactor, place these in a constants file
-var MOUSE_LEFT = 0;
-var MOUSE_MIDDLE = 1;
-var MOUSE_RIGHT = 2;
-
-angular.module('game').directive('dtDrawing', ['Socket',
-  function (Socket) {
+angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants',
+  function (Socket, MouseConstants) {
     return {
       restrict: "A",
       link: function (scope, element) {
@@ -90,7 +85,7 @@ angular.module('game').directive('dtDrawing', ['Socket',
           scope.mouseState[e.which - 1] = false;
 
           // Set drawing to false if left mouse button is now released
-          if (!scope.mouseState[MOUSE_LEFT]) {
+          if (!scope.mouseState[MouseConstants.MOUSE_LEFT]) {
             element.drawing = false;
           }
         });
@@ -100,7 +95,7 @@ angular.module('game').directive('dtDrawing', ['Socket',
          * this element and perform the draw (as well as notifying the server)
          */
         element.drawSegment = function(e) {
-          if (!scope.isDrawer()) {
+          if (!scope.Game.isDrawer(scope.username)) {
             return;
           }
 

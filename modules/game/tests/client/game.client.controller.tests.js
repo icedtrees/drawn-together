@@ -59,11 +59,6 @@
         expect(scope.messages.length).toBe(0);
       });
 
-      it('should define users array', function () {
-        expect(scope.users).toBeDefined();
-        expect(scope.users.length).toBe(0);
-      });
-
       describe('sendMessage', function () {
         var text = 'hello world!';
         beforeEach(function () {
