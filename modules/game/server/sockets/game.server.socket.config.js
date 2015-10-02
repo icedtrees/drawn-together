@@ -67,7 +67,9 @@ function advanceRound(io) {
     // Explain what the word was
     io.emit('gameMessage', {
       type: 'status',
-      text: 'The topic was ' + topicList[0]
+      text: 'The topic was ' + topicList[0],
+      //profileImageURL: null,
+      username: ChatSettings.SERVER_NAME
     });
 
     // Select a new topic and send it to the new drawer
@@ -96,10 +98,10 @@ module.exports = function (io, socket) {
     // Emit the status event when a new socket client is connected
     var message = {
       type: 'status',
-      text: 'is now connected',
+      text: username + ' is now connected',
       created: Date.now(),
       profileImageURL: socket.request.user.profileImageURL,
-      username: username
+      username: ChatSettings.SERVER_NAME
     };
     gameMessages.push(message);
     socket.broadcast.emit('gameMessage', message);
@@ -158,7 +160,6 @@ module.exports = function (io, socket) {
       });
 
       // send the user's guess to themselves
-      // TODO their message should be greyed out or something to indicate only they can see it
       message.type = 'correct-guess';
       socket.emit('gameMessage', message);
 
@@ -166,6 +167,7 @@ module.exports = function (io, socket) {
       // alert everyone in the room that they were correct
       message.type = 'status';
       message.text = message.username + " has guessed the prompt! The round will end in " + timeToEnd + " seconds.";
+      message.username = ChatSettings.SERVER_NAME;
       io.emit('gameMessage', message);
 
       // End the round in timeToEnd seconds
@@ -184,9 +186,9 @@ module.exports = function (io, socket) {
       });
 
       // tell the guesser that their guess was close
-      // TODO their message should be greyed out or something to indicate only they can see it
       message.type = 'close-guess';
       message.text += "\nYour guess is close!";
+      message.username = username;
       socket.emit('gameMessage', message);
     } else {
       // incorrect guess: emit message to everyone
@@ -232,10 +234,10 @@ module.exports = function (io, socket) {
       // Emit the status event when a socket client is disconnected
       var message = {
         type: 'status',
-        text: 'is now disconnected',
+        text: username + ' is now disconnected',
         created: Date.now(),
         profileImageURL: socket.request.user.profileImageURL,
-        username: username
+        username: ChatSettings.SERVER_NAME
       };
       gameMessages.push(message);
       io.emit('gameMessage', message);

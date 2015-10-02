@@ -25,11 +25,10 @@
         <!-- List all messages -->
         <li class="col-xs-12 col-md-12 game-message" ng-class="message.type" ng-repeat="message in messages">
           <small class="pull-right text-muted" am-time-ago="message.created"></small>
-          <img ng-src="{{message.profileImageURL}}" alt="{{message.username}}" class="pull-left game-profile-image"/>
+          <img ng-src="{{message.profileImageURL}}" alt="{{message.username}}" class="pull-left game-profile-image" ng-class="message.username"/>
 
-          <div class="pull-left game-message-details">
-            <strong ng-bind="message.username"></strong>
-            <br>
+          <div class="pull-left game-message-details" ng-class="message.type">
+            <span ng-bind="message.username" class="username" ng-class="message.username"></span>
             <span class="wordwrap" ng-bind="message.text"></span>
           </div>
         </li>
