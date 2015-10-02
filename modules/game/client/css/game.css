@@ -33,3 +33,24 @@ button:disabled {
   word-wrap: break-word;      /* IE */
   display: inline-block;      /* Firefox and IE */
 }
+
+[colorpicker] {
+  margin-bottom: 200px;
+}
+
+.canvas {
+  border: 1px solid #d3d3d3;
+}
+
+.chat-container {
+  border: 1px solid #d3d3d3;
+  padding: 0px;
+}
+
+.game-message-box {
+  margin: 0px;
+}
+
+.message-form {
+  padding: 5px;
+}

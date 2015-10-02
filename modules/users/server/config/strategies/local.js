@@ -20,9 +20,14 @@ module.exports = function () {
         if (err) {
           return done(err);
         }
-        if (!user || !user.authenticate(password)) {
+
+        if (user && user.authenticate && !user.authenticate(password)) {
           return done(null, false, {
-            message: 'Invalid username or password'
+            message: 'Invalid password'
+          });
+        } else if (!user) {
+          return done(null, false, {
+            message: 'Invalid username'
           });
         }
 

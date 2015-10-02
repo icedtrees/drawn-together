@@ -29,13 +29,8 @@ function getMouse(e, canvas) {
   return {x: mx, y: my};
 }
 
-// TODO during client/server code refactor, place these in a constants file
-var MOUSE_LEFT = 0;
-var MOUSE_MIDDLE = 1;
-var MOUSE_RIGHT = 2;
-
-angular.module('game').directive('dtDrawing', ['Socket',
-  function (Socket) {
+angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants',
+  function (Socket, MouseConstants) {
     return {
       restrict: "A",
       link: function (scope, element) {
@@ -90,7 +85,7 @@ angular.module('game').directive('dtDrawing', ['Socket',
           scope.mouseState[e.which - 1] = false;
 
           // Set drawing to false if left mouse button is now released
-          if (!scope.mouseState[MOUSE_LEFT]) {
+          if (!scope.mouseState[MouseConstants.MOUSE_LEFT]) {
             element.drawing = false;
           }
         });
@@ -100,7 +95,7 @@ angular.module('game').directive('dtDrawing', ['Socket',
          * this element and perform the draw (as well as notifying the server)
          */
         element.drawSegment = function(e) {
-          if (!scope.isDrawer()) {
+          if (!scope.Game.isDrawer(scope.username)) {
             return;
           }
 
@@ -113,9 +108,15 @@ angular.module('game').directive('dtDrawing', ['Socket',
             x1: element.lastX,
             y1: element.lastY,
             x2: element.curX,
-            y2: element.curY,
-            stroke: scope.penColour
+            y2: element.curY
           };
+          if (scope.mouseMode === 'pen') {
+            message.strokeStyle = scope.penColour;
+            message.lineWidth = scope.penWidth;
+          } else if (scope.mouseMode === 'eraser') {
+            message.strokeStyle = '#ffffff';
+            message.lineWidth = scope.eraserWidth;
+          }
           element.draw(message);
           Socket.emit('canvasMessage', message);
 
@@ -128,18 +129,16 @@ angular.module('game').directive('dtDrawing', ['Socket',
           switch(message.type) {
             case 'line':
               element.ctx.beginPath();
-              // line from
+              element.ctx.lineCap = "round";
               element.ctx.moveTo(message.x1, message.y1);
-              // to
               element.ctx.lineTo(message.x2, message.y2);
-              // color
-              element.ctx.strokeStyle = message.stroke;
-              // draw it
+              element.ctx.strokeStyle = message.strokeStyle;
+              element.ctx.lineWidth = message.lineWidth;
               element.ctx.stroke();
               break;
             case 'rect':
-              element.ctx.fillStyle = message.fill;
-              element.ctx.strokeStyle = message.stroke;
+              element.ctx.fillStyle = message.fillStyle;
+              element.ctx.strokeStyle = message.strokeStyle;
               element.ctx.fillRect(message.x, message.y, message.width, message.height);
               break;
             case 'clear':

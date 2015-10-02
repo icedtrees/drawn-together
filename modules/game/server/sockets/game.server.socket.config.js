@@ -1,15 +1,19 @@
 'use strict';
 
+var ChatSettings = require('../../shared/config/game.shared.chat.config.js');
+var GameLogic = require('../../shared/helpers/game.shared.gamelogic.js');
+
 // Levenshtein distance library (for calculating distance between words)
 var levenshtein = require('fast-levenshtein');
 
-var MAX_MSG_LEN = 65;
+// A timeout created to end the round seconds when someone guesses the prompt
+var roundTimeout;
+// Game object encapsulating game logic
+var Game =  new GameLogic.Game(1, 20); // parameters: numDrawers, timeToEnd
 
-var NUM_DRAWERS = 1;
-// Array of users in a queue. First NUM_DRAWERS users are drawers
-var users = [];
 // Dictionary counting number of connects made by each user
 var userConnects = {};
+
 /* Array of draw actions
  * drawHistory = [
  *   {
@@ -18,7 +22,7 @@ var userConnects = {};
  *     y1: last y pos
  *     x2: cur x pos
  *     y2: cur y pos
- *     stroke: colour code
+ *     strokeStyle: colour code
  *   },
  *   {
  *     type: 'rect'
@@ -27,7 +31,7 @@ var userConnects = {};
  *     width: cur x pos
  *     height: cur y pos
  *     fill: colour code
- *     stroke: colour code
+ *     strokeStyle: colour code
  *   },
  *   {
  *     type: 'clear'
@@ -49,66 +53,29 @@ for (var i = topicList.length - 2; i > 0; i--) {
   topicList[i] = temp;
 }
 
-// If the word has been guessed and round is ending
-var roundEnding = false;
-
-/*
- * Transforms an array of usernames into an array of
- * [
- *   {
- *     username: name
- *     drawer: true|false
- *   }
- * ]
- * based on their position in the queue (first NUM_DRAWERS
- * usernames are drawers).
- */
-
-function getUserList(users) {
-  var userList = [];
-  for (var i = 0; i < users.length; i++) {
-    userList.push({username: users[i], drawer: false});
-    if (i < NUM_DRAWERS) {
-      userList[i].drawer = true;
-    }
-  }
-
-  return userList;
-}
-
-/*
- * Returns true if the given username is a current drawer, false otherwise
- */
-function isDrawer(users, username) {
-  for (var i = 0; i < users.length && i < NUM_DRAWERS; i++) {
-    if (users[i] === username) {
-      return true;
-    }
-  }
-  return false;
-}
-
 function advanceRound(io) {
-  if (roundEnding) {
-    users.push(users.shift());
+  Game.advanceRound();
 
-    // Send user list with updated drawers
-    io.emit('userUpdate', getUserList(users));
+  // Send user list with updated drawers
+  io.emit('advanceRound');
 
-    io.emit('canvasMessage', {type: 'clear'});
-    drawHistory = [];
+  io.emit('canvasMessage', {type: 'clear'});
+  drawHistory = [];
 
-    // Explain what the word was
-    io.emit('gameMessage', {text: 'The topic was ' + topicList[0]});
+  // Explain what the word was
+  io.emit('gameMessage', {text: 'Round over! The topic was "' + topicList[0] + '"'});
 
-    // Select a new topic and send it to the new drawer
-    topicList.push(topicList.shift());
-    for (var i = 0; i < NUM_DRAWERS; i++) {
-      io.to(users[i]).emit('topic', topicList[0]);
-    }    
-  }
+  // Select a new topic and send it to the new drawer
+  topicList.push(topicList.shift());
+  Game.getDrawers().forEach(function (drawer) {
+    io.to(drawer).emit('topic', topicList[0]);
+  });
 
-  roundEnding = false;
+  // Announce the new drawers
+  var drawers = Game.getDrawers();
+  var newDrawers = drawers.length === 1 ? drawers[0] : drawers.slice(0, drawers.length - 1).join(", ") +
+      " and " + drawers[drawers.length - 1];
+  io.emit('gameMessage', {text: newDrawers + (drawers.length === 1 ? ' is' : ' are') + ' now drawing.'});
 }
 
 // Create the game configuration
@@ -122,7 +89,7 @@ module.exports = function (io, socket) {
     userConnects[username]++;
   } else {
     userConnects[username] = 1;
-    users.push(username);
+    Game.addUser(username);
 
     // Emit the status event when a new socket client is connected
     var message = {
@@ -136,34 +103,36 @@ module.exports = function (io, socket) {
     socket.broadcast.emit('gameMessage', message);
 
     // Notify everyone about the new joined user (not the sender though)
-    socket.broadcast.emit('userUpdate', getUserList(users));
+    socket.broadcast.emit('userConnect', username);
   }
 
   // Send an updated version of the userlist whenever a user requests an update of the
   // current server state.
   socket.on('requestState', function () {
-    // Send a list of connected userConnects
-    socket.emit('userUpdate', getUserList(users));
+    // Send current game state
+    socket.emit('gameState', Game.getState());
+
     // Send the chat message history to the user
-    gameMessages.forEach(function(message) {
-      socket.emit('gameMessage', message);
-    });
+    socket.emit('gameMessage', gameMessages);
+
     // Send the draw history to the user
-    socket.emit('updateDrawHistory', drawHistory);
-    if (isDrawer(users, username)) {
+    socket.emit('canvasMessage', drawHistory);
+
+    // Send current topic if they are the drawer
+    if (Game.isDrawer(username)) {
       socket.emit('topic', topicList[0]);
     }
   });
   
-  // Send a chat message to all connected sockets when a message is received
+  // Handle chat messages
   socket.on('gameMessage', function (message) {
     // The current drawer cannot chat
-    if (isDrawer(users, username)) {
+    if (Game.isDrawer(username)) {
       return;
     }
 
     // Disallow messages that are empty or longer than MAX_MSG_LEN characters
-    if (/^\s*$/.test(message.text) || message.text.length > MAX_MSG_LEN) {
+    if (/^\s*$/.test(message.text) || message.text.length > ChatSettings.MAX_MSG_LEN) {
       return;
     }
 
@@ -176,48 +145,61 @@ module.exports = function (io, socket) {
     var guess = message.text.toLowerCase();
     var topic = topicList[0].toLowerCase();
 
-    var i;
-
     if (guess === topic) {
-      // correct guess
+      // Correct guess
 
-      // send user's guess to the drawer/s
-      for (i = 0; i < NUM_DRAWERS; i++) {
-        io.to(users[i]).emit('gameMessage', message);
-      }
+      // Send user's guess to the drawer/s
+      Game.getDrawers().forEach(function (drawer) {
+        io.to(drawer).emit('gameMessage', message);
+      });
 
-      // send the user's guess to themselves
+      // Send the user's guess to themselves
       // TODO their message should be greyed out or something to indicate only they can see it
       socket.emit('gameMessage', message);
 
-      var timeToEnd = 20;
-      // alert everyone in the room that they were correct
-      message.text = message.username + " has guessed the prompt! The round will end in " + timeToEnd + " seconds.";
-      io.emit('gameMessage', message);
+      // Don't update game state if user has already guessed the prompt
+      if (Game.userHasGuessed(username)) {
+          return;
+      }
 
-      // End the round in timeToEnd seconds
-      // TODO variable time
-      if (!roundEnding) {
-        roundEnding = true;
-        setTimeout(function () {
+      // Mark user as correct and increase their score
+      Game.markCorrectGuess(username);
+
+      // Alert everyone in the room that they were correct
+      io.emit('gameMessage', {text: username + " has guessed the prompt!"});
+
+      // End round if everyone has guessed
+      if (Game.allGuessed()) {
+        clearTimeout(roundTimeout);
+        advanceRound(io);
+      } else if (Game.correctGuesses === 1) {
+        // Start timer to end round if this is the first correct guess
+        io.emit('gameMessage', {text: "The round will end in " + Game.timeToEnd + " seconds."});
+        roundTimeout = setTimeout(function () {
           advanceRound(io);
-        }, timeToEnd * 1000);
+        }, Game.timeToEnd * 1000);
       }
+
     } else if (guess.indexOf(topic) > -1 || levenshtein.get(topic, guess) < 3) {
-      // if message contains drawing prompt or word-distance is < 3 it is a close guess
+      // If message contains drawing prompt or word-distance is < 3 it is a close guess
 
-      // tell the drawer/s the guess
-      for (i = 0; i < NUM_DRAWERS; i++) {
-        io.to(users[i]).emit('gameMessage', message);
-      }
+      // Tell the drawer/s the guess
+      Game.getDrawers().forEach(function (drawer) {
+        io.to(drawer).emit('gameMessage', message);
+      });
 
-      // tell the guesser that their guess was close
+      // Tell the guesser that their guess was close
       // TODO their message should be greyed out or something to indicate only they can see it
-      message.text += "\nYour guess is close!";
       socket.emit('gameMessage', message);
+      if (!Game.userHasGuessed(username)) {
+        socket.emit('gameMessage', {text: "Your guess is close!"});
+      }
     } else {
-      // incorrect guess: emit message to everyone
+      // Incorrect guess: emit message to everyone
       gameMessages.push(message);
+      if (gameMessages.length > ChatSettings.MAX_MESSAGES) {
+        gameMessages.shift();
+      }
 
       io.emit('gameMessage', message);
     }
@@ -225,7 +207,7 @@ module.exports = function (io, socket) {
 
   // Send a canvas drawing command to all connected sockets when a message is received
   socket.on('canvasMessage', function (message) {
-    if (isDrawer(users, username)) {
+    if (Game.isDrawer(username)) {
       if (message.type === 'clear') {
         drawHistory = [];
       } else {
@@ -240,8 +222,8 @@ module.exports = function (io, socket) {
   // Current drawer has finished drawing
   socket.on('finishDrawing', function () {
     // If the user who submitted this message actually is a drawer
-    if (isDrawer(users, username)) {
-      roundEnding = true;
+    // And prevent round ending prematurely when prompt has been guessed
+    if (Game.isDrawer(username) && Game.correctGuesses === 0) {
       advanceRound(io);
     }
   });
@@ -251,10 +233,7 @@ module.exports = function (io, socket) {
     userConnects[username]--;
     if (userConnects[username] === 0) {
       delete userConnects[username];
-      var idx = users.indexOf(username);
-      if (idx !== -1) {
-        users.splice(idx, 1);
-      }
+      Game.removeUser(username);
 
       // Emit the status event when a socket client is disconnected
       var message = {
@@ -267,8 +246,8 @@ module.exports = function (io, socket) {
       gameMessages.push(message);
       io.emit('gameMessage', message);
 
-      // Send updated list of userConnects now that one has disconnected
-      io.emit('userUpdate', getUserList(users));
+      // Notify all users that this user has disconnected
+      io.emit('userDisconnect', username);
     }
   });
 };
