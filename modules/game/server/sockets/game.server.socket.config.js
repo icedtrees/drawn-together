@@ -166,7 +166,7 @@ module.exports = function (io, socket) {
       var timeToEnd = 20;
       // alert everyone in the room that they were correct
       message.type = 'status';
-      message.text = message.username + " has guessed the prompt! The round will end in " + timeToEnd + " seconds.";
+      message.text = message.username + " has guessed the prompt ! The round will end in " + timeToEnd + " seconds.";
       message.username = ChatSettings.SERVER_NAME;
       io.emit('gameMessage', message);
 
@@ -187,7 +187,6 @@ module.exports = function (io, socket) {
 
       // tell the guesser that their guess was close
       message.type = 'close-guess';
-      message.text += "\nYour guess is close!";
       message.username = username;
       socket.emit('gameMessage', message);
     } else {

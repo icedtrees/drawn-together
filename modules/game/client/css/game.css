@@ -15,6 +15,12 @@
   margin-left: 10px;
   font-size: 12px;
 }
+.game-message-details.close-guess:after {
+  /* Fixes up username aligning with the second line instead of
+  the first when "\n" is used inside message.text */
+  content: "\aYour guess is close!";
+  white-space: pre;
+}
 /* Align all server/status messages to the very left */
 .game-message-details.status {
   margin-left: 0px;
@@ -23,18 +29,9 @@
 .username {
   font-weight: bold;
 }
-/* Keep the username on its own line */
-.username:after {
-  content: "\a";
-  white-space: pre;
-}
 /* server is ChatSettings.SERVER_NAME */
 .username.server {
   font-size: 0px;
-}
-/* The server has no username displayed, so no new line after the space for the username */
-.username.server:after {
-  content: "";
 }
 .game-profile-image {
   height: 28px;
