@@ -7,15 +7,15 @@
     <h3>Connected Users</h3>
     <ul class="list-unstyled">
       <!-- List all messages -->
-      <li class="col-xs-12 col-md-offset-4 col-md-4" ng-repeat="user in users">
+      <li class="col-xs-12 col-md-offset-4 col-md-4" ng-repeat="user in Game.userList">
         <div class="pull-left">
-          <div ng-if="user.drawer"><strong ng-bind="user.username"></strong></div>
-          <div ng-if="!user.drawer"><span ng-bind="user.username"></span></div>
+          <div ng-if="Game.isDrawer(user)"><strong ng-bind="user"></strong></div>
+          <div ng-if="!Game.isDrawer(user)"><span ng-bind="user"></span></div>
         </div>
       </li>
     </ul>
-    <button ng-disabled="!isDrawer()" ng-click="finishDrawing()">Finish Drawing</button>
-    <button ng-disabled="!isDrawer()" ng-click="clearDrawing()">Clear</button>
+    <button ng-disabled="!Game.isDrawer(username)" ng-click="finishDrawing()">Finish Drawing</button>
+    <button ng-disabled="!Game.isDrawer(username)" ng-click="clearDrawing()">Clear</button>
   </div>
 
   <!-- Chat stuff -->
@@ -41,7 +41,7 @@
       <form class="col-xs-12 col-md-12" ng-submit="sendMessage()">
         <fieldset class="row">
           <div class="input-group col-xs-12 col-md-12">
-            <input ng-disabled="isDrawer()" type="text" id="messageText" name="messageText" class="form-control" ng-model="messageText" ng-trim="false" placeholder="Enter new message">
+            <input ng-disabled="Game.isDrawer(username)" type="text" id="messageText" name="messageText" class="form-control" ng-model="messageText" ng-trim="false" placeholder="Enter new message">
           </div>
         </fieldset>
       </form>
@@ -50,7 +50,7 @@
 
   <!-- The canvas -->
   <div class="col-xs-12 col-md-5" >
-    <h3 class="text-center" ng-if="isDrawer()">Draw "<span ng-bind="topic"></span>"</h3>
+    <h3 class="text-center" ng-if="Game.isDrawer(username)">Draw "<span ng-bind="topic"></span>"</h3>
     <canvas dt-drawing id="canvas" class="canvas" width="400" height="400"></canvas>
   </div>
 
