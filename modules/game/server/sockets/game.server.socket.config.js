@@ -1,7 +1,6 @@
 'use strict';
 
 var ChatSettings = require('../../shared/config/game.shared.chat.config.js');
-var GameSettings = require('../../shared/config/game.shared.game.config.js');
 var GameLogic = require('../../shared/helpers/game.shared.gamelogic.js');
 
 // Levenshtein distance library (for calculating distance between words)
@@ -10,7 +9,7 @@ var levenshtein = require('fast-levenshtein');
 // A timeout created to end the round seconds when someone guesses the prompt
 var roundTimeout;
 // Game object encapsulating game logic
-var Game =  new GameLogic.Game(GameSettings.NUM_DRAWERS, GameSettings.TIME_TO_END);
+var Game =  new GameLogic.Game(1, 20); // parameters: numDrawers, timeToEnd
 
 // Dictionary counting number of connects made by each user
 var userConnects = {};
@@ -159,12 +158,12 @@ module.exports = function (io, socket) {
       socket.emit('gameMessage', message);
 
       // Don't update game state if user has already guessed the prompt
-      if (Game.userCorrect(username)) {
+      if (Game.userHasGuessed(username)) {
           return;
       }
 
       // Mark user as correct and increase their score
-      Game.correctGuess(username);
+      Game.markCorrectGuess(username);
 
       // Alert everyone in the room that they were correct
       io.emit('gameMessage', {text: username + " has guessed the prompt!"});
@@ -173,12 +172,12 @@ module.exports = function (io, socket) {
       if (Game.allGuessed()) {
         clearTimeout(roundTimeout);
         advanceRound(io);
-      } else if (Game.noneGuessed()) {
+      } else if (Game.correctGuesses === 1) {
         // Start timer to end round if this is the first correct guess
-        io.emit('gameMessage', {text: "The round will end in " + Game.getState().timeToEnd + " seconds."});
+        io.emit('gameMessage', {text: "The round will end in " + Game.timeToEnd + " seconds."});
         roundTimeout = setTimeout(function () {
           advanceRound(io);
-        }, Game.getState().timeToEnd * 1000);
+        }, Game.timeToEnd * 1000);
       }
 
     } else if (guess.indexOf(topic) > -1 || levenshtein.get(topic, guess) < 3) {
@@ -192,7 +191,7 @@ module.exports = function (io, socket) {
       // Tell the guesser that their guess was close
       // TODO their message should be greyed out or something to indicate only they can see it
       socket.emit('gameMessage', message);
-      if (!Game.userCorrect(username)) {
+      if (!Game.userHasGuessed(username)) {
         socket.emit('gameMessage', {text: "Your guess is close!"});
       }
     } else {
@@ -224,7 +223,7 @@ module.exports = function (io, socket) {
   socket.on('finishDrawing', function () {
     // If the user who submitted this message actually is a drawer
     // And prevent round ending prematurely when prompt has been guessed
-    if (Game.isDrawer(username) && Game.noneGuessed()) {
+    if (Game.isDrawer(username) && Game.correctGuesses === 0) {
       advanceRound(io);
     }
   });

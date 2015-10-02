@@ -45,13 +45,13 @@
     return drawers;
   };
 
-  exports.Game.prototype.userCorrect = function(username) {
+  exports.Game.prototype.userHasGuessed = function(username) {
     return this.users[username].guessedCorrect;
   };
 
-  exports.Game.prototype.correctGuess = function(username) {
+  exports.Game.prototype.markCorrectGuess = function(username) {
     // Only allow correct guesses once per round
-    if (this.userCorrect(username)) {
+    if (this.userHasGuessed(username)) {
       return;
     }
 
@@ -64,10 +64,6 @@
 
   exports.Game.prototype.allGuessed = function() {
     return this.correctGuesses === this.userList.length - this.numDrawers;
-  };
-
-  exports.Game.prototype.noneGuessed = function() {
-    return this.correctGuesses === 0;
   };
 
   exports.Game.prototype.advanceRound = function () {
@@ -84,7 +80,8 @@
       curDrawer: this.curDrawer,
       userList: this.userList,
       users: this.users,
-      timeToEnd: this.timeToEnd
+      timeToEnd: this.timeToEnd,
+      correctGuesses: this.correctGuesses
     };
 
     return state;
@@ -96,6 +93,7 @@
     this.userList = state.userList;
     this.users = state.users;
     this.timeToEnd = state.timeToEnd;
+    this.correctGuesses = state.correctGuesses;
   };
 
 })((typeof process === 'undefined' || !process.versions) ? // Not a node.js environment
