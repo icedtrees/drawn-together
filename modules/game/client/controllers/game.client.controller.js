@@ -145,7 +145,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     $scope.clearDrawing = function () {
       if ($scope.Game.isDrawer($scope.username)) {
         var message = {
-          type: 'clear',
+          type: 'clear'
         };
         $scope.canvas.draw(message);
         Socket.emit('canvasMessage', message);

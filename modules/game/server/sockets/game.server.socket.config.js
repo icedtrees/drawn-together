@@ -131,8 +131,8 @@ module.exports = function (io, socket) {
       return;
     }
 
-    // Disallow empty messages
-    if (/^\s*$/.test(message.text)) {
+    // Disallow messages that are empty or longer than MAX_MSG_LEN characters
+    if (message.text.length > ChatSettings.MAX_MSG_LEN || /^\s*$/.test(message.text)) {
       return;
     }
 

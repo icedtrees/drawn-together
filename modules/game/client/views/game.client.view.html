@@ -41,7 +41,7 @@
       <form class="col-xs-12 col-md-12" ng-submit="sendMessage()">
         <fieldset class="row">
           <div class="input-group col-xs-12 col-md-12">
-            <input ng-disabled="Game.isDrawer(username)" type="text" id="messageText" name="messageText" class="form-control" ng-model="messageText" ng-trim="false" placeholder="Enter new message">
+            <input ng-disabled="Game.isDrawer(username)" type="text" id="messageText" name="messageText" class="form-control" ng-model="messageText" ng-trim="false" maxlength="{{ChatSettings.MAX_MSG_LEN}}" placeholder="Enter new message">
           </div>
         </fieldset>
       </form>
