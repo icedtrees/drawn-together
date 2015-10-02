@@ -1,3 +1,18 @@
+button:disabled {
+  color: grey;
+}
+
+.chat-container {
+  border: 1px solid #d3d3d3;
+  padding: 0px;
+}
+
+.game-message-box {
+  height: 500px;
+  overflow-y: scroll;
+  margin: 0px;
+}
+
 .game-message.status, .game-message.status-correct {
   background-color: #f5f5f5;
 }
@@ -10,28 +25,6 @@
 .game-message:not(:first-child) {
   border-top: 1px solid #e7e7e7;
 }
-.game-message-details {
-  /* The margin-left is for padding when there is a profile image*/
-  margin-left: 10px;
-  font-size: 12px;
-}
-.game-message-details.close-guess:after {
-  /* Fixes up username aligning with the second line instead of
-  the first when "\n" is used inside message.text */
-  content: "\aYour guess is close!";
-  white-space: pre;
-}
-/* Align all server/status messages to the very left */
-.game-message-details.status, .game-message-details.status-correct {
-  margin-left: 0px;
-  font-size: 12px;
-}
-.username {
-  font-weight: bold;
-}
-.username.status, .username.status-correct {
-  font-size: 0px;
-}
 
 .game-profile-image {
   height: 28px;
@@ -40,16 +33,32 @@
 }
 /* server is ChatSettings.SERVER_NAME*/
 .game-profile-image.server {
-   height: 0px;
-   width: 0px;
-}
-.game-message-box {
-  height: 500px;
-  overflow-y: scroll;
+  height: 0px;
+  width: 0px;
 }
 
-button:disabled {
-  color: grey;
+.game-message-details {
+  /* The margin-left is for padding when there is a profile image*/
+  margin-left: 10px;
+  font-size: 12px;
+}
+/* Align all server/status messages to the very left */
+.game-message-details.status, .game-message-details.status-correct {
+  margin-left: 0px;
+  font-size: 12px;
+}
+.game-message-details.close-guess:after {
+  /* Fixes up username aligning with the second line instead of
+  the first when "\n" is used inside message.text */
+  content: "\aYour guess is close!";
+  white-space: pre;
+}
+
+.username {
+  font-weight: bold;
+}
+.username.status, .username.status-correct {
+  font-size: 0px;
 }
 
 /* Source: http://snipplr.com/view/10979/css-cross-browser-word-wrap */
@@ -71,23 +80,14 @@ button:disabled {
   white-space: pre;
 }
 
-[colorpicker] {
-  margin-bottom: 200px;
+.message-form {
+  padding: 5px;
 }
 
 .canvas {
   border: 1px solid #d3d3d3;
 }
 
-.chat-container {
-  border: 1px solid #d3d3d3;
-  padding: 0px;
-}
-
-.game-message-box {
-  margin: 0px;
-}
-
-.message-form {
-  padding: 5px;
+[colorpicker] {
+  margin-bottom: 200px;
 }
