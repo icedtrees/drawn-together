@@ -69,7 +69,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
      *
      * message =
      * {
-     *   type: 'message', 'status', 'correct-guess' or 'close-guess'
+     *   type: 'message', 'status', 'status-correct', 'correct-guess' or 'close-guess'
      *   created: Date.now()
      *   profileImageURL: some valid url
      *   username: user who posted the message

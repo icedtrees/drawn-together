@@ -28,8 +28,8 @@
           <img ng-src="{{message.profileImageURL}}" alt="{{message.username}}" class="pull-left game-profile-image" ng-class="message.username"/>
 
           <div class="pull-left game-message-details" ng-class="message.type">
-            <span ng-bind="message.username" class="username" ng-class="message.username"></span>
-            <span class="wordwrap" ng-bind="message.text"></span>
+            <span ng-bind="message.username" class="username" ng-class="message.type"></span>
+            <span class="wordwrap" ng-bind="message.text" ng-class="message.type"></span>
           </div>
         </li>
       </ul>

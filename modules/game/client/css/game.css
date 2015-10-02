@@ -1,4 +1,4 @@
-.game-message.status {
+.game-message.status, .game-message.status-correct {
   background-color: #f5f5f5;
 }
 .game-message.close-guess {
@@ -22,17 +22,17 @@
   white-space: pre;
 }
 /* Align all server/status messages to the very left */
-.game-message-details.status {
+.game-message-details.status, .game-message-details.status-correct {
   margin-left: 0px;
   font-size: 12px;
 }
 .username {
   font-weight: bold;
 }
-/* server is ChatSettings.SERVER_NAME */
-.username.server {
+.username.status, .username.status-correct {
   font-size: 0px;
 }
+
 .game-profile-image {
   height: 28px;
   width: 28px;
@@ -61,6 +61,14 @@ button:disabled {
   word-break: break-all;      /* This is the important one */
   word-wrap: break-word;      /* IE */
   display: inline-block;      /* Firefox and IE */
+}
+.wordwrap.status-correct {
+  font-weight: bold;
+}
+.wordwrap.status-correct:after {
+  font-weight: normal;
+  content: " has guessed the prompt!\aThe round will end in 20 seconds.";
+  white-space: pre;
 }
 
 [colorpicker] {

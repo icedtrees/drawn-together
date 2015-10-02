@@ -165,8 +165,9 @@ module.exports = function (io, socket) {
 
       var timeToEnd = 20;
       // alert everyone in the room that they were correct
-      message.type = 'status';
-      message.text = message.username + " has guessed the prompt ! The round will end in " + timeToEnd + " seconds.";
+      message.type = 'status-correct';
+      // only send the username in the message text, which will be styled as bold in the css
+      message.text = username;
       message.username = ChatSettings.SERVER_NAME;
       io.emit('gameMessage', message);
 
