@@ -44,13 +44,25 @@ button:disabled {
 
 .chat-container {
   border: 1px solid #d3d3d3;
-  padding: 0px;
+  padding: 0;
 }
 
 .game-message-box {
-  margin: 0px;
+  margin: 0;
 }
 
 .message-form {
   padding: 5px;
+}
+
+.dt-drawing {
+  position: relative;
+  outline: 1px solid black;
+  cursor: none;
+  width: 400px;
+  height: 400px;
+}
+
+.dt-drawing-layer {
+  position: absolute;
 }
