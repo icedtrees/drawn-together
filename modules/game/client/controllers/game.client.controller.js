@@ -20,8 +20,6 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
 
     $scope.Game = new GameLogic.Game();
 
-    // Left, middle, right mouse button is down, respectively
-    $scope.mouseState = [false, false, false];
     $scope.messageText = '';
 
     // If user is not signed in then redirect to signin page

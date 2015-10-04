@@ -13,7 +13,9 @@ angular.module('game').constant('CanvasSettings', angular.extend({
   DEFAULT_PEN_COLOUR: '#000000',
   MIN_ERASER_WIDTH: 1,
   DEFAULT_ERASER_WIDTH: 30,
-  MAX_ERASER_WIDTH: 100
+  MAX_ERASER_WIDTH: 100,
+  RESOLUTION_WIDTH: 400,
+  RESOLUTION_HEIGHT: 400
 }, window.canvasSettings));
 
 angular.module('game').constant('ChatSettings', angular.extend({
@@ -23,9 +25,10 @@ angular.module('game').constant('GameSettings', angular.extend({
 }, window.gameSettings));
 
 angular.module('game').constant('MouseConstants', {
-  MOUSE_LEFT: 0,
-  MOUSE_MIDDLE: 1,
-  MOUSE_RIGHT: 2
+  INVALID: 0,
+  MOUSE_LEFT: 1,
+  MOUSE_MIDDLE: 2,
+  MOUSE_RIGHT: 3
 });
 
 // Configure shared code

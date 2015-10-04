@@ -51,7 +51,7 @@
   <!-- The canvas -->
   <div class="col-xs-12 col-md-5" >
     <h3 class="text-center" ng-if="Game.isDrawer(username)">Draw "<span ng-bind="topic"></span>"</h3>
-    <canvas dt-drawing id="canvas" class="canvas" width="400" height="400"></canvas>
+    <div class="dt-drawing"></div>
   </div>
 
   <!-- Drawing settings -->
@@ -63,7 +63,7 @@
         <button ng-disabled="mouseMode === 'pen'" ng-click="mouseMode = 'pen'"><i class="fa fa-pencil"></i></button>
       </div>
       <div class="col-md-9">
-        <input type="range" ng-model="penWidth" ng-change="mouseMode = 'pen'" min="{{GameSettings.MIN_PEN_WIDTH}}" max="{{GameSettings.MAX_PEN_WIDTH}}">
+        <input type="range" ng-model="penWidth" ng-change="mouseMode = 'pen'" min="{{CanvasSettings.MIN_PEN_WIDTH}}" max="{{CanvasSettings.MAX_PEN_WIDTH}}">
       </div>
     </div>
     <div class="row">
@@ -71,7 +71,7 @@
         <button ng-disabled="mouseMode === 'eraser'" ng-click="mouseMode = 'eraser'"><i class="fa fa-eraser"></i></button>
       </div>
       <div class="col-md-9">
-        <input type="range" ng-model="eraserWidth" ng-change="mouseMode = 'eraser'" min="{{GameSettings.MIN_ERASER_WIDTH}}" max="{{GameSettings.MAX_ERASER_WIDTH}}">
+        <input type="range" ng-model="eraserWidth" ng-change="mouseMode = 'eraser'" min="{{CanvasSettings.MIN_ERASER_WIDTH}}" max="{{CanvasSettings.MAX_ERASER_WIDTH}}">
       </div>
     </div>
   </div>

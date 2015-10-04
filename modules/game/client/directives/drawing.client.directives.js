@@ -29,64 +29,108 @@ function getMouse(e, canvas) {
   return {x: mx, y: my};
 }
 
-angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants',
-  function (Socket, MouseConstants) {
+angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'CanvasSettings',
+  function (Socket, MouseConstants, CanvasSettings) {
+    function clearLayer(context) {
+      context.clearRect(0, 0, CanvasSettings.RESOLUTION_WIDTH, CanvasSettings.RESOLUTION_HEIGHT);
+    }
+
     return {
-      restrict: "A",
+      restrict: 'C',
       link: function (scope, element) {
         var doc = angular.element(document);
-        scope.canvas = element;
-        element.ctx = element[0].getContext('2d');
 
-        // variable that decides if something should be drawn on mousemove
-        element.drawing = false;
+        // Generate a layer for the canvas. Higher zIndex indicates in front
+        function createLayer(zIndex) {
+          var canvas = document.createElement('canvas');
+          canvas.setAttribute('class', 'dt-drawing-layer');
+          canvas.setAttribute('width', CanvasSettings.RESOLUTION_WIDTH.toString());
+          canvas.setAttribute('height', CanvasSettings.RESOLUTION_HEIGHT.toString());
+
+          // Take the dimensions of the surrounding div as the display width and height
+          canvas.style.width = element[0].style.width;
+          canvas.style.height = element[0].style.height;
+          canvas.style.zIndex = zIndex;
+          return canvas;
+        }
+
+        // Create the drawing (main) layer and the preview (hover) layer
+        scope.canvas = element;
+        var draw = createLayer(0);
+        var preview = createLayer(1);
+        element[0].appendChild(draw);
+        element[0].appendChild(preview);
+        var drawCtx = draw.getContext('2d');
+        var previewCtx = preview.getContext('2d');
+
+        // Currently drawing with the left mouse button: i.e. mousedown was in canvas and is still down
+        var drawingLeft = false;
+        // Last mouse position when dragging
+        var lastX;
+        var lastY;
         
         doc.bind('mousedown', function (e) {
           var mouse = getMouse(e, element[0]);
 
-          // If the mouseDown event was within the canvas
-          if (mouse.x >= 0 && mouse.x < element[0].width &&
-              mouse.y >= 0 && mouse.y < element[0].height) {
+          // If the mouseDown event was left click within the canvas
+          if (mouse.x >= 0 && mouse.x < element[0].offsetWidth &&
+            mouse.y >= 0 && mouse.y < element[0].offsetHeight &&
+            e.which === MouseConstants.MOUSE_LEFT) {
+
             // Prevent the default action of turning into highlight cursor
             e.preventDefault();
-
-            // We started dragging from within so drawing is true
-            element.drawing = true;
-
             // Also unhighlight anything that may be highlighted
-            if (document.selection) {
-              // IE
+            if (document.selection) { // IE
               document.selection.empty();
-            } else {
-              // Other browsers
+            } else { // Other browsers
               window.getSelection().removeAllRanges();
             }
+
+            // We started dragging from within so we are now drawing
+            drawingLeft = true;
+
+            // Begin the new path
+            drawCtx.beginPath();
+            lastX = mouse.x;
+            lastY = mouse.y;
           }
 
-          element.lastX = mouse.x;
-          element.lastY = mouse.y;
-
-          // begins new line
-          element.ctx.beginPath();
-
-          // Update mouse state
-          scope.mouseState[e.which - 1] = true;
         });
 
         doc.bind('mousemove', function (e) {
-          // If the left mouse button is down
-          if (element.drawing) {
-            element.drawSegment(e);
+          var mouse = getMouse(e, element[0]);
+
+          // If we started drawing within the canvas, draw the next part of the line
+          if (drawingLeft) {
+            element.drawLine(e);
+          }
+
+          // Redraw the preview layer to match the new position
+          clearLayer(previewCtx);
+          if (scope.mouseMode === 'pen') {
+            // Solid circle with the matching pen colour
+            previewCtx.beginPath();
+            previewCtx.arc(mouse.x, mouse.y, (+scope.penWidth + 1) / 2, 0, Math.PI * 2);
+            previewCtx.fillStyle = scope.penColour;
+            previewCtx.fill();
+          } else if (scope.mouseMode === 'eraser') {
+            // Empty circle with black outline and white fill
+            previewCtx.beginPath();
+            previewCtx.arc(mouse.x, mouse.y, (+scope.eraserWidth + 1) / 2, 0, Math.PI * 2);
+            previewCtx.strokeStyle = '#000';
+            previewCtx.lineWidth = 1;
+            previewCtx.stroke();
+            previewCtx.fillStyle = '#fff';
+            previewCtx.fill();
           }
         });
 
         doc.bind('mouseup', function (e) {
-          // Update mouse state
-          scope.mouseState[e.which - 1] = false;
-
-          // Set drawing to false if left mouse button is now released
-          if (!scope.mouseState[MouseConstants.MOUSE_LEFT]) {
-            element.drawing = false;
+          // If we released the left mouse button, stop drawing and finish the line
+          if (e.which === MouseConstants.MOUSE_LEFT && drawingLeft) {
+            drawingLeft = false;
+            // Final drawLine allows you to make a dot by clicking once and not moving mouse.
+            element.drawLine(e);
           }
         });
 
@@ -94,21 +138,19 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants',
          * Given a mouse event, update the last and cur values attached to
          * this element and perform the draw (as well as notifying the server)
          */
-        element.drawSegment = function(e) {
+        element.drawLine = function(e) {
           if (!scope.Game.isDrawer(scope.username)) {
             return;
           }
 
           var mouse = getMouse(e, element[0]);
-          element.curX = mouse.x;
-          element.curY = mouse.y;
 
           var message = {
             type: 'line',
-            x1: element.lastX,
-            y1: element.lastY,
-            x2: element.curX,
-            y2: element.curY
+            x1: lastX,
+            y1: lastY,
+            x2: mouse.x,
+            y2: mouse.y
           };
           if (scope.mouseMode === 'pen') {
             message.strokeStyle = scope.penColour;
@@ -121,28 +163,36 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants',
           Socket.emit('canvasMessage', message);
 
           // set current coordinates to last one
-          element.lastX = element.curX;
-          element.lastY = element.curY;
+          lastX = mouse.x;
+          lastY = mouse.y;
         };
 
         element.draw = function (message) {
           switch(message.type) {
             case 'line':
-              element.ctx.beginPath();
-              element.ctx.lineCap = "round";
-              element.ctx.moveTo(message.x1, message.y1);
-              element.ctx.lineTo(message.x2, message.y2);
-              element.ctx.strokeStyle = message.strokeStyle;
-              element.ctx.lineWidth = message.lineWidth;
-              element.ctx.stroke();
+              // If the line is zero-length, draw a circle instead
+              if (message.x1 === message.x2 && message.y1 === message.y2) {
+                drawCtx.beginPath();
+                drawCtx.arc(message.x1, message.y1, (+message.lineWidth + 1) / 2, 0, 2 * Math.PI);
+                drawCtx.fillStyle = message.strokeStyle;
+                drawCtx.fill();
+                break;
+              }
+              drawCtx.beginPath();
+              drawCtx.lineCap = 'round';
+              drawCtx.moveTo(message.x1, message.y1);
+              drawCtx.lineTo(message.x2, message.y2);
+              drawCtx.strokeStyle = message.strokeStyle;
+              drawCtx.lineWidth = message.lineWidth;
+              drawCtx.stroke();
               break;
             case 'rect':
-              element.ctx.fillStyle = message.fillStyle;
-              element.ctx.strokeStyle = message.strokeStyle;
-              element.ctx.fillRect(message.x, message.y, message.width, message.height);
+              drawCtx.fillStyle = message.fillStyle;
+              drawCtx.strokeStyle = message.strokeStyle;
+              drawCtx.fillRect(message.x, message.y, message.width, message.height);
               break;
             case 'clear':
-              element.ctx.clearRect(0, 0, element[0].width, element[0].height);
+              clearLayer(drawCtx);
               break;
             default:
               console.log('Draw message type unknown: ' + message.type);
