@@ -54,6 +54,10 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
           return canvas;
         }
 
+        function inCanvas(mouse) {
+          return mouse.x >= 0 && mouse.x < element[0].offsetWidth && mouse.y >= 0 && mouse.y < element[0].offsetHeight;
+        }
+
         // Create the drawing (main) layer and the preview (hover) layer
         scope.canvas = element;
         var draw = createLayer(0);
@@ -73,9 +77,7 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
           var mouse = getMouse(e, element[0]);
 
           // If the mouseDown event was left click within the canvas
-          if (mouse.x >= 0 && mouse.x < element[0].offsetWidth &&
-            mouse.y >= 0 && mouse.y < element[0].offsetHeight &&
-            e.which === MouseConstants.MOUSE_LEFT) {
+          if (inCanvas(mouse) && e.which === MouseConstants.MOUSE_LEFT) {
 
             // Prevent the default action of turning into highlight cursor
             e.preventDefault();
@@ -107,21 +109,23 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
 
           // Redraw the preview layer to match the new position
           clearLayer(previewCtx);
-          if (scope.mouseMode === 'pen') {
-            // Solid circle with the matching pen colour
-            previewCtx.beginPath();
-            previewCtx.arc(mouse.x, mouse.y, (+scope.penWidth + 1) / 2, 0, Math.PI * 2);
-            previewCtx.fillStyle = scope.penColour;
-            previewCtx.fill();
-          } else if (scope.mouseMode === 'eraser') {
-            // Empty circle with black outline and white fill
-            previewCtx.beginPath();
-            previewCtx.arc(mouse.x, mouse.y, (+scope.eraserWidth + 1) / 2, 0, Math.PI * 2);
-            previewCtx.strokeStyle = '#000';
-            previewCtx.lineWidth = 1;
-            previewCtx.stroke();
-            previewCtx.fillStyle = '#fff';
-            previewCtx.fill();
+          if (inCanvas(mouse)) {
+            if (scope.mouseMode === 'pen') {
+              // Solid circle with the matching pen colour
+              previewCtx.beginPath();
+              previewCtx.arc(mouse.x, mouse.y, (+scope.penWidth + 1) / 2, 0, Math.PI * 2);
+              previewCtx.fillStyle = scope.penColour;
+              previewCtx.fill();
+            } else if (scope.mouseMode === 'eraser') {
+              // Empty circle with black outline and white fill
+              previewCtx.beginPath();
+              previewCtx.arc(mouse.x, mouse.y, (+scope.eraserWidth + 1) / 2, 0, Math.PI * 2);
+              previewCtx.strokeStyle = '#000';
+              previewCtx.lineWidth = 1;
+              previewCtx.stroke();
+              previewCtx.fillStyle = '#fff';
+              previewCtx.fill();
+            }
           }
         });
 
