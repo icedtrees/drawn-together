@@ -9,6 +9,8 @@
       <!-- List all messages -->
       <li class="col-xs-12 col-md-offset-4 col-md-4" ng-repeat="user in Game.userList">
         <div class="pull-left">
+          <!-- TODO: don't know what the alt=message.username is-->
+          <img ng-src="{{user.profileImageURL}}" alt="{{username}}" class="pull-left game-profile-image"/>
           <div ng-if="Game.isDrawer(user)"><strong ng-bind="user"></strong></div>
           <div ng-if="!Game.isDrawer(user)"><span ng-bind="user"></span></div>
         </div>
@@ -25,8 +27,10 @@
         <!-- List all messages -->
         <li class="col-xs-12 col-md-12 game-message" ng-class="message.type" ng-repeat="message in messages">
           <small class="pull-right text-muted" am-time-ago="message.created"></small>
-          <img ng-src="{{message.profileImageURL}}" alt="{{message.username}}" class="pull-left game-profile-image" ng-class="message.username"/>
-
+          <div class="imgWrap">
+            <img ng-src="{{message.profileImageURL}}" alt="{{message.username}}" class="pull-left game-profile-image" ng-class="message.username"/>
+            <p class="imgHoverOver">Your guess is close!</p>
+          </div>
           <div class="pull-left game-message-details" ng-class="message.type">
             <span ng-bind="message.username" class="username" ng-class="message.type"></span>
             <span class="wordwrap" ng-bind="message.text" ng-class="message.type"></span>
