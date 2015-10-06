@@ -22,9 +22,17 @@
 
   exports.Game.prototype.removeUser = function (username) {
     var idx = this.userList.indexOf(username);
+    if (idx === this.curDrawer) {
+
+    }
+    if (idx < this.curDrawer) {
+      this.curDrawer--;
+    }
     if (idx !== -1) {
       this.userList.splice(idx);
     }
+
+    delete this.users[username];
   };
 
   exports.Game.prototype.isDrawer = function (username) {
