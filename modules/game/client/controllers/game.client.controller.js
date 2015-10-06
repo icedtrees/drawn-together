@@ -20,8 +20,6 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
 
     $scope.Game = new GameLogic.Game();
 
-    // Left, middle, right mouse button is down, respectively
-    $scope.mouseState = [false, false, false];
     $scope.messageText = '';
 
     // If user is not signed in then redirect to signin page
@@ -59,7 +57,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
      * Another user has connected or disconnected.
      */
     Socket.on('userConnect', function (user) {
-      $scope.Game.addUser(user);
+      $scope.Game.addUser(user.username, user.image);
     });
     Socket.on('userDisconnect', function (user) {
       $scope.Game.removeUser(user);
@@ -145,7 +143,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     $scope.clearDrawing = function () {
       if ($scope.Game.isDrawer($scope.username)) {
         var message = {
-          type: 'clear',
+          type: 'clear'
         };
         $scope.canvas.draw(message);
         Socket.emit('canvasMessage', message);
