@@ -1,7 +1,9 @@
 'use strict';
 
 (function(exports) {
-  exports.Game = function(numDrawers, timeToEnd) {
+  exports.Game = function(numRounds, numDrawers, timeToEnd) {
+    this.currentRound = 0;
+    this.numRounds = numRounds || 0;
     this.numDrawers = numDrawers || 0;
     this.curDrawer = 0;
     this.userList = [];
@@ -26,6 +28,11 @@
   };
 
   exports.Game.prototype.isDrawer = function (username) {
+    // At the end of the game, noone is a drawer
+    if (this.currentRound >= this.numRounds) {
+      return false;
+    }
+
     for (var i = 0; i < this.userList.length && i < this.numDrawers; i++) {
       var idx = (this.curDrawer + i) % this.userList.length;
       if (this.userList[idx] === username) {
@@ -66,16 +73,50 @@
     return this.correctGuesses === this.userList.length - this.numDrawers;
   };
 
+  /* Returns true if the game has ended and false otherwise */
   exports.Game.prototype.advanceRound = function () {
     this.curDrawer = (this.curDrawer + 1) % this.userList.length;
     for (var i = 0; i < this.userList.length; i++) {
       this.users[this.userList[i]].guessedCorrect = false;
     }
     this.correctGuesses = 0;
+
+    this.currentRound++;
+    if (this.currentRound >= this.numRounds) {
+      return true;
+    }
+    return false;
+  };
+
+  exports.Game.prototype.getWinners = function () {
+    var winners = [];
+    var topScore = 0;
+    var i;
+    for (i = 0; i < this.userList.length; i++) {
+      topScore = Math.max(topScore, this.users[this.userList[i]].score);
+    }
+    for (i = 0; i < this.userList.length; i++) {
+      if (this.users[this.userList[i]].score === topScore) {
+        winners.push(this.userList[i]);
+      }
+    }
+
+    return winners;
+  };
+
+  exports.Game.prototype.restartGame = function () {
+    this.currentRound = 0;
+    this.correctGuesses = 0;
+    for (var i = 0; i < this.userList.length; i++) {
+      this.users[this.userList[i]].score = 0;
+      this.users[this.userList[i]].guessedCorrect = false;
+    }
   };
 
   exports.Game.prototype.getState = function () {
     var state = {
+      currentRounds: this.currentRounds,
+      numRounds: this.numRounds,
       numDrawers: this.numDrawers,
       curDrawer: this.curDrawer,
       userList: this.userList,
@@ -88,6 +129,8 @@
   };
 
   exports.Game.prototype.setState = function (state) {
+    this.currentRounds = state.currentRound;
+    this.numRounds = state.numRounds;
     this.numDrawers = state.numDrawers;
     this.curDrawer = state.curDrawer;
     this.userList = state.userList;

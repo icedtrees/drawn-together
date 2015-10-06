@@ -10,7 +10,7 @@ var levenshtein = require('fast-levenshtein');
 // A timeout created to end the round seconds when someone guesses the prompt
 var roundTimeout;
 // Game object encapsulating game logic
-var Game =  new GameLogic.Game(1, 20); // parameters: numDrawers, timeToEnd
+var Game =  new GameLogic.Game(5, 1, 20); // parameters: numRounds, numDrawers, timeToEnd
 
 // Dictionary counting number of connects made by each user
 var userConnects = {};
@@ -54,18 +54,7 @@ for (var i = topicList.length - 2; i > 0; i--) {
   topicList[i] = temp;
 }
 
-function advanceRound(io) {
-  Game.advanceRound();
-
-  // Send user list with updated drawers
-  io.emit('advanceRound');
-
-  io.emit('canvasMessage', {type: 'clear'});
-  drawHistory = [];
-
-  // Explain what the word was
-  io.emit('gameMessage', {text: 'Round over! The topic was "' + topicList[0] + '"'});
-
+function sendTopic(io) {
   // Select a new topic and send it to the new drawer
   topicList.push(topicList.shift());
   Game.getDrawers().forEach(function (drawer) {
@@ -76,6 +65,35 @@ function advanceRound(io) {
   var drawers = Game.getDrawers();
   var newDrawers = Utils.toCommaList(drawers);
   io.emit('gameMessage', {text: newDrawers + (drawers.length === 1 ? ' is' : ' are') + ' now drawing.'});
+}
+
+function advanceRound(io) {
+  var gameFinished = Game.advanceRound();
+
+  // Send user list with updated drawers
+  io.emit('advanceRound');
+
+  io.emit('canvasMessage', {type: 'clear'});
+  drawHistory = [];
+
+  // Explain what the word was
+  io.emit('gameMessage', {text: 'Round over! The topic was "' + topicList[0] + '"'});
+
+  if (gameFinished) {
+    var winners = Game.getWinners();
+    io.emit('gameMessage', {text: 'The winner(s) of the game: ' + Utils.toCommaList(winners) + ' on ' +
+                                  Game.users[winners[0]].score + ' points! The new round will start ' +
+                                  'in ' + Game.timeToEnd + ' seconds.'});
+    setTimeout(function () {
+      gameMessages = [];
+      drawHistory = [];
+      Game.restartGame();
+      io.emit('restartGame');
+      sendTopic(io);
+    }, Game.timeToEnd * 1000);
+  } else {
+    sendTopic(io);
+  }
 }
 
 // Create the game configuration

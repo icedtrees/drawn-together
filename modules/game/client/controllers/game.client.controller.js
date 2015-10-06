@@ -57,6 +57,15 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     });
 
     /*
+     * The game has finished and is ready to be restarted
+     */
+    Socket.on('restartGame', function () {
+      $scope.messages = [];
+      $scope.canvas.draw({type: 'clear'});
+      $scope.Game.restartGame();
+    });
+
+    /*
      * Another user has connected or disconnected.
      */
     Socket.on('userConnect', function (user) {
