@@ -157,10 +157,11 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
             y2: mouse.y
           };
           if (scope.mouseMode === 'pen') {
+            message.lineType = 'pen';
             message.strokeStyle = scope.penColour;
             message.lineWidth = scope.penWidth;
           } else if (scope.mouseMode === 'eraser') {
-            message.strokeStyle = '#ffffff';
+            message.lineType = 'eraser';
             message.lineWidth = scope.eraserWidth;
           }
           element.draw(message);
@@ -174,21 +175,31 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
         element.draw = function (message) {
           switch(message.type) {
             case 'line':
-              // If the line is zero-length, draw a circle instead
-              if (message.x1 === message.x2 && message.y1 === message.y2) {
+              var draw = function() {
                 drawCtx.beginPath();
-                drawCtx.arc(message.x1, message.y1, (+message.lineWidth + 1) / 2, 0, 2 * Math.PI);
-                drawCtx.fillStyle = message.strokeStyle;
-                drawCtx.fill();
-                break;
+                // If the line is zero-length, draw a circle instead
+                if (message.x1 === message.x2 && message.y1 === message.y2) {
+                  drawCtx.arc(message.x1, message.y1, (+message.lineWidth + 1) / 2, 0, 2 * Math.PI);
+                  drawCtx.fillStyle = message.strokeStyle;
+                  drawCtx.fill();
+                } else {
+                  drawCtx.lineCap = 'round';
+                  drawCtx.moveTo(message.x1, message.y1);
+                  drawCtx.lineTo(message.x2, message.y2);
+                  drawCtx.lineWidth = message.lineWidth;
+                  drawCtx.strokeStyle = message.strokeStyle;
+                  drawCtx.stroke();
+                }
+              };
+              if (message.lineType === 'pen') {
+                draw();
+              } else if (message.lineType === 'eraser') {
+                var temp = drawCtx.globalCompositeOperation;
+                drawCtx.globalCompositeOperation = 'destination-out';
+                message.strokeStyle = '#000'; // Any colour will do for destination-out erasing
+                draw();
+                drawCtx.globalCompositeOperation = temp;
               }
-              drawCtx.beginPath();
-              drawCtx.lineCap = 'round';
-              drawCtx.moveTo(message.x1, message.y1);
-              drawCtx.lineTo(message.x2, message.y2);
-              drawCtx.strokeStyle = message.strokeStyle;
-              drawCtx.lineWidth = message.lineWidth;
-              drawCtx.stroke();
               break;
             case 'rect':
               drawCtx.fillStyle = message.fillStyle;
