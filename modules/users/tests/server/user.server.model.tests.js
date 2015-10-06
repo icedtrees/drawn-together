@@ -27,7 +27,7 @@ describe('User Model Unit Tests:', function () {
     user2 = user1;
     user3 = {
       email: 'test3@test.com',
-      username: 'different_username',
+      username: 'differentusername',
       password: 'Different_Password1!',
       provider: 'local'
     };

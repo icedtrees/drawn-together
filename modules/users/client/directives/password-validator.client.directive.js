@@ -27,12 +27,10 @@ angular.module('users')
           scope.strengthProgress = strengthMeter[strengthIdx].progress;
 
           if (result.errors.length) {
-            scope.popoverMsg = PasswordValidator.getPopoverMsg();
             scope.passwordErrors = result.errors;
             modelCtrl.$setValidity('strength', false);
             return undefined;
           } else {
-            scope.popoverMsg = '';
             modelCtrl.$setValidity('strength', true);
             return password;
           }
