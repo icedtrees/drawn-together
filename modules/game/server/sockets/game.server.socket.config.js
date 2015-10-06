@@ -2,6 +2,7 @@
 
 var ChatSettings = require('../../shared/config/game.shared.chat.config.js');
 var GameLogic = require('../../shared/helpers/game.shared.gamelogic.js');
+var Utils = require('../../shared/helpers/game.shared.utils.js');
 
 // Levenshtein distance library (for calculating distance between words)
 var levenshtein = require('fast-levenshtein');
@@ -73,8 +74,7 @@ function advanceRound(io) {
 
   // Announce the new drawers
   var drawers = Game.getDrawers();
-  var newDrawers = drawers.length === 1 ? drawers[0] : drawers.slice(0, drawers.length - 1).join(", ") +
-      " and " + drawers[drawers.length - 1];
+  var newDrawers = Utils.toCommaList(drawers);
   io.emit('gameMessage', {text: newDrawers + (drawers.length === 1 ? ' is' : ' are') + ' now drawing.'});
 }
 
