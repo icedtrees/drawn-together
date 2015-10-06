@@ -20,18 +20,10 @@ var validateLocalStrategyEmail = function (email) {
  * User Schema
  */
 var UserSchema = new Schema({
-  email: {
-    type: String,
-    unique: true,
-    lowercase: true,
-    trim: true,
-    default: '',
-    validate: [validateLocalStrategyEmail, 'Please fill a valid email address']
-  },
   username: {
     type: String,
-    unique: 'Username already exists',
-    required: 'Please fill in a username',
+    unique: 'Username must be unique',
+    required: 'Username is required',
     lowercase: true,
     trim: true
   },
@@ -41,6 +33,15 @@ var UserSchema = new Schema({
   },
   salt: {
     type: String
+  },
+  email: {
+    type: String,
+    unique: true,
+    sparse: true,
+    lowercase: true,
+    trim: true,
+    default: undefined,
+    validate: [validateLocalStrategyEmail, 'Please fill a valid email address']
   },
   profileImageURL: {
     type: String,

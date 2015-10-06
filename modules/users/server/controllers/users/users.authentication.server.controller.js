@@ -29,7 +29,7 @@ exports.signup = function (req, res) {
   // Add missing user fields
   user.provider = 'local';
 
-  // Then save the user
+  // Then save the user via mongoose
   user.save(function (err) {
     if (err) {
       return res.status(400).send({
