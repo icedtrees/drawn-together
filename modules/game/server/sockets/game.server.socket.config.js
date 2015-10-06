@@ -6,8 +6,10 @@ var GameLogic = require('../../shared/helpers/game.shared.gamelogic.js');
 // Levenshtein distance library (for calculating distance between words)
 var levenshtein = require('fast-levenshtein');
 
+// A timeout created to end the round seconds when someone guesses the prompt
+var roundTimeout;
 // Game object encapsulating game logic
-var Game =  new GameLogic.Game(1);
+var Game =  new GameLogic.Game(1, 20); // parameters: numDrawers, timeToEnd
 
 // Dictionary counting number of connects made by each user
 var userConnects = {};
@@ -51,30 +53,29 @@ for (var i = topicList.length - 2; i > 0; i--) {
   topicList[i] = temp;
 }
 
-// If the word has been guessed and round is ending
-var roundEnding = false;
-
 function advanceRound(io) {
-  if (roundEnding) {
-    Game.advanceRound();
+  Game.advanceRound();
 
-    // Send user list with updated drawers
-    io.emit('advanceRound');
+  // Send user list with updated drawers
+  io.emit('advanceRound');
 
-    io.emit('canvasMessage', {type: 'clear'});
-    drawHistory = [];
+  io.emit('canvasMessage', {type: 'clear'});
+  drawHistory = [];
 
-    // Explain what the word was
-    io.emit('gameMessage', {text: 'The topic was ' + topicList[0]});
+  // Explain what the word was
+  io.emit('gameMessage', {text: 'Round over! The topic was "' + topicList[0] + '"'});
 
-    // Select a new topic and send it to the new drawer
-    topicList.push(topicList.shift());
-    Game.getDrawers().forEach(function (drawer) {
-      io.to(drawer).emit('topic', topicList[0]);
-    });
-  }
+  // Select a new topic and send it to the new drawer
+  topicList.push(topicList.shift());
+  Game.getDrawers().forEach(function (drawer) {
+    io.to(drawer).emit('topic', topicList[0]);
+  });
 
-  roundEnding = false;
+  // Announce the new drawers
+  var drawers = Game.getDrawers();
+  var newDrawers = drawers.length === 1 ? drawers[0] : drawers.slice(0, drawers.length - 1).join(", ") +
+      " and " + drawers[drawers.length - 1];
+  io.emit('gameMessage', {text: newDrawers + (drawers.length === 1 ? ' is' : ' are') + ' now drawing.'});
 }
 
 // Create the game configuration
@@ -123,15 +124,15 @@ module.exports = function (io, socket) {
     }
   });
   
-  // Send a chat message to all connected sockets when a message is received
+  // Handle chat messages
   socket.on('gameMessage', function (message) {
     // The current drawer cannot chat
     if (Game.isDrawer(username)) {
       return;
     }
 
-    // Disallow empty messages
-    if (/^\s*$/.test(message.text)) {
+    // Disallow messages that are empty or longer than MAX_MSG_LEN characters
+    if (message.text.length > ChatSettings.MAX_MSG_LEN || /^\s*$/.test(message.text)) {
       return;
     }
 
@@ -144,46 +145,57 @@ module.exports = function (io, socket) {
     var guess = message.text.toLowerCase();
     var topic = topicList[0].toLowerCase();
 
-    var i;
-
     if (guess === topic) {
-      // correct guess
+      // Correct guess
 
-      // send user's guess to the drawer/s
+      // Send user's guess to the drawer/s
       Game.getDrawers().forEach(function (drawer) {
         io.to(drawer).emit('gameMessage', message);
       });
 
-      // send the user's guess to themselves
+      // Send the user's guess to themselves
       // TODO their message should be greyed out or something to indicate only they can see it
       socket.emit('gameMessage', message);
 
-      var timeToEnd = 20;
-      // alert everyone in the room that they were correct
-      message.text = message.username + " has guessed the prompt! The round will end in " + timeToEnd + " seconds.";
-      io.emit('gameMessage', message);
-
-      // End the round in timeToEnd seconds
-      if (!roundEnding) {
-        roundEnding = true;
-        setTimeout(function () {
-          advanceRound(io);
-        }, timeToEnd * 1000);
+      // Don't update game state if user has already guessed the prompt
+      if (Game.userHasGuessed(username)) {
+          return;
       }
-    } else if (guess.indexOf(topic) > -1 || levenshtein.get(topic, guess) < 3) {
-      // if message contains drawing prompt or word-distance is < 3 it is a close guess
 
-      // tell the drawer/s the guess
+      // Mark user as correct and increase their score
+      Game.markCorrectGuess(username);
+
+      // Alert everyone in the room that they were correct
+      io.emit('gameMessage', {text: username + " has guessed the prompt!"});
+
+      // End round if everyone has guessed
+      if (Game.allGuessed()) {
+        clearTimeout(roundTimeout);
+        advanceRound(io);
+      } else if (Game.correctGuesses === 1) {
+        // Start timer to end round if this is the first correct guess
+        io.emit('gameMessage', {text: "The round will end in " + Game.timeToEnd + " seconds."});
+        roundTimeout = setTimeout(function () {
+          advanceRound(io);
+        }, Game.timeToEnd * 1000);
+      }
+
+    } else if (guess.indexOf(topic) > -1 || levenshtein.get(topic, guess) < 3) {
+      // If message contains drawing prompt or word-distance is < 3 it is a close guess
+
+      // Tell the drawer/s the guess
       Game.getDrawers().forEach(function (drawer) {
         io.to(drawer).emit('gameMessage', message);
       });
 
-      // tell the guesser that their guess was close
+      // Tell the guesser that their guess was close
       // TODO their message should be greyed out or something to indicate only they can see it
-      message.text += "\nYour guess is close!";
       socket.emit('gameMessage', message);
+      if (!Game.userHasGuessed(username)) {
+        socket.emit('gameMessage', {text: "Your guess is close!"});
+      }
     } else {
-      // incorrect guess: emit message to everyone
+      // Incorrect guess: emit message to everyone
       gameMessages.push(message);
       if (gameMessages.length > ChatSettings.MAX_MESSAGES) {
         gameMessages.shift();
@@ -210,8 +222,8 @@ module.exports = function (io, socket) {
   // Current drawer has finished drawing
   socket.on('finishDrawing', function () {
     // If the user who submitted this message actually is a drawer
-    if (Game.isDrawer(username)) {
-      roundEnding = true;
+    // And prevent round ending prematurely when prompt has been guessed
+    if (Game.isDrawer(username) && Game.correctGuesses === 0) {
       advanceRound(io);
     }
   });
