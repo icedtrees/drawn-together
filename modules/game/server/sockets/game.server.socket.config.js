@@ -128,7 +128,7 @@ module.exports = function (io, socket) {
   // current server state.
   socket.on('requestState', function () {
     // Send current game state
-    socket.emit('gameState', Game.getState());
+    socket.emit('gameState', Game);
 
     // Send the chat message history to the user
     socket.emit('gameMessage', gameMessages);

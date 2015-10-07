@@ -46,7 +46,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
      * Set the game state based on what the server tells us it currently is
      */
     Socket.on('gameState', function (state) {
-      $scope.Game.setState(state);
+      angular.extend($scope.Game, state);
     });
 
     /*

@@ -22,7 +22,7 @@
 
   exports.Game.prototype.removeUser = function (username) {
     var idx = this.userList.indexOf(username);
-    if (idx !== -1) {
+    if (idx === -1) {
       return;
     }
 
@@ -126,32 +126,6 @@
       this.users[this.userList[i]].score = 0;
       this.users[this.userList[i]].guessedCorrect = false;
     }
-  };
-
-  exports.Game.prototype.getState = function () {
-    var state = {
-      currentRound: this.currentRound,
-      numRounds: this.numRounds,
-      numDrawers: this.numDrawers,
-      curDrawer: this.curDrawer,
-      userList: this.userList,
-      users: this.users,
-      timeToEnd: this.timeToEnd,
-      correctGuesses: this.correctGuesses
-    };
-
-    return state;
-  };
-
-  exports.Game.prototype.setState = function (state) {
-    this.currentRound = state.currentRound;
-    this.numRounds = state.numRounds;
-    this.numDrawers = state.numDrawers;
-    this.curDrawer = state.curDrawer;
-    this.userList = state.userList;
-    this.users = state.users;
-    this.timeToEnd = state.timeToEnd;
-    this.correctGuesses = state.correctGuesses;
   };
 
 })((typeof process === 'undefined' || !process.versions) ? // Not a node.js environment
