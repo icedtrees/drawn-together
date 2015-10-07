@@ -1,0 +1,38 @@
+<div ng-controller="AuthenticationController">
+  <h3>Let's play!</h3>
+  <div class="col-md-offset-3 col-md-6">
+    <form name="userForm" ng-submit="signup(userForm.$valid)" class="signin" novalidate autocomplete="off">
+      <fieldset>
+        <div class="form-group" show-errors>
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" class="form-control" ng-model="credentials.username" placeholder="Username" popover="Please enter a username with only letters and numbers between 1 to 26 characters in length." popover-trigger="focus" popover-placement="auto" username-validator lowercase required>
+          <div ng-messages="userForm.username.$error" role="alert">
+            <p class="help-block error-text" ng-message="required">Username is required.</p>
+            <div ng-repeat="usernameError in usernameErrors">
+              <p class="help-block error-text" ng-show="userForm.username.$error.chosenUsername">{{usernameError}}</p>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" class="form-control" ng-model="credentials.password" placeholder="Password" popover="Optional" popover-trigger="focus" popover-placement="auto">
+        </div>
+        <div class="form-group" show-errors>
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" class="form-control" ng-model="credentials.email" placeholder="Email" popover="(Optional) This will be used to reset your password." popover-trigger="focus" popover-placement="auto" lowercase>
+          <div ng-messages="userForm.email.$error" role="alert">
+            <p class="help-block error-text" ng-message="email">Email address is invalid.</p>
+          </div>
+        </div>
+        <div class="text-center form-group">
+          <button type="submit" class="btn btn-primary">Sign up</button>
+          &nbsp; or&nbsp;
+          <a ui-sref="authentication.signin" class="show-signup">Sign in</a>
+        </div>
+        <div ng-show="error" class="text-center text-danger">
+          <strong ng-bind="error"></strong>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>
