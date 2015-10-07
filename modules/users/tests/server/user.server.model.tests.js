@@ -18,9 +18,6 @@ var user1, user2, user3;
 describe('User Model Unit Tests:', function () {
   before(function () {
     user1 = {
-      firstName: 'Full',
-      lastName: 'Name',
-      displayName: 'Full Name',
       email: 'test@test.com',
       username: 'username',
       password: 'M3@n.jsI$Aw3$0m3',
@@ -29,9 +26,6 @@ describe('User Model Unit Tests:', function () {
     // user2 is a clone of user1
     user2 = user1;
     user3 = {
-      firstName: 'Different',
-      lastName: 'User',
-      displayName: 'Full Different Name',
       email: 'test3@test.com',
       username: 'differentusername',
       password: 'Different_Password1!',
@@ -71,16 +65,6 @@ describe('User Model Unit Tests:', function () {
             done();
           });
         });
-      });
-    });
-
-    it('should be able to show an error when trying to save without first name', function (done) {
-      var _user1 = new User(user1);
-
-      _user1.firstName = '';
-      _user1.save(function (err) {
-        should.exist(err);
-        done();
       });
     });
 
