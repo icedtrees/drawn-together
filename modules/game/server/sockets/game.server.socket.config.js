@@ -2,6 +2,7 @@
 
 var ChatSettings = require('../../shared/config/game.shared.chat.config.js');
 var GameLogic = require('../../shared/helpers/game.shared.gamelogic.js');
+var Utils = require('../../shared/helpers/game.shared.utils.js');
 
 // Levenshtein distance library (for calculating distance between words)
 var levenshtein = require('fast-levenshtein');
@@ -9,7 +10,7 @@ var levenshtein = require('fast-levenshtein');
 // A timeout created to end the round seconds when someone guesses the prompt
 var roundTimeout;
 // Game object encapsulating game logic
-var Game =  new GameLogic.Game(1, 20); // parameters: numDrawers, timeToEnd
+var Game =  new GameLogic.Game(5, 1, 20); // parameters: numRounds, numDrawers, timeToEnd
 
 // Dictionary counting number of connects made by each user
 var userConnects = {};
@@ -53,8 +54,21 @@ for (var i = topicList.length - 2; i > 0; i--) {
   topicList[i] = temp;
 }
 
+function sendTopic(io) {
+  // Select a new topic and send it to the new drawer
+  topicList.push(topicList.shift());
+  Game.getDrawers().forEach(function (drawer) {
+    io.to(drawer).emit('topic', topicList[0]);
+  });
+
+  // Announce the new drawers
+  var drawers = Game.getDrawers();
+  var newDrawers = Utils.toCommaList(drawers);
+  io.emit('gameMessage', {text: newDrawers + (drawers.length === 1 ? ' is' : ' are') + ' now drawing.'});
+}
+
 function advanceRound(io) {
-  Game.advanceRound();
+  var gameFinished = Game.advanceRound();
 
   // Send user list with updated drawers
   io.emit('advanceRound');
@@ -65,17 +79,21 @@ function advanceRound(io) {
   // Explain what the word was
   io.emit('gameMessage', {text: 'Round over! The topic was "' + topicList[0] + '"'});
 
-  // Select a new topic and send it to the new drawer
-  topicList.push(topicList.shift());
-  Game.getDrawers().forEach(function (drawer) {
-    io.to(drawer).emit('topic', topicList[0]);
-  });
-
-  // Announce the new drawers
-  var drawers = Game.getDrawers();
-  var newDrawers = drawers.length === 1 ? drawers[0] : drawers.slice(0, drawers.length - 1).join(", ") +
-      " and " + drawers[drawers.length - 1];
-  io.emit('gameMessage', {text: newDrawers + (drawers.length === 1 ? ' is' : ' are') + ' now drawing.'});
+  if (gameFinished) {
+    var winners = Game.getWinners();
+    io.emit('gameMessage', {text: 'The winner(s) of the game: ' + Utils.toCommaList(winners) + ' on ' +
+                                  Game.users[winners[0]].score + ' points! The new round will start ' +
+                                  'in ' + Game.timeToEnd + ' seconds.'});
+    setTimeout(function () {
+      gameMessages = [];
+      drawHistory = [];
+      Game.restartGame();
+      io.emit('restartGame');
+      sendTopic(io);
+    }, Game.timeToEnd * 1000);
+  } else {
+    sendTopic(io);
+  }
 }
 
 // Create the game configuration
@@ -232,6 +250,12 @@ module.exports = function (io, socket) {
   socket.on('disconnect', function () {
     userConnects[username]--;
     if (userConnects[username] === 0) {
+      // If the disconnecting user is a drawer, this is equivalent to
+      // 'giving up' or passing
+      if (Game.isDrawer(username)) {
+        Game.advanceRound();
+        io.emit('advanceRound');
+      }
       delete userConnects[username];
       Game.removeUser(username);
 

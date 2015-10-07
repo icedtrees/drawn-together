@@ -1,8 +1,10 @@
 'use strict';
 
 // Create the 'game' controller
-angular.module('game').controller('GameController', ['$scope', '$location', 'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic',
-  function ($scope, $location, Authentication, Socket, CanvasSettings, ChatSettings, GameSettings, GameLogic) {
+angular.module('game').controller('GameController', ['$scope', '$location', 'Authentication', 'Socket',
+  'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils',
+  function ($scope, $location, Authentication, Socket,
+            CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils) {
     // Settings objects
     $scope.CanvasSettings = CanvasSettings;
     $scope.ChatSettings = ChatSettings;
@@ -19,6 +21,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     $scope.mouseMode = 'pen';
 
     $scope.Game = new GameLogic.Game();
+    $scope.Utils = Utils;
 
     $scope.messageText = '';
 
@@ -51,6 +54,15 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
      */
     Socket.on('advanceRound', function () {
       $scope.Game.advanceRound();
+    });
+
+    /*
+     * The game has finished and is ready to be restarted
+     */
+    Socket.on('restartGame', function () {
+      $scope.messages = [];
+      $scope.canvas.draw({type: 'clear'});
+      $scope.Game.restartGame();
     });
 
     /*

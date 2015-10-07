@@ -35,3 +35,7 @@ angular.module('game').constant('MouseConstants', {
 angular.module('game').factory('GameLogic', function () {
   return window.gameLogic;
 });
+
+angular.module('game').factory('Utils', function () {
+  return window.utils;
+});
