@@ -43,7 +43,10 @@
             <a ui-sref="settings.picture">Change Profile Picture</a>
           </li>
           <li ui-sref-active="active" ng-show="authentication.user.provider === 'local'">
-            <a ui-sref="settings.password">Change or Remove Password</a>
+            <a ui-sref="settings.change-password">Change Password</a>
+          </li>
+          <li ui-sref-active="active" ng-show="authentication.user.provider === 'local'">
+            <a ui-sref="settings.remove-password">Remove Password</a>
           </li>
           <li class="divider"></li>
           <li>
