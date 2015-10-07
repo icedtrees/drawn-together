@@ -116,3 +116,15 @@ button:disabled {
 .dt-drawing-layer {
   position: absolute;
 }
+
+.dt-drawing {
+  position: relative;
+  outline: 1px solid black;
+  cursor: none;
+  width: 400px;
+  height: 400px;
+}
+
+.dt-drawing-layer {
+  position: absolute;
+}
