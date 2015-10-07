@@ -3,12 +3,12 @@
 (function(exports) {
   exports.Game = function(numRounds, numDrawers, timeToEnd) {
     this.currentRound = 0;
-    this.numRounds = numRounds || 0;
-    this.numDrawers = numDrawers || 0;
+    this.numRounds = numRounds;
+    this.numDrawers = numDrawers;
     this.curDrawer = 0;
     this.userList = [];
     this.users = {};
-    this.timeToEnd = timeToEnd || 0;
+    this.timeToEnd = timeToEnd;
     this.correctGuesses = 0;
   };
 
@@ -22,15 +22,22 @@
 
   exports.Game.prototype.removeUser = function (username) {
     var idx = this.userList.indexOf(username);
-    if (idx === this.curDrawer) {
-
+    if (idx !== -1) {
+      return;
     }
+
+    // The user to be removed is never going to be the current drawer - the round
+    // is advanced before they are disconnected from the game
+    if (idx === this.curDrawer) {
+      console.log('Trying to remove current drawer - this should never happen');
+    }
+
+    // If idx === 0, then curDrawer !== 0 (from the above)
     if (idx < this.curDrawer) {
+      // Therefore curDrawer can always be decremented safely without going negative
       this.curDrawer--;
     }
-    if (idx !== -1) {
-      this.userList.splice(idx);
-    }
+    this.userList.splice(idx, 1);
 
     delete this.users[username];
   };
@@ -123,7 +130,7 @@
 
   exports.Game.prototype.getState = function () {
     var state = {
-      currentRounds: this.currentRounds,
+      currentRound: this.currentRound,
       numRounds: this.numRounds,
       numDrawers: this.numDrawers,
       curDrawer: this.curDrawer,
@@ -137,7 +144,7 @@
   };
 
   exports.Game.prototype.setState = function (state) {
-    this.currentRounds = state.currentRound;
+    this.currentRound = state.currentRound;
     this.numRounds = state.numRounds;
     this.numDrawers = state.numDrawers;
     this.curDrawer = state.curDrawer;
