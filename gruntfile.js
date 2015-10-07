@@ -252,6 +252,16 @@ module.exports = function (grunt) {
 
     // Connect to database
     mongoose.connect(function (db) {
+      db.mongoose.connection.on('open', function () {
+        db.mongoose.connection.db.dropDatabase(function(err) {
+          if(err) {
+            console.log(err);
+          } else {
+            console.log('Successfully dropped db');
+          }
+          db.mongoose.connection.close(done);
+        });
+      });
       done();
     });
   });
