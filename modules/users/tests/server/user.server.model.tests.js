@@ -10,7 +10,7 @@ var should = require('should'),
 /**
  * Globals
  */
-var user1, user2, user3;
+var user1, user2, user3, user4;
 
 /**
  * Unit tests
@@ -29,6 +29,13 @@ describe('User Model Unit Tests:', function () {
       email: 'test3@test.com',
       username: 'differentusername',
       password: 'Different_Password1!',
+      provider: 'local'
+    };
+    // user4 is a clone of user1 with a differently cased username
+    user4 = {
+      email: 'test@test.com',
+      username: 'UseRname',
+      password: 'M3@n.jsI$Aw3$0m3',
       provider: 'local'
     };
   });
@@ -63,6 +70,25 @@ describe('User Model Unit Tests:', function () {
           _user1.remove(function (err) {
             should.not.exist(err);
             done();
+          });
+        });
+      });
+    });
+
+    it('should fail to save a user with the same username (ignoring case)', function (done) {
+      var _user1 = new User(user1);
+      var _user2 = new User(user2);
+      var _user4 = new User(user4);
+
+      _user1.save(function () {
+        _user2.save(function (err) {
+          should.exist(err);
+          _user4.save(function (err) {
+            should.exist(err);
+            _user1.remove(function (err) {
+              should.not.exist(err);
+              done();
+            });
           });
         });
       });
