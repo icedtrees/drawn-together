@@ -58,19 +58,9 @@ for (var i = topicList.length - 2; i > 0; i--) {
 
 function wordsClose(guess, topic) {
   var score = jaro_winkler(guess, topic);
-  return [score, score > 0.88]; // score is between 0 (no match) and 1 (match)
-}
-
-function wordsClose1a(guess, topic) {
-  var score = jaro_winkler(guess, topic);
-  return [score, score > 0.92]; // score is between 0 (no match) and 1 (match)
-}
-
-function wordsClose2(guess, topic) {
-  var score = jaro_winkler(guess, topic);
   var t = 0.96;
-  t = Math.max(0.91, t - guess.length / 100);
-  console.log("2 " + t);
+  t = Math.max(0.90, t - guess.length / 125);
+  console.log("t " + t);
   if (score < 0.8) { // Certainly wrong
     return [score, false];
   } else if (score > t) { // Definitely close
@@ -78,73 +68,17 @@ function wordsClose2(guess, topic) {
   } else { // Somewhat close
     var guessRoot = porter(guess);
     var topicRoot = porter(topic);
+    console.log(guessRoot + " " + topicRoot);
     score = jaro_winkler(guessRoot, topicRoot);
-    score -= levenshtein(guessRoot, topicRoot) / 40;
+    score -= levenshtein(guessRoot, topicRoot) / 60;
     if (score > t) {
       return [score, score > t];
+    } else if (score < 0.8) {
+      return [score, false];
     } else {
       var lev = levenshtein(guess, topic);
       return [score, lev <= (guess.length - 5)/3 + 1];
     }
-  }
-}
-
-function wordsClose2a(guess, topic) {
-  var score = jaro_winkler(guess, topic);
-  var t = 0.96;
-  t = Math.max(0.91, t - guess.length / 200);
-  console.log("2a " + t);
-  if (score < 0.8) { // Certainly wrong
-    return [score, false];
-  } else if (score > t) { // Definitely close
-    return [score, true];
-  } else { // Somewhat close
-    var guessRoot = porter(guess);
-    var topicRoot = porter(topic);
-    score = jaro_winkler(guessRoot, topicRoot);
-    score -= levenshtein(guessRoot, topicRoot) / 40;
-    if (score > t) {
-      return [score, score > t];
-    } else {
-      var lev = levenshtein(guess, topic);
-      return [score, lev <= (guess.length - 6)/3.5 + 1];
-    }
-  }
-}
-
-function wordsClose3(guess, topic) {
-  var score = jaro_winkler(guess, topic);
-  var t = 0.95;
-  t = Math.max(0.89, t - guess.length / 100);
-  console.log("3 " + t);
-  if (score < 0.8) { // Certainly wrong
-    return [score, false];
-  } else if (score > t) { // Definitely close
-    return [score, true];
-  } else { // Somewhat close
-    var guessRoot = porter(guess);
-    var topicRoot = porter(topic);
-    score = jaro_winkler(guessRoot, topicRoot);
-    score -= levenshtein(guessRoot, topicRoot) / 40;
-    return [score, score > t];
-  }
-}
-
-function wordsClose3a(guess, topic) {
-  var score = jaro_winkler(guess, topic);
-  var t = 0.95;
-  t = Math.max(0.89, t - guess.length / 200);
-  console.log("3a " + t);
-  if (score < 0.8) { // Certainly wrong
-    return [score, false];
-  } else if (score > t) { // Definitely close
-    return [score, true];
-  } else { // Somewhat close
-    var guessRoot = porter(guess);
-    var topicRoot = porter(topic);
-    score = jaro_winkler(guessRoot, topicRoot);
-    score -= levenshtein(guessRoot, topicRoot) / 40;
-    return [score, score > t];
   }
 }
 
@@ -171,8 +105,6 @@ function advanceRound(io) {
   var newDrawers = drawers.length === 1 ? drawers[0] : drawers.slice(0, drawers.length - 1).join(", ") +
       " and " + drawers[drawers.length - 1];
   io.emit('gameMessage', {text: newDrawers + (drawers.length === 1 ? ' is' : ' are') + ' now drawing.'});
-  // GET RID OF THIS AFTER TESTING DIFFERENT METHODS
-  io.emit('gameMessage', {text: 'the prompt is: ' + topicList[0]});
 }
 
 // Create the game configuration
@@ -277,15 +209,8 @@ module.exports = function (io, socket) {
         }, Game.timeToEnd * 1000);
       }
 
-    } else if (guess.substr(0, 1) === '!') { 
-      guess = guess.substr(1);
+    } else if (wordsClose(guess, topic)[1]) { 
       // close guess
-      var r1 = wordsClose(guess, topic);
-      var r2 = wordsClose1a(guess, topic);
-      var r3 = wordsClose2(guess, topic);
-      var r4 = wordsClose2a(guess, topic);
-      var r5 = wordsClose3(guess, topic);
-      var r6 = wordsClose3a(guess, topic);
       
       // Tell the drawer/s the guess
       Game.getDrawers().forEach(function (drawer) {
@@ -296,14 +221,7 @@ module.exports = function (io, socket) {
       // TODO their message should be greyed out or something to indicate only they can see it
       socket.emit('gameMessage', message);
       if (!Game.userHasGuessed(username)) {
-        var whichMethod = "";
-        whichMethod += "1 : " + r1[0].toFixed(2) + ' ' + r1[1] + "\n";
-        whichMethod += "1a: " + r2[0].toFixed(2) + ' ' + r2[1] + "\n";
-        whichMethod += "2 : " + r3[0].toFixed(2) + ' ' + r3[1] + "\n";
-        whichMethod += "2a: " + r4[0].toFixed(2) + ' ' + r4[1] + "\n";
-        whichMethod += "3 : " + r5[0].toFixed(2) + ' ' + r5[1] + "\n";
-        whichMethod += "3a: " + r6[0].toFixed(2) + ' ' + r6[1];
-        socket.emit('gameMessage', {text: "Stats for " + guess + " :\n" + whichMethod});
+        socket.emit('gameMessage', {text: '"' + guess + '" is close! (' +wordsClose(guess, topic)[0] + ')'});
       }
     } else {
       // Incorrect guess: emit message to everyone
