@@ -109,22 +109,24 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
 
           // Redraw the preview layer to match the new position
           clearLayer(previewCtx);
-          if (inCanvas(mouse)) {
-            if (scope.mouseMode === 'pen') {
-              // Solid circle with the matching pen colour
-              previewCtx.beginPath();
-              previewCtx.arc(mouse.x, mouse.y, (+scope.penWidth + 1) / 2, 0, Math.PI * 2);
-              previewCtx.fillStyle = scope.penColour;
-              previewCtx.fill();
-            } else if (scope.mouseMode === 'eraser') {
-              // Empty circle with black outline and white fill
-              previewCtx.beginPath();
-              previewCtx.arc(mouse.x, mouse.y, (+scope.eraserWidth + 1) / 2, 0, Math.PI * 2);
-              previewCtx.strokeStyle = '#000';
-              previewCtx.lineWidth = 1;
-              previewCtx.stroke();
-              previewCtx.fillStyle = '#fff';
-              previewCtx.fill();
+          if (scope.Game.isDrawer(scope.username)) {
+            if (inCanvas(mouse)) {
+              if (scope.mouseMode === 'pen') {
+                // Solid circle with the matching pen colour
+                previewCtx.beginPath();
+                previewCtx.arc(mouse.x, mouse.y, (+scope.penWidth + 1) / 2, 0, Math.PI * 2);
+                previewCtx.fillStyle = scope.penColour;
+                previewCtx.fill();
+              } else if (scope.mouseMode === 'eraser') {
+                // Empty circle with black outline and white fill
+                previewCtx.beginPath();
+                previewCtx.arc(mouse.x, mouse.y, (+scope.eraserWidth + 1) / 2, 0, Math.PI * 2);
+                previewCtx.strokeStyle = '#000';
+                previewCtx.lineWidth = 1;
+                previewCtx.stroke();
+                previewCtx.fillStyle = '#fff';
+                previewCtx.fill();
+              }
             }
           }
         });
