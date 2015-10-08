@@ -128,3 +128,12 @@ button:disabled {
 .dt-drawing-layer {
   position: absolute;
 }
+
+.drawing-header {
+  text-align: center;
+}
+
+.game-container {
+  padding-top: 30px;
+}
+
