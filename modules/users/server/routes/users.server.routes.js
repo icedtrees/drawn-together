@@ -8,6 +8,7 @@ module.exports = function (app) {
   app.route('/api/users/me').get(users.me);
   app.route('/api/users').put(users.update);
   app.route('/api/users/password').post(users.changePassword);
+  app.route('/api/users/removepassword').post(users.removePassword);
   app.route('/api/users/picture').post(users.changeProfilePicture);
 
   // Finish by binding the user middleware

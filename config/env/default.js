@@ -2,9 +2,9 @@
 
 module.exports = {
   app: {
-    title: 'MEAN.JS',
-    description: 'Full-Stack JavaScript with MongoDB, Express, AngularJS, and Node.js',
-    keywords: 'mongodb, express, angularjs, node.js, mongoose, passport',
+    title: 'Drawn Together',
+    description: 'Pictionary online.',
+    keywords: 'pictionary, isketch, drawing, game, multiplayer, online',
     googleAnalyticsTrackingID: process.env.GOOGLE_ANALYTICS_TRACKING_ID || 'GOOGLE_ANALYTICS_TRACKING_ID'
   },
   port: process.env.PORT || 3000,
@@ -21,8 +21,8 @@ module.exports = {
     // in HTTPS mode.
     secure: false
   },
-  // sessionSecret should be changed for security measures and concerns
-  sessionSecret: 'MEAN',
+  // sessionSecret changed for security measures and concerns
+  sessionSecret: '29ToF2W>JWi18a47l~Mt^S',
   // sessionKey is set to the generic sessionId key used by PHP applications
   // for obsecurity reasons
   sessionKey: 'sessionId',
