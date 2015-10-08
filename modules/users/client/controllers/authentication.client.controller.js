@@ -4,11 +4,6 @@ angular.module('users').controller('AuthenticationController', ['$scope', '$stat
   function ($scope, $state, $http, $location, $window, Authentication) {
     $scope.authentication = Authentication;
 
-    // Username validation variables
-    $scope.validChars = 'a-zA-Z0-9';
-    $scope.minLength = '1';
-    $scope.maxLength = '26';
-
     // Get an eventual error defined in the URL query string:
     $scope.error = $location.search().err;
 

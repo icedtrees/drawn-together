@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('users').directive('usernameValidator', function() {
+angular.module('users').directive('usernameValidator', ['settings', function(settings) {
     return {
         require: 'ngModel',
         // scope = the parent scope
@@ -12,7 +12,7 @@ angular.module('users').directive('usernameValidator', function() {
             // Add a parser into the model that runs when the user updates it.
             ctrl.$parsers.unshift(function (username) {
                 var isValid = new RegExp(
-                    '^[' + scope.validChars + ']{' + scope.minLength + ',' + scope.maxLength + '}$').test(username);
+                    '^[' + settings.validChars + ']{' + settings.minLength + ',' + settings.maxLength + '}$').test(username);
                 ctrl.$setValidity('chosenUsername', isValid);
 
                 // If it's valid, return the value to the model, otherwise return undefined.
@@ -20,13 +20,13 @@ angular.module('users').directive('usernameValidator', function() {
                     return username;
                 } else {
                     var errors = [];
-                    if (username.length < scope.minLength) {
+                    if (username.length < settings.minLength) {
                         errors.push("Username must be at least one character long.");
                     }
-                    if (username.length > scope.maxLength) {
-                        errors.push("Username must be at most " + scope.maxLength + " characters long.");
+                    if (username.length > settings.maxLength) {
+                        errors.push("Username must be at most " + settings.maxLength + " characters long.");
                     }
-                    if (new RegExp('[^' + scope.validChars + ']').test(username)) {
+                    if (new RegExp('[^' + settings.validChars + ']').test(username)) {
                         errors.push("Username must only contain letters and numbers.");
                     }
                     scope.usernameErrors = errors;
@@ -35,4 +35,4 @@ angular.module('users').directive('usernameValidator', function() {
             });
         }
     };
-});
+}]);
