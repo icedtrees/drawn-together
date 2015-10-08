@@ -3,8 +3,11 @@
 var ChatSettings = require('../../shared/config/game.shared.chat.config.js');
 var GameLogic = require('../../shared/helpers/game.shared.gamelogic.js');
 
-// Levenshtein distance library (for calculating distance between words)
-var levenshtein = require('fast-levenshtein');
+// cln_fuzzy library (for calculating distance between words)
+var clj_fuzzy = require('clj-fuzzy');
+var jaro_winkler = clj_fuzzy.metrics.jaro_winkler;
+var porter = clj_fuzzy.stemmers.porter;
+var levenshtein = clj_fuzzy.metrics.levenshtein;
 
 // A timeout created to end the round seconds when someone guesses the prompt
 var roundTimeout;
@@ -44,13 +47,84 @@ var drawHistory = [];
 var gameMessages = [];
 
 // First one is the current topic
-var topicList = ['sunset', 'iced tea', 'fruit', 'top', 'mouse trap'];
+var topicList = ['authorise', 'free', 'cat', 'breezy', 'chilled', 'best', 'sunset', 'postmortem'];
 // Shuffle the topic list in-place using Knuth shuffle
 for (var i = topicList.length - 2; i > 0; i--) {
   var j = Math.floor(Math.random() * i);
   var temp = topicList[j];
   topicList[j] = topicList[i];
   topicList[i] = temp;
+}
+
+function wordsClose(guess, topic) {
+  var score = jaro_winkler(guess, topic);
+  return score > 0.88; // score is between 0 (no match) and 1 (match)
+}
+
+function wordsClose1a(guess, topic) {
+  var score = jaro_winkler(guess, topic);
+  return score > 0.92; // score is between 0 (no match) and 1 (match)
+}
+
+function wordsClose2(guess, topic) {
+  var score = jaro_winkler(guess, topic);
+  if (score < 0.7) { // Certainly wrong
+    return false;
+  } else if (score > 0.88) { // Definitely close
+    return true;
+  } else { // Somewhat close
+    var guessRoot = porter(guess);
+    var topicRoot = porter(topic);
+    score = jaro_winkler(guessRoot, topicRoot);
+    score -= levenshtein(guessRoot, topicRoot) / 40;
+    return score > 0.88;
+  }
+}
+
+function wordsClose2a(guess, topic) {
+  var score = jaro_winkler(guess, topic);
+  if (score < 0.8) { // Certainly wrong
+    return false;
+  } else if (score > 0.92) { // Definitely close
+    return true;
+  } else { // Somewhat close
+    var guessRoot = porter(guess);
+    var topicRoot = porter(topic);
+    score = jaro_winkler(guessRoot, topicRoot);
+    score -= levenshtein(guessRoot, topicRoot) / 4  0;
+    return score > 0.92;
+  }
+}
+
+
+function wordsClose3(guess, topic) {
+  var score = jaro_winkler(guess, topic);
+  if (score < 0.7) { // Certainly wrong
+    return false;
+  } else if (score > 0.88) { // Definitely close
+    return true;
+  } else { // Somewhat close
+    var guessRoot = porter(guess);
+    var topicRoot = porter(topic);
+    score = jaro_winkler(guessRoot, topicRoot);
+    score -= levenshtein(guessRoot, topicRoot) / 80;
+    return score > 0.88;
+  }
+}
+
+function wordsClose3a(guess, topic) {
+  var score = jaro_winkler(guess, topic);
+  if (score < 0.8) { // Certainly wrong
+    return false;
+  } else if (score > 0.92) { // Definitely close
+    return true;
+  } else { // Somewhat close
+    var guessRoot = porter(guess);
+    var topicRoot = porter(topic);
+    score = jaro_winkler(guessRoot, topicRoot);
+    score -= levenshtein(guessRoot, topicRoot) / 80;
+    return score > 0.92;
+  }
 }
 
 function advanceRound(io) {
@@ -76,6 +150,8 @@ function advanceRound(io) {
   var newDrawers = drawers.length === 1 ? drawers[0] : drawers.slice(0, drawers.length - 1).join(", ") +
       " and " + drawers[drawers.length - 1];
   io.emit('gameMessage', {text: newDrawers + (drawers.length === 1 ? ' is' : ' are') + ' now drawing.'});
+  // GET RID OF THIS AFTER TESTING DIFFERENT METHODS
+  io.emit('gameMessage', {text: 'the prompt is: ' + topicList[0]});
 }
 
 // Create the game configuration
@@ -180,8 +256,8 @@ module.exports = function (io, socket) {
         }, Game.timeToEnd * 1000);
       }
 
-    } else if (guess.indexOf(topic) > -1 || levenshtein.get(topic, guess) < 3) {
-      // If message contains drawing prompt or word-distance is < 3 it is a close guess
+    } else if (wordsClose(guess, topic) || wordsClose1a(guess, topic) || wordsClose2(guess, topic) || wordsClose2a(guess, topic) || wordsClose3(guess, topic) || wordsClose3a(guess, topic)) { 
+      // close guess
 
       // Tell the drawer/s the guess
       Game.getDrawers().forEach(function (drawer) {
@@ -192,7 +268,14 @@ module.exports = function (io, socket) {
       // TODO their message should be greyed out or something to indicate only they can see it
       socket.emit('gameMessage', message);
       if (!Game.userHasGuessed(username)) {
-        socket.emit('gameMessage', {text: "Your guess is close!"});
+        var whichMethod = " using ";
+        whichMethod += wordsClose(guess, topic) ? "1 " : '';
+        whichMethod += wordsClose1a(guess, topic) ? "1a " : '';
+        whichMethod += wordsClose2(guess, topic) ? "2 " : '';
+        whichMethod += wordsClose2a(guess, topic) ? "2a " : '';
+        whichMethod += wordsClose3(guess, topic) ? "3 " : '';
+        whichMethod += wordsClose3a(guess, topic) ? "3a " : '';
+        socket.emit('gameMessage', {text: "Your guess is close!" + whichMethod});
       }
     } else {
       // Incorrect guess: emit message to everyone
