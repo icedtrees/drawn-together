@@ -210,12 +210,11 @@ module.exports = function (io, socket) {
       Game.markCorrectGuess(username);
 
       // Alert everyone in the room that they were correct
-      var serverMessage = {
+      broadcastMessage({
         type: 'status-correct',
         // only send the username in the message text, which will be styled as bold in the css
         text: username
-      };
-      broadcastMessage(serverMessage);
+      });
 
       // End round if everyone has guessed
       if (Game.allGuessed()) {
@@ -277,6 +276,13 @@ module.exports = function (io, socket) {
   socket.on('disconnect', function () {
     userConnects[username]--;
     if (userConnects[username] === 0) {
+      // Emit the status event when a socket client is disconnected
+      broadcastMessage({
+        type: 'status',
+        text: username + ' is now disconnected',
+        created: Date.now(),
+      });
+
       // If the disconnecting user is a drawer, this is equivalent to
       // 'giving up' or passing
       if (Game.isDrawer(username)) {
@@ -284,14 +290,6 @@ module.exports = function (io, socket) {
       }
       delete userConnects[username];
       Game.removeUser(username);
-
-      // Emit the status event when a socket client is disconnected
-      var message = {
-        type: 'status',
-        text: username + ' is now disconnected',
-        created: Date.now(),
-      };
-      broadcastMessage(message);
 
       // Notify all users that this user has disconnected
       io.emit('userDisconnect', username);
