@@ -91,7 +91,7 @@ function wordsClose2a(guess, topic) {
     var guessRoot = porter(guess);
     var topicRoot = porter(topic);
     score = jaro_winkler(guessRoot, topicRoot);
-    score -= levenshtein(guessRoot, topicRoot) / 4  0;
+    score -= levenshtein(guessRoot, topicRoot) / 40;
     return score > 0.92;
   }
 }
