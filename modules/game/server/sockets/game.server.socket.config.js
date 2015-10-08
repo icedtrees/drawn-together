@@ -10,7 +10,11 @@ var levenshtein = require('fast-levenshtein');
 // A timeout created to end the round seconds when someone guesses the prompt
 var roundTimeout;
 // Game object encapsulating game logic
-var Game =  new GameLogic.Game(5, 1, 20); // parameters: numRounds, numDrawers, timeToEnd
+var Game =  new GameLogic.Game({
+  numRounds: 5,
+  numDrawers: 1,
+  timeToEnd: 20
+}); // parameters: numRounds, numDrawers, timeToEnd
 
 // Dictionary counting number of connects made by each user
 var userConnects = {};

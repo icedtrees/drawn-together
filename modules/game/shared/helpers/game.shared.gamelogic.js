@@ -1,15 +1,17 @@
 'use strict';
 
 (function(exports) {
-  exports.Game = function(numRounds, numDrawers, timeToEnd) {
+  exports.Game = function(initialState) {
     this.currentRound = 0;
-    this.numRounds = numRounds;
-    this.numDrawers = numDrawers;
     this.curDrawer = 0;
     this.userList = [];
     this.users = {};
-    this.timeToEnd = timeToEnd;
     this.correctGuesses = 0;
+    if (initialState) {
+      this.numRounds = initialState.numRounds;
+      this.numDrawers = initialState.numDrawers;
+      this.timeToEnd = initialState.timeToEnd;
+    }
   };
 
   exports.Game.prototype.addUser = function (username, profileImageURL) {
