@@ -24,7 +24,7 @@ var UserSchema = new Schema({
     required: 'Please fill in a username',
     minlength: [1, 'Username must contain at least one character.'],
     maxlength: [26, 'Username exceeds the maximum allowed length ({MAXLENGTH}).'],
-    match: [/^[a-z0-9]{1,26}$/, 'Username may only contain lowercase letters and numbers.'],
+    match: [/^[a-zA-Z0-9]{1,26}$/, 'Username may only contain lowercase letters and numbers.'],
     lowercase: true,
     trim: true // Removes surrounding whitespace
   },
@@ -87,6 +87,10 @@ UserSchema.pre('validate', function (next) {
     this.invalidate('password', 'Password exceeds the maximum allowed length (128).');
   }
 
+  if (this.uniqueIgnoreCase('username') === true) {
+    this.invalidate('username', 'Username already exists.');
+  }
+
   next();
 });
 
@@ -122,6 +126,21 @@ UserSchema.methods.authenticate = function (password) {
   } else {
     return this.password === '';
   }
+};
+
+// Method for determining if a field is unique, ignoring case
+UserSchema.methods.uniqueIgnoreCase = function (field) {
+  var self = this; // Prevents scoping issues.
+  // Query database for user with username matching the regex '/^username$/i'.
+  self.constructor.findOne({field : new RegExp('^' + self.field + '$', 'i')}, function (err, result) {
+      if (!err && result && result !== self.field) {
+        // There were no errors and there was another matching username, so we return true.
+        return true;
+      } else {
+        return false;
+      }
+    }
+  );
 };
 
 /**

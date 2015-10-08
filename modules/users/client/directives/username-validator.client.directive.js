@@ -9,12 +9,15 @@ angular.module('users').directive('usernameValidator', function() {
         // ctrl = the controller for ngModel.
         link: function(scope, elem, attr, ctrl) {
 
-            // add a parser into the model that runs when the user updates it.
+            // Add a parser into the model that runs when the user updates it.
             ctrl.$parsers.unshift(function (username) {
-                var isValid = /^[a-z0-9]{1,26}$/.test(username);
+                var validChars = 'a-zA-Z0-9';
+                var minLength = '1';
+                var maxLength = '26';
+                var isValid = new RegExp('^[' + validChars + ']{' + minLength + ',' + maxLength + '}$').test(username);
                 ctrl.$setValidity('chosenUsername', isValid);
 
-                // if it's valid, return the value to the model, otherwise return undefined.
+                // If it's valid, return the value to the model, otherwise return undefined.
                 if (isValid) {
                     return username;
                 } else {
@@ -25,7 +28,7 @@ angular.module('users').directive('usernameValidator', function() {
                     if (username.length > 26) {
                         errors.push("Username must be at most 26 characters long.");
                     }
-                    if (/[^a-z0-9]/.test(username)) {
+                    if (new RegExp('[^' + validChars + ']').test(username)) {
                         errors.push("Username must only contain letters and numbers.");
                     }
                     scope.usernameErrors = errors;
