@@ -11,10 +11,8 @@ angular.module('users').directive('usernameValidator', function() {
 
             // Add a parser into the model that runs when the user updates it.
             ctrl.$parsers.unshift(function (username) {
-                var validChars = 'a-zA-Z0-9';
-                var minLength = '1';
-                var maxLength = '26';
-                var isValid = new RegExp('^[' + validChars + ']{' + minLength + ',' + maxLength + '}$').test(username);
+                var isValid = new RegExp('^[' + scope.validChars + ']{'
+                    + scope.minLength + ',' + scope.maxLength + '}$').test(username);
                 ctrl.$setValidity('chosenUsername', isValid);
 
                 // If it's valid, return the value to the model, otherwise return undefined.
@@ -22,13 +20,13 @@ angular.module('users').directive('usernameValidator', function() {
                     return username;
                 } else {
                     var errors = [];
-                    if (username.length < 1) {
+                    if (username.length < scope.minLength) {
                         errors.push("Username must be at least one character long.");
                     }
-                    if (username.length > 26) {
-                        errors.push("Username must be at most 26 characters long.");
+                    if (username.length > scope.maxLength) {
+                        errors.push("Username must be at most " + scope.maxLength + " characters long.");
                     }
-                    if (new RegExp('[^' + validChars + ']').test(username)) {
+                    if (new RegExp('[^' + scope.validChars + ']').test(username)) {
                         errors.push("Username must only contain letters and numbers.");
                     }
                     scope.usernameErrors = errors;

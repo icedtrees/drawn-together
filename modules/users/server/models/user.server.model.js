@@ -24,7 +24,7 @@ var UserSchema = new Schema({
     required: 'Please fill in a username',
     minlength: [1, 'Username must contain at least one character.'],
     maxlength: [26, 'Username exceeds the maximum allowed length ({MAXLENGTH}).'],
-    match: [/^[a-zA-Z0-9]{1,26}$/, 'Username may only contain lowercase letters and numbers.'],
+    match: [/^[a-zA-Z0-9]{1,26}$/, 'Username may only contain letters and numbers.'],
     lowercase: true,
     trim: true // Removes surrounding whitespace
   },
