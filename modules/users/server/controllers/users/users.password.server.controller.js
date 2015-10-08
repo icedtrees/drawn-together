@@ -251,3 +251,52 @@ exports.changePassword = function (req, res, next) {
     });
   }
 };
+
+/**
+ * Remove Password
+ */
+exports.removePassword = function (req, res, next) {
+  // Init Variables
+  var passwordDetails = req.body;
+  var message = null;
+
+  if (req.user) {
+    User.findById(req.user.id, function (err, user) {
+      if (!err && user) {
+        if (user.authenticate(passwordDetails.currentPassword)) {
+            user.password = '';
+
+            user.save(function (err) {
+              if (err) {
+                return res.status(400).send({
+                  message: errorHandler.getErrorMessage(err)
+                });
+              } else {
+                req.login(user, function (err) {
+                  if (err) {
+                    res.status(400).send(err);
+                  } else {
+                    res.send({
+                      message: 'Password removed successfully'
+                    });
+                  }
+                });
+              }
+            });
+        } else {
+          res.status(400).send({
+            message: 'Current password is incorrect'
+          });
+        }
+      } else {
+        res.status(400).send({
+          message: 'User is not found'
+        });
+      }
+    });
+  } else {
+    res.status(400).send({
+      message: 'User is not signed in'
+    });
+  }
+};

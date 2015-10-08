@@ -73,7 +73,10 @@ module.exports = function (io, socket) {
     // Announce the new drawers
     var drawers = Game.getDrawers();
     var newDrawers = Utils.toCommaList(drawers);
-    io.emit('gameMessage', {text: newDrawers + (drawers.length === 1 ? ' is' : ' are') + ' now drawing.'});
+    broadcastMessage({
+      type: 'status',
+      text: newDrawers + (drawers.length === 1 ? ' is' : ' are') + ' now drawing.'
+    });
   }
 
   function advanceRound() {
@@ -86,13 +89,19 @@ module.exports = function (io, socket) {
     drawHistory = [];
 
     // Explain what the word was
-    io.emit('gameMessage', {text: 'Round over! The topic was "' + topicList[0] + '"'});
+    broadcastMessage({
+      type: 'status',
+      text: 'Round over! The topic was "' + topicList[0] + '"'
+    });
 
     if (gameFinished) {
       var winners = Game.getWinners();
-      io.emit('gameMessage', {text: 'The winner(s) of the game: ' + Utils.toCommaList(winners) + ' on ' +
-      Game.users[winners[0]].score + ' points! The new round will start ' +
-      'in ' + Game.timeToEnd + ' seconds.'});
+      broadcastMessage({
+        type: 'status',
+        text: 'The winner(s) of the game: ' + Utils.toCommaList(winners) + ' on ' +
+              Game.users[winners[0]].score + ' points! The new round will start ' +
+              'in ' + Game.timeToEnd + ' seconds.'
+      });
       setTimeout(function () {
         gameMessages = [];
         drawHistory = [];
@@ -106,6 +115,7 @@ module.exports = function (io, socket) {
   }
 
   var username = socket.request.user.username;
+  var profileImageURL = socket.request.user.profileImageURL;
   socket.join(username);
 
   // Add user to in-memory store if necessary, or simply increment counter
@@ -114,20 +124,21 @@ module.exports = function (io, socket) {
     userConnects[username]++;
   } else {
     userConnects[username] = 1;
-    Game.addUser(username);
+    Game.addUser(username, profileImageURL);
 
     // Emit the status event when a new socket client is connected
     var message = {
       type: 'status',
-      text: 'is now connected',
+      text: username + ' is now connected',
       created: Date.now(),
-      profileImageURL: socket.request.user.profileImageURL,
-      username: username
     };
     broadcastMessage(message);
 
     // Notify everyone about the new joined user (not the sender though)
-    socket.broadcast.emit('userConnect', username);
+    socket.broadcast.emit('userConnect', {
+      username: username,
+      image: profileImageURL
+    });
   }
 
   // Send an updated version of the userlist whenever a user requests an update of the
@@ -162,7 +173,6 @@ module.exports = function (io, socket) {
 
     message.type = 'message';
     message.created = Date.now();
-    message.profileImageURL = socket.request.user.profileImageURL;
     message.username = username;
 
     // If the game is over, don't check any guesses
@@ -184,7 +194,7 @@ module.exports = function (io, socket) {
       });
 
       // Send the user's guess to themselves
-      // TODO their message should be greyed out or something to indicate only they can see it
+      message.type = 'correct-guess';
       socket.emit('gameMessage', message);
 
       // Don't update game state if user has already guessed the prompt
@@ -196,7 +206,11 @@ module.exports = function (io, socket) {
       Game.markCorrectGuess(username);
 
       // Alert everyone in the room that they were correct
-      var serverMessage = {text: username + " has guessed the prompt!"};
+      var serverMessage = {
+        type: 'status-correct',
+        // only send the username in the message text, which will be styled as bold in the css
+        text: username
+      };
       broadcastMessage(serverMessage);
 
       // End round if everyone has guessed
@@ -205,7 +219,10 @@ module.exports = function (io, socket) {
         advanceRound();
       } else if (Game.correctGuesses === 1) {
         // Start timer to end round if this is the first correct guess
-        io.emit('gameMessage', {text: "The round will end in " + Game.timeToEnd + " seconds."});
+        broadcastMessage({
+          type: 'status',
+          text: "The round will end in " + Game.timeToEnd + " seconds."
+        });
         roundTimeout = setTimeout(function () {
           advanceRound();
         }, Game.timeToEnd * 1000);
@@ -220,11 +237,9 @@ module.exports = function (io, socket) {
       });
 
       // Tell the guesser that their guess was close
-      // TODO their message should be greyed out or something to indicate only they can see it
+      message.type = 'close-guess';
+      message.username = username;
       socket.emit('gameMessage', message);
-      if (!Game.userHasGuessed(username)) {
-        socket.emit('gameMessage', {text: "Your guess is close!"});
-      }
     } else {
       // Incorrect guess: emit message to everyone
       broadcastMessage(message);
@@ -270,10 +285,8 @@ module.exports = function (io, socket) {
       // Emit the status event when a socket client is disconnected
       var message = {
         type: 'status',
-        text: 'is now disconnected',
+        text: username + ' is now disconnected',
         created: Date.now(),
-        profileImageURL: socket.request.user.profileImageURL,
-        username: username
       };
       broadcastMessage(message);
 

@@ -12,11 +12,12 @@
     this.correctGuesses = 0;
   };
 
-  exports.Game.prototype.addUser = function (username) {
+  exports.Game.prototype.addUser = function (username, profileImageURL) {
     this.userList.push(username);
     this.users[username] = {
       score: 0,
-      guessedCorrect: false
+      guessedCorrect: false,
+      profileImageURL: profileImageURL
     };
   };
 
@@ -40,6 +41,10 @@
     this.userList.splice(idx, 1);
 
     delete this.users[username];
+  };
+
+  exports.Game.prototype.getUserProfileImage = function (username) {
+    return this.users[username].profileImageURL;
   };
 
   exports.Game.prototype.isDrawer = function (username) {
