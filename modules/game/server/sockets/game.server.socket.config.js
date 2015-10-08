@@ -71,7 +71,7 @@ function wordsClose2(guess, topic) {
   var t = 0.96;
   t = Math.max(0.91, t - guess.length / 100);
   console.log("2 " + t);
-  if (score < 0.7) { // Certainly wrong
+  if (score < 0.8) { // Certainly wrong
     return [score, false];
   } else if (score > t) { // Definitely close
     return [score, true];
@@ -117,7 +117,7 @@ function wordsClose3(guess, topic) {
   var t = 0.95;
   t = Math.max(0.89, t - guess.length / 100);
   console.log("3 " + t);
-  if (score < 0.7) { // Certainly wrong
+  if (score < 0.8) { // Certainly wrong
     return [score, false];
   } else if (score > t) { // Definitely close
     return [score, true];
