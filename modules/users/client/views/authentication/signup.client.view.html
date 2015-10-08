@@ -5,7 +5,7 @@
       <fieldset>
         <div class="form-group" show-errors>
           <label for="username">Username</label>
-          <input type="text" id="username" name="username" class="form-control" ng-model="credentials.username" placeholder="Username" popover="Please enter a username with only letters and numbers between 1 to 26 characters in length." popover-trigger="focus" popover-placement="right" username-validator lowercase required>
+          <input type="text" id="username" name="username" class="form-control" ng-model="credentials.username" placeholder="Username" popover="Please enter a username with only letters and numbers between 1 to 26 characters in length." popover-trigger="focus" popover-placement="right" username-validator required>
           <div ng-messages="userForm.username.$error" role="alert">
             <p class="help-block error-text" ng-message="required">Username is required.</p>
             <div ng-repeat="usernameError in usernameErrors">
