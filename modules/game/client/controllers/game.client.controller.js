@@ -1,8 +1,10 @@
 'use strict';
 
 // Create the 'game' controller
-angular.module('game').controller('GameController', ['$scope', '$location', 'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic',
-  function ($scope, $location, Authentication, Socket, CanvasSettings, ChatSettings, GameSettings, GameLogic) {
+angular.module('game').controller('GameController', ['$scope', '$location', 'Authentication', 'Socket',
+  'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils',
+  function ($scope, $location, Authentication, Socket,
+            CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils) {
     // Settings objects
     $scope.CanvasSettings = CanvasSettings;
     $scope.ChatSettings = ChatSettings;
@@ -19,6 +21,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     $scope.mouseMode = 'pen';
 
     $scope.Game = new GameLogic.Game();
+    $scope.Utils = Utils;
 
     $scope.messageText = '';
 
@@ -43,7 +46,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
      * Set the game state based on what the server tells us it currently is
      */
     Socket.on('gameState', function (state) {
-      $scope.Game.setState(state);
+      angular.extend($scope.Game, state);
     });
 
     /*
@@ -54,10 +57,19 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     });
 
     /*
+     * The game has finished and is ready to be restarted
+     */
+    Socket.on('restartGame', function () {
+      $scope.messages = [];
+      $scope.canvas.draw({type: 'clear'});
+      $scope.Game.restartGame();
+    });
+
+    /*
      * Another user has connected or disconnected.
      */
     Socket.on('userConnect', function (user) {
-      $scope.Game.addUser(user);
+      $scope.Game.addUser(user.username, user.image);
     });
     Socket.on('userDisconnect', function (user) {
       $scope.Game.removeUser(user);
@@ -67,7 +79,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
      *
      * message =
      * {
-     *   type: 'message' or 'status'
+     *   type: 'message', 'status', 'status-correct', 'correct-guess' or 'close-guess'
      *   created: Date.now()
      *   profileImageURL: some valid url
      *   username: user who posted the message
