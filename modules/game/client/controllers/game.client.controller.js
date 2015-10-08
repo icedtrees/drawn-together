@@ -57,7 +57,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
      * Another user has connected or disconnected.
      */
     Socket.on('userConnect', function (user) {
-      $scope.Game.addUser(user);
+      $scope.Game.addUser(user.username, user.image);
     });
     Socket.on('userDisconnect', function (user) {
       $scope.Game.removeUser(user);
@@ -67,7 +67,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
      *
      * message =
      * {
-     *   type: 'message' or 'status'
+     *   type: 'message', 'status', 'status-correct', 'correct-guess' or 'close-guess'
      *   created: Date.now()
      *   profileImageURL: some valid url
      *   username: user who posted the message
