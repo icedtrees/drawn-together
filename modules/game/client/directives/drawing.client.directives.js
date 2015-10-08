@@ -109,8 +109,8 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
 
           // Redraw the preview layer to match the new position
           clearLayer(previewCtx);
-          if (scope.Game.isDrawer(scope.username)) {
-            if (inCanvas(mouse)) {
+          if (inCanvas(mouse)) {
+            if (scope.Game.isDrawer(scope.username)) {
               if (scope.mouseMode === 'pen') {
                 // Solid circle with the matching pen colour
                 previewCtx.beginPath();
