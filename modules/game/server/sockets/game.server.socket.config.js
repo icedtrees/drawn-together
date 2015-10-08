@@ -68,62 +68,83 @@ function wordsClose1a(guess, topic) {
 
 function wordsClose2(guess, topic) {
   var score = jaro_winkler(guess, topic);
+  var t = 0.96;
+  t = Math.max(0.91, t - guess.length / 100);
+  console.log("2 " + t);
   if (score < 0.7) { // Certainly wrong
     return [score, false];
-  } else if (score > 0.88) { // Definitely close
+  } else if (score > t) { // Definitely close
     return [score, true];
   } else { // Somewhat close
     var guessRoot = porter(guess);
     var topicRoot = porter(topic);
     score = jaro_winkler(guessRoot, topicRoot);
     score -= levenshtein(guessRoot, topicRoot) / 40;
-    return [score, score > 0.88];
+    if (score > t) {
+      return [score, score > t];
+    } else {
+      var lev = levenshtein(guess, topic);
+      return [score, lev <= (guess.length - 5)/3 + 1];
+    }
   }
 }
 
 function wordsClose2a(guess, topic) {
   var score = jaro_winkler(guess, topic);
+  var t = 0.96;
+  t = Math.max(0.91, t - guess.length / 200);
+  console.log("2a " + t);
   if (score < 0.8) { // Certainly wrong
     return [score, false];
-  } else if (score > 0.92) { // Definitely close
+  } else if (score > t) { // Definitely close
     return [score, true];
   } else { // Somewhat close
     var guessRoot = porter(guess);
     var topicRoot = porter(topic);
     score = jaro_winkler(guessRoot, topicRoot);
     score -= levenshtein(guessRoot, topicRoot) / 40;
-    return [score, score > 0.92];
+    if (score > t) {
+      return [score, score > t];
+    } else {
+      var lev = levenshtein(guess, topic);
+      return [score, lev <= (guess.length - 6)/3.5 + 1];
+    }
   }
 }
 
-
 function wordsClose3(guess, topic) {
   var score = jaro_winkler(guess, topic);
+  var t = 0.95;
+  t = Math.max(0.89, t - guess.length / 100);
+  console.log("3 " + t);
   if (score < 0.7) { // Certainly wrong
     return [score, false];
-  } else if (score > 0.88) { // Definitely close
+  } else if (score > t) { // Definitely close
     return [score, true];
   } else { // Somewhat close
     var guessRoot = porter(guess);
     var topicRoot = porter(topic);
     score = jaro_winkler(guessRoot, topicRoot);
-    score -= levenshtein(guessRoot, topicRoot) / 80;
-    return [score, score > 0.88];
+    score -= levenshtein(guessRoot, topicRoot) / 40;
+    return [score, score > t];
   }
 }
 
 function wordsClose3a(guess, topic) {
   var score = jaro_winkler(guess, topic);
+  var t = 0.95;
+  t = Math.max(0.89, t - guess.length / 200);
+  console.log("3a " + t);
   if (score < 0.8) { // Certainly wrong
     return [score, false];
-  } else if (score > 0.92) { // Definitely close
+  } else if (score > t) { // Definitely close
     return [score, true];
   } else { // Somewhat close
     var guessRoot = porter(guess);
     var topicRoot = porter(topic);
     score = jaro_winkler(guessRoot, topicRoot);
-    score -= levenshtein(guessRoot, topicRoot) / 80;
-    return [score, score > 0.92];
+    score -= levenshtein(guessRoot, topicRoot) / 40;
+    return [score, score > t];
   }
 }
 
