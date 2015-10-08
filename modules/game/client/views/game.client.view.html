@@ -18,7 +18,7 @@
       </li>
 
     </ul>
-    <button ng-disabled="!Game.isDrawer(username)" ng-click="finishDrawing()">Finish Drawing</button>
+    <button ng-disabled="!Game.isDrawer(username) || Game.correctGuesses !== 0" ng-click="finishDrawing()">Finish Drawing</button>
     <button ng-disabled="!Game.isDrawer(username)" ng-click="clearDrawing()">Clear</button>
   </div>
 
@@ -54,7 +54,17 @@
 
   <!-- The canvas -->
   <div class="col-xs-12 col-md-5" >
-    <h3 class="text-center" ng-if="Game.isDrawer(username)">Draw "<span ng-bind="topic"></span>"</h3>
+    <h3 class="text-center">
+      <span ng-if="Game.currentRound < Game.numRounds">
+        Round <span ng-bind="Game.currentRound + 1"></span>
+      </span>
+      <span ng-if="Game.currentRound >= Game.numRounds">
+        Game Over!
+      </span>
+      <span ng-if="Game.isDrawer(username)">
+        Draw "<span ng-bind="topic"></span>"
+      </span>
+    </h3>
     <div class="dt-drawing"></div>
   </div>
 

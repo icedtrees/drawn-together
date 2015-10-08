@@ -1,13 +1,17 @@
 'use strict';
 
 (function(exports) {
-  exports.Game = function(numDrawers, timeToEnd) {
-    this.numDrawers = numDrawers || 0;
+  exports.Game = function(initialState) {
+    this.currentRound = 0;
     this.curDrawer = 0;
     this.userList = [];
     this.users = {};
-    this.timeToEnd = timeToEnd || 0;
     this.correctGuesses = 0;
+    if (initialState) {
+      this.numRounds = initialState.numRounds;
+      this.numDrawers = initialState.numDrawers;
+      this.timeToEnd = initialState.timeToEnd;
+    }
   };
 
   exports.Game.prototype.addUser = function (username, profileImageURL) {
@@ -21,9 +25,24 @@
 
   exports.Game.prototype.removeUser = function (username) {
     var idx = this.userList.indexOf(username);
-    if (idx !== -1) {
-      this.userList.splice(idx);
+    if (idx === -1) {
+      return;
     }
+
+    // The user to be removed is never going to be the current drawer - the round
+    // is advanced before they are disconnected from the game
+    if (idx === this.curDrawer) {
+      console.log('Trying to remove current drawer - this should never happen');
+    }
+
+    // If idx === 0, then curDrawer !== 0 (from the above)
+    if (idx < this.curDrawer) {
+      // Therefore curDrawer can always be decremented safely without going negative
+      this.curDrawer--;
+    }
+    this.userList.splice(idx, 1);
+
+    delete this.users[username];
   };
 
   exports.Game.prototype.getUserProfileImage = function (username) {
@@ -31,6 +50,11 @@
   };
 
   exports.Game.prototype.isDrawer = function (username) {
+    // At the end of the game, noone is a drawer
+    if (this.currentRound >= this.numRounds) {
+      return false;
+    }
+
     for (var i = 0; i < this.userList.length && i < this.numDrawers; i++) {
       var idx = (this.curDrawer + i) % this.userList.length;
       if (this.userList[idx] === username) {
@@ -71,34 +95,44 @@
     return this.correctGuesses === this.userList.length - this.numDrawers;
   };
 
+  /* Returns true if the game has ended and false otherwise */
   exports.Game.prototype.advanceRound = function () {
     this.curDrawer = (this.curDrawer + 1) % this.userList.length;
     for (var i = 0; i < this.userList.length; i++) {
       this.users[this.userList[i]].guessedCorrect = false;
     }
     this.correctGuesses = 0;
+
+    this.currentRound++;
+    if (this.currentRound >= this.numRounds) {
+      return true;
+    }
+    return false;
   };
 
-  exports.Game.prototype.getState = function () {
-    var state = {
-      numDrawers: this.numDrawers,
-      curDrawer: this.curDrawer,
-      userList: this.userList,
-      users: this.users,
-      timeToEnd: this.timeToEnd,
-      correctGuesses: this.correctGuesses
-    };
+  exports.Game.prototype.getWinners = function () {
+    var winners = [];
+    var topScore = 0;
+    var i;
+    for (i = 0; i < this.userList.length; i++) {
+      topScore = Math.max(topScore, this.users[this.userList[i]].score);
+    }
+    for (i = 0; i < this.userList.length; i++) {
+      if (this.users[this.userList[i]].score === topScore) {
+        winners.push(this.userList[i]);
+      }
+    }
 
-    return state;
+    return winners;
   };
 
-  exports.Game.prototype.setState = function (state) {
-    this.numDrawers = state.numDrawers;
-    this.curDrawer = state.curDrawer;
-    this.userList = state.userList;
-    this.users = state.users;
-    this.timeToEnd = state.timeToEnd;
-    this.correctGuesses = state.correctGuesses;
+  exports.Game.prototype.restartGame = function () {
+    this.currentRound = 0;
+    this.correctGuesses = 0;
+    for (var i = 0; i < this.userList.length; i++) {
+      this.users[this.userList[i]].score = 0;
+      this.users[this.userList[i]].guessedCorrect = false;
+    }
   };
 
 })((typeof process === 'undefined' || !process.versions) ? // Not a node.js environment
