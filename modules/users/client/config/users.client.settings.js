@@ -3,4 +3,4 @@ angular.module('users').constant('settings', {
     'validChars': 'a-zA-Z0-9',
     'minLength': '1',
     'maxLength': '26'
-})
+});
