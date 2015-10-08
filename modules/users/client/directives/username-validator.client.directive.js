@@ -11,8 +11,8 @@ angular.module('users').directive('usernameValidator', function() {
 
             // Add a parser into the model that runs when the user updates it.
             ctrl.$parsers.unshift(function (username) {
-                var isValid = new RegExp('^[' + scope.validChars + ']{'
-                    + scope.minLength + ',' + scope.maxLength + '}$').test(username);
+                var isValid = new RegExp(
+                    '^[' + scope.validChars + ']{' + scope.minLength + ',' + scope.maxLength + '}$').test(username);
                 ctrl.$setValidity('chosenUsername', isValid);
 
                 // If it's valid, return the value to the model, otherwise return undefined.
