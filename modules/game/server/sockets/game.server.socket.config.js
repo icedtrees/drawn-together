@@ -54,50 +54,57 @@ for (var i = topicList.length - 2; i > 0; i--) {
   topicList[i] = temp;
 }
 
-function sendTopic(io) {
-  // Select a new topic and send it to the new drawer
-  topicList.push(topicList.shift());
-  Game.getDrawers().forEach(function (drawer) {
-    io.to(drawer).emit('topic', topicList[0]);
-  });
-
-  // Announce the new drawers
-  var drawers = Game.getDrawers();
-  var newDrawers = Utils.toCommaList(drawers);
-  io.emit('gameMessage', {text: newDrawers + (drawers.length === 1 ? ' is' : ' are') + ' now drawing.'});
-}
-
-function advanceRound(io) {
-  var gameFinished = Game.advanceRound();
-
-  // Send user list with updated drawers
-  io.emit('advanceRound');
-
-  io.emit('canvasMessage', {type: 'clear'});
-  drawHistory = [];
-
-  // Explain what the word was
-  io.emit('gameMessage', {text: 'Round over! The topic was "' + topicList[0] + '"'});
-
-  if (gameFinished) {
-    var winners = Game.getWinners();
-    io.emit('gameMessage', {text: 'The winner(s) of the game: ' + Utils.toCommaList(winners) + ' on ' +
-                                  Game.users[winners[0]].score + ' points! The new round will start ' +
-                                  'in ' + Game.timeToEnd + ' seconds.'});
-    setTimeout(function () {
-      gameMessages = [];
-      drawHistory = [];
-      Game.restartGame();
-      io.emit('restartGame');
-      sendTopic(io);
-    }, Game.timeToEnd * 1000);
-  } else {
-    sendTopic(io);
-  }
-}
-
 // Create the game configuration
 module.exports = function (io, socket) {
+  function broadcastMessage(message) {
+    gameMessages.push(message);
+    if (gameMessages.length > ChatSettings.MAX_MESSAGES) {
+      gameMessages.shift();
+    }
+    io.emit('gameMessage', message);
+  }
+  function sendTopic() {
+    // Select a new topic and send it to the new drawer
+    topicList.push(topicList.shift());
+    Game.getDrawers().forEach(function (drawer) {
+      io.to(drawer).emit('topic', topicList[0]);
+    });
+
+    // Announce the new drawers
+    var drawers = Game.getDrawers();
+    var newDrawers = Utils.toCommaList(drawers);
+    io.emit('gameMessage', {text: newDrawers + (drawers.length === 1 ? ' is' : ' are') + ' now drawing.'});
+  }
+
+  function advanceRound() {
+    var gameFinished = Game.advanceRound();
+
+    // Send user list with updated drawers
+    io.emit('advanceRound');
+
+    io.emit('canvasMessage', {type: 'clear'});
+    drawHistory = [];
+
+    // Explain what the word was
+    io.emit('gameMessage', {text: 'Round over! The topic was "' + topicList[0] + '"'});
+
+    if (gameFinished) {
+      var winners = Game.getWinners();
+      io.emit('gameMessage', {text: 'The winner(s) of the game: ' + Utils.toCommaList(winners) + ' on ' +
+      Game.users[winners[0]].score + ' points! The new round will start ' +
+      'in ' + Game.timeToEnd + ' seconds.'});
+      setTimeout(function () {
+        gameMessages = [];
+        drawHistory = [];
+        Game.restartGame();
+        io.emit('restartGame');
+        sendTopic();
+      }, Game.timeToEnd * 1000);
+    } else {
+      sendTopic();
+    }
+  }
+
   var username = socket.request.user.username;
   socket.join(username);
 
@@ -117,8 +124,7 @@ module.exports = function (io, socket) {
       profileImageURL: socket.request.user.profileImageURL,
       username: username
     };
-    gameMessages.push(message);
-    socket.broadcast.emit('gameMessage', message);
+    broadcastMessage(message);
 
     // Notify everyone about the new joined user (not the sender though)
     socket.broadcast.emit('userConnect', username);
@@ -159,6 +165,12 @@ module.exports = function (io, socket) {
     message.profileImageURL = socket.request.user.profileImageURL;
     message.username = username;
 
+    // If the game is over, don't check any guesses
+    if (Game.currentRound >= Game.numRounds) {
+      broadcastMessage(message);
+      return;
+    }
+
     // Compare the lower-cased versions
     var guess = message.text.toLowerCase();
     var topic = topicList[0].toLowerCase();
@@ -184,17 +196,18 @@ module.exports = function (io, socket) {
       Game.markCorrectGuess(username);
 
       // Alert everyone in the room that they were correct
-      io.emit('gameMessage', {text: username + " has guessed the prompt!"});
+      var serverMessage = {text: username + " has guessed the prompt!"};
+      broadcastMessage(serverMessage);
 
       // End round if everyone has guessed
       if (Game.allGuessed()) {
         clearTimeout(roundTimeout);
-        advanceRound(io);
+        advanceRound();
       } else if (Game.correctGuesses === 1) {
         // Start timer to end round if this is the first correct guess
         io.emit('gameMessage', {text: "The round will end in " + Game.timeToEnd + " seconds."});
         roundTimeout = setTimeout(function () {
-          advanceRound(io);
+          advanceRound();
         }, Game.timeToEnd * 1000);
       }
 
@@ -214,12 +227,7 @@ module.exports = function (io, socket) {
       }
     } else {
       // Incorrect guess: emit message to everyone
-      gameMessages.push(message);
-      if (gameMessages.length > ChatSettings.MAX_MESSAGES) {
-        gameMessages.shift();
-      }
-
-      io.emit('gameMessage', message);
+      broadcastMessage(message);
     }
   });
 
@@ -242,7 +250,7 @@ module.exports = function (io, socket) {
     // If the user who submitted this message actually is a drawer
     // And prevent round ending prematurely when prompt has been guessed
     if (Game.isDrawer(username) && Game.correctGuesses === 0) {
-      advanceRound(io);
+      advanceRound();
     }
   });
 
@@ -267,8 +275,7 @@ module.exports = function (io, socket) {
         profileImageURL: socket.request.user.profileImageURL,
         username: username
       };
-      gameMessages.push(message);
-      io.emit('gameMessage', message);
+      broadcastMessage(message);
 
       // Notify all users that this user has disconnected
       io.emit('userDisconnect', username);
