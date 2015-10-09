@@ -29,9 +29,9 @@
           &nbsp; or&nbsp;
           <a ui-sref="authentication.signin" class="show-signup">Sign in</a>
         </div>
-        <div ng-show="error" class="text-center text-danger">
-          <strong ng-bind="error"></strong>
-        </div>
+        <alert type="danger" ng-show="error" class="text-center">
+          <span ng-bind="error"></span>
+        </alert>
       </fieldset>
     </form>
   </div>

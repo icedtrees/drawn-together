@@ -3,7 +3,12 @@
   compatible-vendor-prefixes: false,
   gradients: false,
   import: false,
-  vendor-prefix: false */
+  outline-none: false,
+  shorthand: false,
+  text-indent: false,
+  vendor-prefix: false,
+  zero-units: false,
+  */
 /*!
  * Bootstrap v3.3.5 (http://getbootstrap.com)
  * Copyright 2011-2015 Twitter, Inc.
