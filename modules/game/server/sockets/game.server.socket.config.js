@@ -76,10 +76,10 @@ module.exports = function (io, socket) {
 
     // Announce the new drawers
     var drawers = Game.getDrawers();
-    var newDrawers = Utils.toCommaList(drawers);
+    var newDrawersAre = Utils.toCommaListIs(drawers);
     broadcastMessage({
       type: 'status',
-      text: newDrawers + (drawers.length === 1 ? ' is' : ' are') + ' now drawing.'
+      text: newDrawersAre + ' now drawing.'
     });
   }
 
