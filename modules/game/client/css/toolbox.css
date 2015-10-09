@@ -2,3 +2,6 @@
   margin-bottom: 200px;
 }
 
+button:disabled {
+  color: grey;
+}
