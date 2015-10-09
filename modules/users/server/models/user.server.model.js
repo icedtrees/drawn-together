@@ -84,13 +84,21 @@ var UserSchema = new Schema({
 UserSchema.pre('validate', function (next) {
   if (this.password && this.password.length > 128) {
     this.invalidate('password', 'Password exceeds the maximum allowed length (128).');
+    next();
+  } else {
+    var self = this;
+    // Query database for user with username matching the regex '/^myUsername$/i'.
+    this.constructor.findOne({username : new RegExp('^' + this.username + '$', 'i')}, function (err, result){
+      if(err) {
+        next(err);
+      } else if (result && result.username !== self.username) {
+        self.invalidate('username', 'Username must be unique');
+        next();
+      } else {
+        next();
+      }
+    });
   }
-
-  if (this.uniqueIgnoreCase('username') === true) {
-    this.invalidate('username', 'Username already exists.');
-  }
-
-  next();
 });
 
 /**
@@ -125,21 +133,6 @@ UserSchema.methods.authenticate = function (password) {
   } else {
     return this.password === '';
   }
-};
-
-// Method for determining if a field is unique, ignoring case
-UserSchema.methods.uniqueIgnoreCase = function (field) {
-  var self = this; // Prevents scoping issues.
-  // Query database for user with username matching the regex '/^username$/i'.
-  self.constructor.findOne({field : new RegExp('^' + self.field + '$', 'i')}, function (err, result) {
-      if (!err && result && result !== self.field) {
-        // There were no errors and there was another matching username, so we return true.
-        return true;
-      } else {
-        return false;
-      }
-    }
-  );
 };
 
 /**
