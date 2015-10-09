@@ -21,7 +21,8 @@ angular.module('users').directive('usernameValidator', ['settings', function(set
                 } else {
                     var errors = [];
                     if (username.length < settings.minLength) {
-                        errors.push("Username must be at least one character long.");
+                        errors.push("Username must be at least " + settings.minLength + " character" +
+                            (settings.minLength === 1 ? "s" : "") + " long.");
                     }
                     if (username.length > settings.maxLength) {
                         errors.push("Username must be at most " + settings.maxLength + " characters long.");
