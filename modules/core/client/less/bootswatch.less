@@ -2,6 +2,12 @@
 // Bootswatch
 // -----------------------------------------------------
 
+/*csslint
+  compatible-vendor-prefixes: false,
+  gradients: false,
+  import: false,
+  vendor-prefix: false */
+
 @import "./public/lib/bootstrap/less/bootstrap.less";
 @import "./variables.less";
 @import "./public/lib/bootstrap/less/utilities.less";
@@ -32,6 +38,7 @@
 
 body {
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .text-primary,

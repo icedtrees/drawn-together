@@ -1,4 +1,9 @@
 @import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,700,700italic");
+/*csslint
+  compatible-vendor-prefixes: false,
+  gradients: false,
+  import: false,
+  vendor-prefix: false */
 /*!
  * Bootstrap v3.3.5 (http://getbootstrap.com)
  * Copyright 2011-2015 Twitter, Inc.
