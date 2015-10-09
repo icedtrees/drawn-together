@@ -119,15 +119,11 @@ module.exports = function (io, socket) {
   }
 
   function giveUp() {
-    // If the user who submitted this message actually is a drawer
-    // And prevent round ending prematurely when prompt has been guessed
-    if (Game.isDrawer(username) && Game.correctGuesses === 0) {
-      broadcastMessage({
-        type: 'status',
-        text: username + ' has given up'
-      });
-      advanceRound();
-    }
+    broadcastMessage({
+      type: 'status',
+      text: username + ' has given up'
+    });
+    advanceRound();
   }
 
   var username = socket.request.user.username;
@@ -277,7 +273,11 @@ module.exports = function (io, socket) {
 
   // Current drawer has finished drawing
   socket.on('finishDrawing', function () {
-    giveUp();
+    // If the user who submitted this message actually is a drawer
+    // And prevent round ending prematurely when prompt has been guessed
+    if (Game.isDrawer(username) && Game.correctGuesses === 0) {
+      giveUp();
+    }
   });
 
   // Decrement user reference count, and remove from in-memory store if it hits 0
@@ -293,7 +293,9 @@ module.exports = function (io, socket) {
 
       // If the disconnecting user is a drawer, this is equivalent to
       // 'giving up' or passing
-      giveUp();
+      if (Game.isDrawer(username)) {
+        giveUp();
+      }
       delete userConnects[username];
       Game.removeUser(username);
 
