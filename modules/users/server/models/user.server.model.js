@@ -84,6 +84,17 @@ var UserSchema = new Schema({
 UserSchema.pre('validate', function (next) {
   if (this.password && this.password.length > 128) {
     this.invalidate('password', 'Password exceeds the maximum allowed length (128).');
+  }
+  next();
+});
+
+/**
+ * Hook a pre save method to hash the password
+ */
+UserSchema.pre('save', function (next) {
+  if (this.password && this.isModified('password')) {
+    this.salt = crypto.randomBytes(16).toString('base64');
+    this.password = this.hashPassword(this.password);
     next();
   } else {
     var self = this;
@@ -99,18 +110,6 @@ UserSchema.pre('validate', function (next) {
       }
     });
   }
-});
-
-/**
- * Hook a pre save method to hash the password
- */
-UserSchema.pre('save', function (next) {
-  if (this.password && this.isModified('password')) {
-    this.salt = crypto.randomBytes(16).toString('base64');
-    this.password = this.hashPassword(this.password);
-  }
-
-  next();
 });
 
 /**
