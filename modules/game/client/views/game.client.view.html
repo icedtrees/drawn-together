@@ -15,6 +15,10 @@
           <div ng-if="Game.isDrawer(user)"><strong ng-bind="user"></strong></div>
           <div ng-if="!Game.isDrawer(user)"><span ng-bind="user"></span></div>
         </div>
+        <div class="col-md-9">
+          <div ng-if="Game.isDrawer(user)"><strong ng-bind="Game.users[user].score"></strong></div>
+          <div ng-if="!Game.isDrawer(user)"><span ng-bind="Game.users[user].score"></span></div>
+        </div>
       </li>
 
     </ul>
