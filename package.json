@@ -3,12 +3,11 @@
   "description": "iSketch upgraded.",
   "version": "0.1.0",
   "meanjs-version": "0.4.1",
-  "private": false,
-  "author": "https://github.com/meanjs/mean/graphs/contributors",
+  "author": "https://github.com/icedtrees/drawn-together/graphs/contributors",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/meanjs/mean.git"
+    "url": "https://github.com/icedtrees/drawn-together.git"
   },
   "engines": {
     "node": ">=0.10.28",

@@ -15,7 +15,7 @@ module.exports = function () {
     },
     function (username, password, done) {
       User.findOne({
-        username: username.toLowerCase()
+        username : new RegExp('^' + username + '$', 'i')
       }, function (err, user) {
         if (err) {
           return done(err);
