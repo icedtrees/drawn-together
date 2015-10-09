@@ -43,10 +43,23 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     }
 
     /*
+     * Helper function to set the cursor style when hovering over the canvas
+     * based on if the user is a drawer or not
+     */
+    function setCursorStyle () {
+      if ($scope.Game.isDrawer($scope.username)) {
+        $scope.canvas[0].style.cursor = 'none';
+      } else {
+        $scope.canvas[0].style.cursor = 'not-allowed';
+      }
+    }
+
+    /*
      * Set the game state based on what the server tells us it currently is
      */
     Socket.on('gameState', function (state) {
       angular.extend($scope.Game, state);
+      setCursorStyle();
     });
 
     /*
@@ -54,6 +67,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
      */
     Socket.on('advanceRound', function () {
       $scope.Game.advanceRound();
+      setCursorStyle();
     });
 
     /*
@@ -63,6 +77,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       $scope.messages = [];
       $scope.canvas.draw({type: 'clear'});
       $scope.Game.restartGame();
+      setCursorStyle();
     });
 
     /*
