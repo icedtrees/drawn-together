@@ -10,8 +10,7 @@
           <img ng-src="{{Game.getUserProfileImage(user)}}" alt="{{user}}" class="game-profile-image"/>
         </div>
         <div class="col-md-6">
-          <div ng-if="Game.isDrawer(user)"><strong ng-bind="user"></strong></div>
-          <div ng-if="!Game.isDrawer(user)"><span ng-bind="user"></span></div>
+          <div ng-class="{'game-drawer': Game.isDrawer(user)}"><span ng-bind="user"></span></div>
         </div>
       </li>
     </ul>
