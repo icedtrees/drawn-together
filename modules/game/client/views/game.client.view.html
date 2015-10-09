@@ -1,10 +1,8 @@
 <!-- The game view -->
-<section class="container" ng-controller="GameController">
-  <div class="page-header">
-    <h1>Game Example</h1>
-  </div>
-  <div class="col-xs-12 col-md-2">
-    <h3>Connected Users</h3>
+<section class="container game-container" ng-controller="GameController">
+  <!-- Left column -->
+  <div class="col-md-4">
+    <h3>Players</h3>
     <ul class="list-unstyled">
 
       <li class="row" ng-repeat="user in Game.userList">
@@ -12,65 +10,49 @@
           <img ng-src="{{Game.getUserProfileImage(user)}}" alt="{{user}}" class="game-profile-image"/>
         </div>
         <div class="col-xs-6 col-md-6">
-          <div ng-if="Game.isDrawer(user)"><strong ng-bind="user"></strong></div>
-          <div ng-if="!Game.isDrawer(user)"><span ng-bind="user"></span></div>
+          <div ng-class="{'game-drawer': Game.isDrawer(user)}"><span ng-bind="user"></span></div>
         </div>
       </li>
-
     </ul>
-    <button ng-disabled="!Game.isDrawer(username) || Game.correctGuesses !== 0" ng-click="finishDrawing()">Finish Drawing</button>
-    <button ng-disabled="!Game.isDrawer(username)" ng-click="clearDrawing()">Clear</button>
-  </div>
 
-  <!-- Chat stuff -->
-  <div class="chat-container col-xs-12 col-md-3">
-    <div class="game-message-box" scroll-glue>
-      <ul class="list-unstyled">
-        <!-- List all messages -->
-        <li class="col-xs-12 col-md-12 game-message" ng-class="message.type" ng-repeat="message in messages">
-          <!-- TODO: Decide whether we want a timestamp -->
-          <!--<small class="pull-right text-muted" am-time-ago="message.created"></small>-->
-          <div class="pull-left game-message-details" ng-class="message.type">
-            <div class="wordwrap">
-              <span ng-bind="message.username" class="username" ng-class="message.type"></span>
-              <span class="message-text" ng-bind="message.text" ng-class="message.type"></span>
+    <!-- Chat stuff -->
+    <div class="chat-container">
+      <div class="game-message-box" scroll-glue>
+        <ul class="list-unstyled">
+          <!-- List all messages -->
+          <li class="col-xs-12 col-md-12 game-message wordwrap" ng-class="message.class" ng-repeat="message in messages">
+            <span ng-bind="message.username" class="username"></span>
+            <span class="message-text" ng-bind="message.text"></span>
+            <div class="game-message-addon" ng-bind="message.addon"></div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- The message form -->
+      <div class="message-form col-xs-12 col-md-12">
+        <form class="col-xs-12 col-md-12" ng-submit="sendMessage()">
+          <fieldset class="row">
+            <div class="input-group col-xs-12 col-md-12">
+              <input ng-disabled="Game.isDrawer(username)" type="text" id="messageText" name="messageText" class="form-control" ng-model="messageText" ng-trim="false" maxlength="{{ChatSettings.MAX_MSG_LEN}}" placeholder="Enter new message">
             </div>
-          </div>
-        </li>
-      </ul>
-    </div>
-
-    <!-- The message form -->
-    <div class="message-form col-xs-12 col-md-12">
-      <form class="col-xs-12 col-md-12" ng-submit="sendMessage()">
-        <fieldset class="row">
-          <div class="input-group col-xs-12 col-md-12">
-            <input ng-disabled="Game.isDrawer(username)" type="text" id="messageText" name="messageText" class="form-control" ng-model="messageText" ng-trim="false" maxlength="{{ChatSettings.MAX_MSG_LEN}}" placeholder="Enter new message">
-          </div>
-        </fieldset>
-      </form>
+          </fieldset>
+        </form>
+      </div>
     </div>
   </div>
 
-  <!-- The canvas -->
-  <div class="col-xs-12 col-md-5" >
-    <h3 class="text-center">
-      <span ng-if="Game.currentRound < Game.numRounds">
-        Round <span ng-bind="Game.currentRound + 1"></span>
-      </span>
-      <span ng-if="Game.currentRound >= Game.numRounds">
-        Game Over!
-      </span>
-      <span ng-if="Game.isDrawer(username)">
-        Draw "<span ng-bind="topic"></span>"
-      </span>
+  <!-- The middle column -->
+  <div class="col-md-5" >
+    <h3 class="drawing-header">
+      <span ng-bind="Game.currentRound < Game.numRounds ? 'Round ' + (Game.currentRound + 1) + ':' : 'Game over!'"></span>
+      <span ng-if="Game.getDrawers().length" ng-bind="Game.isDrawer(username) ? 'Draw &quot;' + topic + '&quot;' : Utils.toCommaListIs(Game.getDrawers()) + ' drawing'"></span>
+      <button class="pull-right" ng-disabled="!Game.isDrawer(username)" ng-click="finishDrawing()">Give up</button>
     </h3>
     <div class="dt-drawing"></div>
   </div>
 
-  <!-- Drawing settings -->
-  <div class="col-xs-12 col-md-2">
-    <h3 class="text-center">Drawing settings</h3>
+  <!-- Right column -->
+  <div class="col-md-3">
     <input colorpicker="hex" type="text" name="penColour" ng-model="penColour" ng-change="mouseMode = 'pen'" colorpicker-is-open="true" size="5" maxlength="7"/>
     <div class="row">
       <div class="col-md-3">
@@ -88,6 +70,6 @@
         <input type="range" ng-model="eraserWidth" ng-change="mouseMode = 'eraser'" min="{{CanvasSettings.MIN_ERASER_WIDTH}}" max="{{CanvasSettings.MAX_ERASER_WIDTH}}">
       </div>
     </div>
+    <button ng-disabled="!Game.isDrawer(username)" ng-click="clearDrawing()">Clear drawing</button>
   </div>
-
 </section>
