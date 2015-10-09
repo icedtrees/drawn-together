@@ -1,0 +1,86 @@
+/* Source: http://snipplr.com/view/10979/css-cross-browser-word-wrap */
+.wordwrap {
+  white-space: -moz-pre-wrap; /* Firefox */
+  white-space: -pre-wrap;     /* Opera <7 */
+  white-space: -o-pre-wrap;   /* Opera 7 */
+  word-break: break-all;      /* This is the important one */
+  word-wrap: break-word;      /* IE */
+  display: inline-block;      /* Firefox and IE */
+}
+
+.message-text.status-correct {
+  font-weight: bold;
+}
+
+.message-text.status-correct:after {
+  font-weight: normal;
+  content: " has guessed the prompt!";
+  white-space: pre;
+}
+
+.message-form {
+  padding: 5px;
+}
+
+.game-profile-image {
+  height: 100%;
+  width: 100%;
+  border-radius: 50%;
+}
+
+.chat-container {
+  border: 1px solid #d3d3d3;
+  padding: 0;
+}
+
+.game-message-box {
+  height: 500px;
+  overflow-y: scroll;
+  margin: 0;
+}
+
+.game-message {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+.game-message.status, .game-message.status-correct {
+  background-color: #f5f5f5;
+}
+.game-message.close-guess {
+  background-color: #ffff80;
+}
+.game-message.correct-guess {
+  background-color: #99ff75;
+}
+.game-message:not(:first-child) {
+  border-top: 1px solid #e7e7e7;
+}
+
+.game-message-details {
+  font-size: 12px;
+}
+/* Align all status messages to the very left */
+.game-message-details.status, .game-message-details.status-correct {
+  margin-left: 0;
+  font-size: 12px;
+}
+.game-message-details.close-guess:after {
+  /* Fixes up username aligning with the second line instead of
+  the first when "\n" is used inside message.text */
+  font-style: italic;
+  font-weight: bold;
+  color: grey;
+  content: "\aYour guess is close!";
+  white-space: pre;
+}
+.game-message-details.correct-guess:after {
+  font-style: italic;
+  font-weight: bold;
+  color: grey;
+  content: "\aYour guess is correct!";
+  white-space: pre;
+}
+
+.username {
+  font-weight: bold;
+}
