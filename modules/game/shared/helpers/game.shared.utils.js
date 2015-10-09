@@ -11,8 +11,8 @@
   };
 
   exports.toCommaListIs = function(array) {
-    return exports.toCommaList(array) + (array.length == 1 ? ' is' : ' are');
-  }
+    return exports.toCommaList(array) + (array.length === 1 ? ' is' : ' are');
+  };
 
 })((typeof process === 'undefined' || !process.versions) ? // Not a node.js environment
   (window.utils = window.utils || {})
