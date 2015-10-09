@@ -8,8 +8,8 @@ button:disabled {
 }
 
 .game-profile-image {
-  height: 100%;
-  width: 100%;
+  height: 28px;
+  width: 28px;
   border-radius: 50%;
 }
 
@@ -49,21 +49,19 @@ button:disabled {
   margin-left: 0;
   font-size: 12px;
 }
-.game-message-details.close-guess:after {
+[class*="-guess"]:after {
   /* Fixes up username aligning with the second line instead of
   the first when "\n" is used inside message.text */
   font-style: italic;
-  font-weight: bold;
+  font-weight: 700;
   color: grey;
-  content: "\aYour guess is close!";
   white-space: pre;
 }
+.game-message-details.close-guess:after {
+  content: "\aYour guess is close!";
+}
 .game-message-details.correct-guess:after {
-  font-style: italic;
-  font-weight: bold;
-  color: grey;
   content: "\aYour guess is correct!";
-  white-space: pre;
 }
 
 .username {
