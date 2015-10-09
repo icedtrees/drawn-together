@@ -65,6 +65,9 @@
   };
 
   exports.Game.prototype.getDrawers = function () {
+    if (this.currentRound >= this.numRounds) {
+      return [];
+    }
     var drawers = [];
     for (var i = 0; i < this.userList.length && i < this.numDrawers; i++) {
       var idx = (this.curDrawer + i) % this.userList.length;
