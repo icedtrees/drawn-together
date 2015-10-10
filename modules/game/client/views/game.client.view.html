@@ -6,10 +6,10 @@
     <ul class="list-unstyled">
 
       <li class="row" ng-repeat="user in Game.userList">
-        <div class="col-md-3">
+        <div class="col-xs-1 col-md-3">
           <img ng-src="{{Game.getUserProfileImage(user)}}" alt="{{user}}" class="game-profile-image"/>
         </div>
-        <div class="col-md-6">
+        <div class="col-xs-6 col-md-6">
           <div ng-class="{'game-drawer': Game.isDrawer(user)}"><span ng-bind="user"></span></div>
         </div>
         <div class="col-md-1">

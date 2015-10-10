@@ -92,7 +92,6 @@ UserSchema.pre('validate', function (next) {
       if(err) {
         next(err);
       } else if (result && result.username !== self.username) {
-        console.warn('invalidated');
         self.invalidate('username', 'Username must be unique');
         next();
       } else {
@@ -109,9 +108,21 @@ UserSchema.pre('save', function (next) {
   if (this.password && this.isModified('password')) {
     this.salt = crypto.randomBytes(16).toString('base64');
     this.password = this.hashPassword(this.password);
+    next();
+  } else {
+    var self = this;
+    // Query database for user with username matching the regex '/^myUsername$/i'.
+    this.constructor.findOne({username : new RegExp('^' + this.username + '$', 'i')}, function (err, result){
+      if(err) {
+        next(err);
+      } else if (result && result.username !== self.username) {
+        self.invalidate('username', 'Username must be unique');
+        next();
+      } else {
+        next();
+      }
+    });
   }
-
-  next();
 });
 
 /**
