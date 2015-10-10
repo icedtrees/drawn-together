@@ -241,6 +241,7 @@ module.exports = function (io, socket) {
 
       // Mark user as correct and increase their score
       Game.markCorrectGuess(username);
+      io.emit('markCorrectGuess', username); // tell clients to update the score too
 
       // Alert everyone in the room that the guesser was correct
       broadcastMessage({
@@ -248,6 +249,8 @@ module.exports = function (io, socket) {
         username: username,
         text: 'has guessed the prompt!'
       });
+
+
 
       // End round if everyone has guessed
       if (Game.allGuessed()) {
