@@ -119,6 +119,21 @@
           // Test scope value
           expect(scope.error).toBe('Username already exists');
         });
+
+        it('should fail to register with duplicate Username with different case', function () {
+          scope.authentication.user = 'BOB';
+
+          // Test expected POST request
+          $httpBackend.when('POST', '/api/auth/signup').respond(400, {
+            'message': 'Username already exists'
+          });
+
+          scope.signup(true);
+          $httpBackend.flush();
+
+          // Test scope value
+          expect(scope.error).toBe('Username already exists');
+        });
       });
     });
 

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('users').directive('usernameValidator', function() {
+angular.module('users').directive('usernameValidator', ['settings', function(settings) {
     return {
         require: 'ngModel',
         // scope = the parent scope
@@ -9,23 +9,25 @@ angular.module('users').directive('usernameValidator', function() {
         // ctrl = the controller for ngModel.
         link: function(scope, elem, attr, ctrl) {
 
-            // add a parser into the model that runs when the user updates it.
+            // Add a parser into the model that runs when the user updates it.
             ctrl.$parsers.unshift(function (username) {
-                var isValid = /^[a-z0-9]{1,26}$/.test(username);
+                var isValid = new RegExp(
+                    '^[' + settings.validChars + ']{' + settings.minLength + ',' + settings.maxLength + '}$').test(username);
                 ctrl.$setValidity('chosenUsername', isValid);
 
-                // if it's valid, return the value to the model, otherwise return undefined.
+                // If it's valid, return the value to the model, otherwise return undefined.
                 if (isValid) {
                     return username;
                 } else {
                     var errors = [];
-                    if (username.length < 1) {
-                        errors.push("Username must be at least one character long.");
+                    if (username.length < settings.minLength) {
+                        errors.push("Username must be at least " + settings.minLength + " character" +
+                            (settings.minLength === 1 ? "s" : "") + " long.");
                     }
-                    if (username.length > 26) {
-                        errors.push("Username must be at most 26 characters long.");
+                    if (username.length > settings.maxLength) {
+                        errors.push("Username must be at most " + settings.maxLength + " characters long.");
                     }
-                    if (/[^a-z0-9]/.test(username)) {
+                    if (new RegExp('[^' + settings.validChars + ']').test(username)) {
                         errors.push("Username must only contain letters and numbers.");
                     }
                     scope.usernameErrors = errors;
@@ -34,4 +36,4 @@ angular.module('users').directive('usernameValidator', function() {
             });
         }
     };
-});
+}]);

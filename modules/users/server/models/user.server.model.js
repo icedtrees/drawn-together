@@ -24,8 +24,7 @@ var UserSchema = new Schema({
     required: 'Please fill in a username',
     minlength: [1, 'Username must contain at least one character.'],
     maxlength: [26, 'Username exceeds the maximum allowed length ({MAXLENGTH}).'],
-    match: [/^[a-z0-9]{1,26}$/, 'Username may only contain lowercase letters and numbers.'],
-    lowercase: true,
+    match: [/^[a-zA-Z0-9]{1,26}$/, 'Username may only contain letters and numbers.'],
     trim: true // Removes surrounding whitespace
   },
   password: {
@@ -85,9 +84,22 @@ var UserSchema = new Schema({
 UserSchema.pre('validate', function (next) {
   if (this.password && this.password.length > 128) {
     this.invalidate('password', 'Password exceeds the maximum allowed length (128).');
+    next();
+  } else {
+    var self = this;
+    // Query database for user with username matching the regex '/^myUsername$/i'.
+    this.constructor.findOne({username : new RegExp('^' + this.username + '$', 'i')}, function (err, result){
+      if(err) {
+        next(err);
+      } else if (result && result.username !== self.username) {
+        console.warn('invalidated');
+        self.invalidate('username', 'Username must be unique');
+        next();
+      } else {
+        next();
+      }
+    });
   }
-
-  next();
 });
 
 /**
