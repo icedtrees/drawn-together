@@ -250,8 +250,6 @@ module.exports = function (io, socket) {
         text: 'has guessed the prompt!'
       });
 
-
-
       // End round if everyone has guessed
       if (Game.allGuessed()) {
         clearTimeout(roundTimeout);
