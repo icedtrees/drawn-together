@@ -102,6 +102,8 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
      * }
      */
     Socket.on('gameMessage', function (message) {
+      // TODO remove in future release (including the extra debug field for messages)
+      // Debugging information for close guesses.
       if (message.debug) {
         console.log(message.debug);
       }
