@@ -92,7 +92,6 @@ UserSchema.pre('validate', function (next) {
       if(err) {
         next(err);
       } else if (result && result.username !== self.username) {
-        console.warn('invalidated');
         self.invalidate('username', 'Username must be unique');
         next();
       } else {
