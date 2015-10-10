@@ -4,8 +4,11 @@ var ChatSettings = require('../../shared/config/game.shared.chat.config.js');
 var GameLogic = require('../../shared/helpers/game.shared.gamelogic.js');
 var Utils = require('../../shared/helpers/game.shared.utils.js');
 
-// Levenshtein distance library (for calculating distance between words)
-var levenshtein = require('fast-levenshtein');
+// cln_fuzzy library (for calculating distance between words)
+var clj_fuzzy = require('clj-fuzzy');
+var jaro_winkler = clj_fuzzy.metrics.jaro_winkler;
+var porter = clj_fuzzy.stemmers.porter;
+var levenshtein = clj_fuzzy.metrics.levenshtein;
 
 // A timeout created to end the round seconds when someone guesses the prompt
 var roundTimeout;
@@ -49,13 +52,35 @@ var drawHistory = [];
 var gameMessages = [];
 
 // First one is the current topic
-var topicList = ['sunset', 'iced tea', 'fruit', 'top', 'mouse trap'];
+var topicList = ['half', 'cardboard', 'oar', 'baby-sitter', 'drip', 'shampoo', 'point', 'time machine', 'yardstick', 'think', 'lace', 'darts', 'world', 'avocado', 'bleach', 'shower curtain', 'extension cord', 'dent', 'birthday', 'lap',   'sandbox', 'bruise', 'quicksand', 'fog', 'gasoline', 'pocket', 'honk', 'sponge', 'rim', 'bride', 'wig', 'zipper', 'wag',   'letter opener', 'fiddle', 'water buffalo', 'pilot', 'brand', 'pail', 'baguette', 'rib', 'mascot', 'fireman pole', 'zoo',   'sushi', 'fizz', 'ceiling fan', 'bald', 'banister', 'punk', 'post office', 'season', 'Internet', 'chess', 'puppet', 'chime',   'ivy', 'full', 'koala', 'dentist', 'baseboards', 'ping pong', 'bonnet', 'mast', 'hut', 'welder', 'dryer sheets', 'sunburn',   'houseboat', 'sleep', 'kneel', 'crust', 'grandpa', 'speakers', 'cheerleader', 'dust bunny', 'salmon', 'cabin', 'handle',   'swamp', 'cruise', 'wedding cake', 'crow\'s nest', 'macho', 'drain', 'foil', 'orbit', 'dream', 'recycle', 'raft', 'gold', 'plank', 'cliff', 'sweater vest', 'cape', 'safe', 'picnic', 'shrink ray', 'leak', 'boa constrictor', 'deep', 'mold', 'CD', 'tiptoe', 'hurdle', 'knight', 'loveseat', 'cloak', 'bedbug', 'bobsled', 'hot tub', 'firefighter', 'cell phone charger', 'beanstalk', 'nightmare', 'coach', 'moth', 'sneeze', 'wooly mammoth', 'pigpen', 'swarm', 'goblin', 'chef', 'applause', 'wax', 'sheep dog', 's\'mores', 'plow', 'runt'];
 // Shuffle the topic list in-place using Knuth shuffle
 for (var i = topicList.length - 2; i > 0; i--) {
   var j = Math.floor(Math.random() * i);
   var temp = topicList[j];
   topicList[j] = topicList[i];
   topicList[i] = temp;
+}
+
+function checkGuess(guess, topic) {
+  // STAGE 1 - basic JW distance
+  var score = jaro_winkler(guess, topic);
+  var t = Math.max(0.90, 0.96 - guess.length / 130); // starts at 0.96 and moves towards 0.9 for longer guesses
+  if (score < 0.8 || score > t) {
+    return {score : score, close : score > t ? true : false, stage : 1};
+  }
+
+  // STAGE 2 - JW distance on the word root
+  var guessRoot = porter(guess);
+  var topicRoot = porter(topic);
+  score = jaro_winkler(guessRoot, topicRoot);
+  score -= levenshtein(guessRoot, topicRoot) / 60;
+  if (score < 0.8 || score > t) {
+    return {score : score, close : score > t ? true : false, stage : 2};
+  }
+
+  // STAGE 3 - check levenshtein distance of entire words
+  var lev = levenshtein(guess, topic);
+  return {score : score, close : lev <= (guess.length - 5)/3 + 1, stage : 3};
 }
 
 // Create the game configuration
@@ -76,10 +101,10 @@ module.exports = function (io, socket) {
 
     // Announce the new drawers
     var drawers = Game.getDrawers();
-    var newDrawers = Utils.toCommaList(drawers);
+    var newDrawersAre = Utils.toCommaListIs(drawers);
     broadcastMessage({
-      type: 'status',
-      text: newDrawers + (drawers.length === 1 ? ' is' : ' are') + ' now drawing.'
+      class: 'status',
+      text: newDrawersAre + ' now drawing.'
     });
   }
 
@@ -94,14 +119,14 @@ module.exports = function (io, socket) {
 
     // Explain what the word was
     broadcastMessage({
-      type: 'status',
+      class: 'status',
       text: 'Round over! The topic was "' + topicList[0] + '"'
     });
 
     if (gameFinished) {
       var winners = Game.getWinners();
       broadcastMessage({
-        type: 'status',
+        class: 'status',
         text: 'The winner(s) of the game: ' + Utils.toCommaList(winners) + ' on ' +
               Game.users[winners[0]].score + ' points! The new round will start ' +
               'in ' + Game.timeToEnd + ' seconds.'
@@ -118,6 +143,14 @@ module.exports = function (io, socket) {
     }
   }
 
+  function giveUp() {
+    broadcastMessage({
+      type: 'status',
+      text: username + ' has given up'
+    });
+    advanceRound();
+  }
+
   var username = socket.request.user.username;
   var profileImageURL = socket.request.user.profileImageURL;
   socket.join(username);
@@ -132,7 +165,7 @@ module.exports = function (io, socket) {
 
     // Emit the status event when a new socket client is connected
     var message = {
-      type: 'status',
+      class: 'status',
       text: username + ' is now connected',
       created: Date.now(),
     };
@@ -175,7 +208,6 @@ module.exports = function (io, socket) {
       return;
     }
 
-    message.type = 'message';
     message.created = Date.now();
     message.username = username;
 
@@ -198,7 +230,8 @@ module.exports = function (io, socket) {
       });
 
       // Send the user's guess to themselves
-      message.type = 'correct-guess';
+      message.addon = 'Your guess is correct!';
+      message.class = 'correct-guess';
       socket.emit('gameMessage', message);
 
       // Don't update game state if user has already guessed the prompt
@@ -209,11 +242,11 @@ module.exports = function (io, socket) {
       // Mark user as correct and increase their score
       Game.markCorrectGuess(username);
 
-      // Alert everyone in the room that they were correct
+      // Alert everyone in the room that the guesser was correct
       broadcastMessage({
-        type: 'status-correct',
-        // only send the username in the message text, which will be styled as bold in the css
-        text: username
+        class: 'status',
+        username: username,
+        text: 'has guessed the prompt!'
       });
 
       // End round if everyone has guessed
@@ -223,7 +256,7 @@ module.exports = function (io, socket) {
       } else if (Game.correctGuesses === 1) {
         // Start timer to end round if this is the first correct guess
         broadcastMessage({
-          type: 'status',
+          class: 'status',
           text: "The round will end in " + Game.timeToEnd + " seconds."
         });
         roundTimeout = setTimeout(function () {
@@ -231,21 +264,26 @@ module.exports = function (io, socket) {
         }, Game.timeToEnd * 1000);
       }
 
-    } else if (guess.indexOf(topic) > -1 || levenshtein.get(topic, guess) < 3) {
-      // If message contains drawing prompt or word-distance is < 3 it is a close guess
-
-      // Tell the drawer/s the guess
-      Game.getDrawers().forEach(function (drawer) {
-        io.to(drawer).emit('gameMessage', message);
-      });
-
-      // Tell the guesser that their guess was close
-      message.type = 'close-guess';
-      message.username = username;
-      socket.emit('gameMessage', message);
     } else {
-      // Incorrect guess: emit message to everyone
-      broadcastMessage(message);
+      var guessResult = checkGuess(guess, topic);
+      if (guessResult.close) {
+        // Tell the drawer/s the guess and that it was close
+        message.addon = 'This guess is close!';
+        message.class = 'close-guess';
+        message.debug = guess + " has score " + guessResult.score.toFixed(2) + ". At stage " + guessResult.stage;
+        Game.getDrawers().forEach(function (drawer) {
+          io.to(drawer).emit('gameMessage', message);
+        });
+
+        // Tell the guesser that their guess was close
+        message.addon = 'Your guess is close!';
+        message.username = username;
+        socket.emit('gameMessage', message);
+
+      } else {
+        // Incorrect guess: emit message to everyone
+        broadcastMessage(message);
+      }
     }
   });
 
@@ -268,7 +306,7 @@ module.exports = function (io, socket) {
     // If the user who submitted this message actually is a drawer
     // And prevent round ending prematurely when prompt has been guessed
     if (Game.isDrawer(username) && Game.correctGuesses === 0) {
-      advanceRound();
+      giveUp();
     }
   });
 
@@ -278,7 +316,7 @@ module.exports = function (io, socket) {
     if (userConnects[username] === 0) {
       // Emit the status event when a socket client is disconnected
       broadcastMessage({
-        type: 'status',
+        class: 'status',
         text: username + ' is now disconnected',
         created: Date.now(),
       });
@@ -286,7 +324,7 @@ module.exports = function (io, socket) {
       // If the disconnecting user is a drawer, this is equivalent to
       // 'giving up' or passing
       if (Game.isDrawer(username)) {
-        advanceRound();
+        giveUp();
       }
       delete userConnects[username];
       Game.removeUser(username);
