@@ -12,6 +12,10 @@
         <div class="col-md-6">
           <div ng-class="{'game-drawer': Game.isDrawer(user)}"><span ng-bind="user"></span></div>
         </div>
+        <div class="col-md-1">
+          <div ng-if="Game.isDrawer(user)"><strong ng-bind="'(' + Game.users[user].score.toString() + ')'"></strong></div>
+          <div ng-if="!Game.isDrawer(user)"><span ng-bind="'(' + Game.users[user].score.toString() + ')'"></span></div>
+        </div>
       </li>
     </ul>
 
