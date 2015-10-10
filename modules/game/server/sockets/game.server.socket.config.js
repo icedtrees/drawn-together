@@ -4,8 +4,11 @@ var ChatSettings = require('../../shared/config/game.shared.chat.config.js');
 var GameLogic = require('../../shared/helpers/game.shared.gamelogic.js');
 var Utils = require('../../shared/helpers/game.shared.utils.js');
 
-// Levenshtein distance library (for calculating distance between words)
-var levenshtein = require('fast-levenshtein');
+// cln_fuzzy library (for calculating distance between words)
+var clj_fuzzy = require('clj-fuzzy');
+var jaro_winkler = clj_fuzzy.metrics.jaro_winkler;
+var porter = clj_fuzzy.stemmers.porter;
+var levenshtein = clj_fuzzy.metrics.levenshtein;
 
 // A timeout created to end the round seconds when someone guesses the prompt
 var roundTimeout;
@@ -49,13 +52,35 @@ var drawHistory = [];
 var gameMessages = [];
 
 // First one is the current topic
-var topicList = ['sunset', 'iced tea', 'fruit', 'top', 'mouse trap'];
+var topicList = ['half', 'cardboard', 'oar', 'baby-sitter', 'drip', 'shampoo', 'point', 'time machine', 'yardstick', 'think', 'lace', 'darts', 'world', 'avocado', 'bleach', 'shower curtain', 'extension cord', 'dent', 'birthday', 'lap',   'sandbox', 'bruise', 'quicksand', 'fog', 'gasoline', 'pocket', 'honk', 'sponge', 'rim', 'bride', 'wig', 'zipper', 'wag',   'letter opener', 'fiddle', 'water buffalo', 'pilot', 'brand', 'pail', 'baguette', 'rib', 'mascot', 'fireman pole', 'zoo',   'sushi', 'fizz', 'ceiling fan', 'bald', 'banister', 'punk', 'post office', 'season', 'Internet', 'chess', 'puppet', 'chime',   'ivy', 'full', 'koala', 'dentist', 'baseboards', 'ping pong', 'bonnet', 'mast', 'hut', 'welder', 'dryer sheets', 'sunburn',   'houseboat', 'sleep', 'kneel', 'crust', 'grandpa', 'speakers', 'cheerleader', 'dust bunny', 'salmon', 'cabin', 'handle',   'swamp', 'cruise', 'wedding cake', 'crow\'s nest', 'macho', 'drain', 'foil', 'orbit', 'dream', 'recycle', 'raft', 'gold', 'plank', 'cliff', 'sweater vest', 'cape', 'safe', 'picnic', 'shrink ray', 'leak', 'boa constrictor', 'deep', 'mold', 'CD', 'tiptoe', 'hurdle', 'knight', 'loveseat', 'cloak', 'bedbug', 'bobsled', 'hot tub', 'firefighter', 'cell phone charger', 'beanstalk', 'nightmare', 'coach', 'moth', 'sneeze', 'wooly mammoth', 'pigpen', 'swarm', 'goblin', 'chef', 'applause', 'wax', 'sheep dog', 's\'mores', 'plow', 'runt'];
 // Shuffle the topic list in-place using Knuth shuffle
 for (var i = topicList.length - 2; i > 0; i--) {
   var j = Math.floor(Math.random() * i);
   var temp = topicList[j];
   topicList[j] = topicList[i];
   topicList[i] = temp;
+}
+
+function checkGuess(guess, topic) {
+  // STAGE 1 - basic JW distance
+  var score = jaro_winkler(guess, topic);
+  var t = Math.max(0.90, 0.96 - guess.length / 130); // starts at 0.96 and moves towards 0.9 for longer guesses
+  if (score < 0.8 || score > t) {
+    return {score : score, close : score > t ? true : false, stage : 1};
+  }
+
+  // STAGE 2 - JW distance on the word root
+  var guessRoot = porter(guess);
+  var topicRoot = porter(topic);
+  score = jaro_winkler(guessRoot, topicRoot);
+  score -= levenshtein(guessRoot, topicRoot) / 60;
+  if (score < 0.8 || score > t) {
+    return {score : score, close : score > t ? true : false, stage : 2};
+  }
+
+  // STAGE 3 - check levenshtein distance of entire words
+  var lev = levenshtein(guess, topic);
+  return {score : score, close : lev <= (guess.length - 5)/3 + 1, stage : 3};
 }
 
 // Create the game configuration
@@ -239,22 +264,26 @@ module.exports = function (io, socket) {
         }, Game.timeToEnd * 1000);
       }
 
-    } else if (guess.indexOf(topic) > -1 || levenshtein.get(topic, guess) < 3) {
-      // If message contains drawing prompt or word-distance is < 3 it is a close guess
-
-      // Tell the drawer/s the guess
-      Game.getDrawers().forEach(function (drawer) {
-        io.to(drawer).emit('gameMessage', message);
-      });
-
-      // Tell the guesser that their guess was close
-      message.addon = 'Your guess is close!';
-      message.class = 'close-guess';
-      message.username = username;
-      socket.emit('gameMessage', message);
     } else {
-      // Incorrect guess: emit message to everyone
-      broadcastMessage(message);
+      var guessResult = checkGuess(guess, topic);
+      if (guessResult.close) {
+        // Tell the drawer/s the guess and that it was close
+        message.addon = 'This guess is close!';
+        message.class = 'close-guess';
+        message.debug = guess + " has score " + guessResult.score.toFixed(2) + ". At stage " + guessResult.stage;
+        Game.getDrawers().forEach(function (drawer) {
+          io.to(drawer).emit('gameMessage', message);
+        });
+
+        // Tell the guesser that their guess was close
+        message.addon = 'Your guess is close!';
+        message.username = username;
+        socket.emit('gameMessage', message);
+
+      } else {
+        // Incorrect guess: emit message to everyone
+        broadcastMessage(message);
+      }
     }
   });
 

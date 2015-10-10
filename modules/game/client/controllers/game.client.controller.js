@@ -98,9 +98,16 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
      *   created: Date.now()
      *   profileImageURL: some valid url
      *   username: user who posted the message
+     *   debug: information to be printed to client console
      * }
      */
     Socket.on('gameMessage', function (message) {
+      // TODO remove in future release (including the extra debug field for messages)
+      // Debugging information for close guesses.
+      if (message.debug) {
+        console.log(message.debug);
+      }
+
       if (Array.isArray(message)) {
         message.forEach(function (m) {
           $scope.messages.push(m);
