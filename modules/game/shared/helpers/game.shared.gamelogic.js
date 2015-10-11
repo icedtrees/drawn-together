@@ -14,6 +14,14 @@
     }
   };
 
+  exports.Game.prototype.getHost = function () {
+    return "SandwichDestroyer32";
+  };
+
+  exports.Game.prototype.getTopic = function () {
+    return "random things";
+  };
+
   exports.Game.prototype.addUser = function (username, profileImageURL) {
     this.userList.push(username);
     this.users[username] = {
