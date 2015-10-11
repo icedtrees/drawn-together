@@ -49,6 +49,13 @@
     return this.users[username].profileImageURL;
   };
 
+  exports.Game.prototype.wrapUserList = function (numUsers) {
+    if (this.userList.length > numUsers) {
+      return true;
+    }
+    return false;
+  };
+
   exports.Game.prototype.isDrawer = function (username) {
     // At the end of the game, noone is a drawer
     if (this.currentRound >= this.numRounds) {

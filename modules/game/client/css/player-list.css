@@ -1,7 +1,32 @@
+.player-list {
+  padding-left: 0px;
+  list-style: none;
+}
+.player-list.two-columns {
+  -moz-column-count: 2;
+  -webkit-column-count: 2;
+  column-count: 2;
+}
+
+.player-list.row {
+  padding-bottom: 10px;
+  /* So padding doesn't go into 2nd column*/
+  -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
+  page-break-inside: avoid;           /* Firefox */
+  break-inside: avoid;                /* IE 10+ */
+}
+
 .game-profile-image {
   height: 30px;
   width: 30px;
   border-radius: 50%;
+}
+
+.player-names {
+  padding-left: 20px;
+  /*min-width: 50px;*/
+  width: auto;
+  float: left;
 }
 
 .game-drawer {

@@ -3,16 +3,15 @@
   <!-- Left column -->
   <div class="col-md-4">
     <h3>Players</h3>
-    <ul class="list-unstyled">
-
-      <li class="row" ng-repeat="user in Game.userList">
-        <div class="col-xs-1 col-md-3">
+    <ul class="player-list" ng-class="{'two-columns' : Game.wrapUserList(6)}">
+      <li class="player-list row" ng-repeat="user in Game.userList">
+        <div class="col-sm-1">
           <img ng-src="{{Game.getUserProfileImage(user)}}" alt="{{user}}" class="game-profile-image"/>
         </div>
-        <div class="col-xs-6 col-md-6">
+        <div class="col-sm-3 player-names">
           <div ng-class="{'game-drawer': Game.isDrawer(user)}"><span ng-bind="user"></span></div>
         </div>
-        <div class="col-md-1">
+        <div class="col-sm-2">
           <div ng-if="Game.isDrawer(user)"><strong ng-bind="'(' + Game.users[user].score.toString() + ')'"></strong></div>
           <div ng-if="!Game.isDrawer(user)"><span ng-bind="'(' + Game.users[user].score.toString() + ')'"></span></div>
         </div>
