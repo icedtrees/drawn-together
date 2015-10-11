@@ -11,7 +11,7 @@ angular.module('game').constant('CanvasSettings', angular.extend({
   DEFAULT_PEN_WIDTH: 1,
   MAX_PEN_WIDTH: 30,
   DEFAULT_PEN_COLOUR: '#000000',
-  MIN_ERASER_WIDTH: 1,
+  MIN_ERASER_WIDTH: 3,
   DEFAULT_ERASER_WIDTH: 30,
   MAX_ERASER_WIDTH: 100,
   RESOLUTION_WIDTH: 400,
