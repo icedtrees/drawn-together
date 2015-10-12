@@ -303,15 +303,12 @@ module.exports = function (grunt) {
   });
 
   grunt.task.registerTask('install', 'install the backend and frontend dependencies', function() {
-      var exec = require('child_process').exec;
-      var cb = this.async();
-      exec('npm prune', {}, function(err, stdout, stderr) {
-        console.log(stdout);
-        exec('npm install', {}, function(err, stdout, stderr) {
-          console.log(stdout);
-          cb();
-        });
-      });
+    var exec = require('child_process').exec;
+    var cb = this.async();
+    exec('npm install', {}, function(err, stdout, stderr) {
+      console.log(stdout);
+      cb();
+    });
   });
 
   // Lint CSS and JavaScript files.
