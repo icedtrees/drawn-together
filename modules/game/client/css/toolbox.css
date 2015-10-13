@@ -13,6 +13,9 @@ button:disabled {
 .toolbox > div {
   border: 1px dashed grey;
   margin: 0 auto;
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 #size-slider {
