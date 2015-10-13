@@ -1,28 +1,16 @@
 .lobby-info {
-    text-align: center;
-    border: 1px solid #2d2b4b;
-    padding: 10px;
-    color: #ffffff;
-    background-color: #403D6C;
-    /* prevent selection of text */
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    /* prevent cursor from changing */
-    cursor: default;
+  text-align: center;
 }
 .lobby-info h4 {
-    margin: 0px;
-    font-weight: 400;
+  margin: 0;
+  font-weight: normal;
 }
 .lobby-info h5 {
-    margin-top: 5px;
-    margin-bottom: 15px;
+  margin-top: 5px;
+  margin-bottom: 15px;
 }
 
 .leave-lobby {
-    color: #000011;
+  cursor: pointer;
+  color: #000011;
 }
