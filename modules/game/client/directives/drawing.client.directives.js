@@ -114,13 +114,13 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
               if (scope.mouseMode === 'pen') {
                 // Solid circle with the matching pen colour
                 previewCtx.beginPath();
-                previewCtx.arc(mouse.x, mouse.y, (+scope.drawWidth['pen'] + 1) / 2, 0, Math.PI * 2);
+                previewCtx.arc(mouse.x, mouse.y, (+scope.drawWidth[scope.mouseMode] + 1) / 2, 0, Math.PI * 2);
                 previewCtx.fillStyle = scope.penColour;
                 previewCtx.fill();
               } else if (scope.mouseMode === 'eraser') {
                 // Empty circle with black outline and white fill
                 previewCtx.beginPath();
-                previewCtx.arc(mouse.x, mouse.y, (+scope.drawWidth['eraser'] + 1) / 2, 0, Math.PI * 2);
+                previewCtx.arc(mouse.x, mouse.y, (+scope.drawWidth[scope.mouseMode] + 1) / 2, 0, Math.PI * 2);
                 previewCtx.strokeStyle = '#000';
                 previewCtx.lineWidth = 1;
                 previewCtx.stroke();
@@ -161,10 +161,10 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
           if (scope.mouseMode === 'pen') {
             message.lineType = 'pen';
             message.strokeStyle = scope.penColour;
-            message.lineWidth = scope.drawWidth['pen'];
+            message.lineWidth = scope.drawWidth[scope.mouseMode];
           } else if (scope.mouseMode === 'eraser') {
             message.lineType = 'eraser';
-            message.lineWidth = scope.drawWidth['eraser'];
+            message.lineWidth = scope.drawWidth[scope.mouseMode];
           }
           element.draw(message);
           Socket.emit('canvasMessage', message);
