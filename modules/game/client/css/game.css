@@ -1,3 +1,10 @@
 .game-container {
-  padding-top: 30px;
+  padding-top: 20px;
+  /* leave 50 for top bar and 20 for above padding*/
+  height: calc(100vh - 50px - 20px);
+  width: 95vw;
+}
+
+.left-sidebar {
+  height: 100%;
 }

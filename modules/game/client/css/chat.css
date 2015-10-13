@@ -1,12 +1,8 @@
-.chat-container {
-  border: 1px solid #d3d3d3;
-  padding: 0;
-}
-
 .game-message-box {
   overflow-y: scroll;
   margin: 0;
-  height: 500px;
+  /* Leave space for the message form*/
+  height: calc(100% - 40px);
 }
 
 .game-message {
@@ -49,4 +45,3 @@
   word-wrap: break-word;      /* IE */
   display: inline-block;      /* Firefox and IE */
 }
-

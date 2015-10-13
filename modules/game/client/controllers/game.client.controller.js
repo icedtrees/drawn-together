@@ -10,6 +10,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     $scope.ChatSettings = ChatSettings;
     $scope.GameSettings = GameSettings;
 
+
     // Create a messages array to store chat messages
     $scope.messages = [];
 
