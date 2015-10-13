@@ -48,6 +48,7 @@
     "multer": "0.1.8",
     "node-pre-gyp": "0.6.4",
     "nodemailer": "^1.4.0",
+    "passport": "~0.2.2",
     "passport-local-optional-password": ">=1.0.0",
     "phantomjs": ">=1.9.0",
     "serve-favicon": "^2.3.0",
