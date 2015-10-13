@@ -20,7 +20,7 @@ button:disabled {
   vertical-align: top;
   border: 2px solid lightgrey;
   background-clip:content-box;
-  padding: 2px;
+  padding: 1px;
   margin: 3px;
   width: 25px;
   height: 25px;

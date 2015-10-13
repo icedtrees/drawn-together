@@ -55,15 +55,15 @@
   <div class="col-md-3">
     <div class="palette">
       <div class="palette-row" ng-repeat="paletteRow in paletteColours">
-        <div ng-class="['palette-colour', {'selected': $parent.$parent.penColour === paletteColour}]"
+        <div ng-class="{'palette-colour': true, 'selected': $parent.$parent.penColour === paletteColour}"
              ng-style="{'background-color': paletteColour}"
              ng-click="$parent.$parent.penColour = paletteColour"
              ng-repeat="paletteColour in paletteRow">
         </div>
       </div>
-      <div class="palette-colour custom-palette-colour"
+      <div ng-class="{'palette-colour': true, 'custom-palette-colour': true, 'selected': penColour === penColourCustom}"
            ng-style="{'background-color': penColourCustom}"
-           ng-click="$parent.$parent.penColour = penColourCustom">
+           ng-click="penColour = penColourCustom">
       </div>
     </div>
 
