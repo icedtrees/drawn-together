@@ -1,9 +1,9 @@
 'use strict';
 
 // Create the 'game' controller
-angular.module('game').controller('GameController', ['$scope', '$location', 'Authentication', 'Socket',
+angular.module('game').controller('GameController', ['$scope', '$location', '$document', 'Authentication', 'Socket',
   'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils',
-  function ($scope, $location, Authentication, Socket,
+  function ($scope, $location, $document, Authentication, Socket,
             CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils) {
     // Settings objects
     $scope.CanvasSettings = CanvasSettings;
@@ -197,6 +197,29 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       Socket.removeListener('canvasMessage');
       Socket.removeListener('userUpdate');
       Socket.removeListener('updateDrawHistory');
+    });
+
+    // Disable backspace
+    $document.unbind('keydown').bind('keydown', function (event) {
+      var doPrevent = false;
+      if (event.keyCode === 8) {
+        var d = event.srcElement || event.target;
+        // Check if an input field is selected
+        if ((d.tagName.toUpperCase() === 'INPUT' &&
+                (d.type.toUpperCase() === 'TEXT' || d.type.toUpperCase() === 'PASSWORD' ||
+                d.type.toUpperCase() === 'FILE' || d.type.toUpperCase() === 'SEARCH' ||
+                d.type.toUpperCase() === 'EMAIL' || d.type.toUpperCase() === 'NUMBER' ||
+                d.type.toUpperCase() === 'DATE' )
+            ) || d.tagName.toUpperCase() === 'TEXTAREA') {
+          doPrevent = d.readOnly || d.disabled;
+        } else {
+          doPrevent = true;
+        }
+      }
+
+      if (doPrevent) {
+        event.preventDefault();
+      }
     });
   }
 ]);
