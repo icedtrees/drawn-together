@@ -1,12 +1,6 @@
 // Cosmo 3.3.5
 // Bootswatch
 // -----------------------------------------------------
-
-// possibly fixable linting rules:
-// outline-none
-// shorthand
-// text-indent
-// zero-units
 /*csslint
   compatible-vendor-prefixes: false,
   gradients: false,
@@ -14,15 +8,13 @@
   outline-none: false,
   shorthand: false,
   text-indent: false,
-  vendor-prefix: false,
   zero-units: false,
   */
 
-@import "./public/lib/bootstrap/less/bootstrap.less";
-@import "./variables.less";
-@import "./public/lib/bootstrap/less/utilities.less";
+@import "../../../../public/lib/bootstrap/less/bootstrap";
+@import "./variables";
 
-@web-font-path: "https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,700,700italic";
+@web-font-path: "https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,700italic";
 
 .web-font(@path) {
   @import url("@{path}");
