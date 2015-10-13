@@ -28,7 +28,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       [{type: 'circle', glyph: 'circle-thin'}, {type: 'rect', glyph: 'square-o'}]
     ];
 
-    $scope.penColourCustom = '#FF0000';
+    $scope.penColourCustom = '#000000';
     $scope.selectCustomColour = function (colour) {
       if (colour !== undefined) {
         $scope.penColourCustom = colour;
@@ -37,13 +37,13 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       return $scope.penColourCustom;
     };
     $scope.paletteColours = [
-      [{title: 'red', value: '#FF0000'}, {title: 'orange', value: 'orange'}, {title: 'yellow', value: 'yellow'}],
-      [{title: 'green', value: '#00FF00'}, {title: 'blue', value: '#0000FF'}, {title: 'indigo', value: 'indigo'}],
-
-      [{title: 'red', value: '#FF0000'}, {title: 'orange', value: 'orange'}, {title: 'yellow', value: 'yellow'}],
-      [{title: 'green', value: '#00FF00'}, {title: 'blue', value: '#0000FF'}, {title: 'indigo', value: 'indigo'}],
-      [{title: 'red', value: '#FF0000'}, {title: 'orange', value: 'orange'}, {title: 'yellow', value: 'yellow'}],
-      [{title: 'green', value: '#00FF00'}, {title: 'blue', value: '#0000FF'}, {title: 'indigo', value: 'indigo'}]
+      // [{title: 'red', value: '#FF0000'}, {title: 'orange', value: 'orange'}, {title: 'yellow', value: 'yellow'}],
+      // [{title: 'green', value: '#00FF00'}, {title: 'blue', value: '#0000FF'}, {title: 'indigo', value: 'indigo'}],
+      [{title: 'black', value: 'black'}, {title: 'grey', value: 'grey'}, {title: 'white', value: 'white'}],
+      [{title: 'dark brown', value: 'brown'}, {title: 'light brown', value: 'sandybrown'}, {title: 'pink', value: 'pink'}],
+      [{title: 'red', value: 'red'}, {title: 'orange', value: 'orange'}, {title: 'yellow', value: 'yellow'}],
+      [{title: 'dark green', value: 'darkgreen'}, {title: 'green', value: 'green'}, {title: 'light green', value: 'lightgreen'}],
+      [{title: 'dark blue', value: 'darkblue'}, {title: 'blue', value: 'blue'}, {title: 'light blue', value: 'lightblue'}]
     ];
 
     $scope.Game = new GameLogic.Game();
