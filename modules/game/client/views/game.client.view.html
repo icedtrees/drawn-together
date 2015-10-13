@@ -2,6 +2,14 @@
 <section class="container game-container" ng-controller="GameController">
   <!-- Left column -->
   <div class="col-md-4">
+    <!-- Lobby Information -->
+    <div class="lobby-info">
+      <h4>{{Game.getHost()}}'s lobby</h4>
+      <h5>Topic: {{Game.getTopic()}}</h5>
+      <button class="leave-lobby" ng-disabled="true" ng-click="">Leave Lobby</button>
+    </div>
+
+    <!-- Player List -->
     <h3>Players</h3>
     <ul class="list-unstyled">
 
