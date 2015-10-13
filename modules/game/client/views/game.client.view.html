@@ -57,6 +57,7 @@
     <div class="grid">
       <div class="grid-row" ng-repeat="drawToolRow in drawTools">
         <div ng-class="{'grid-cell': true, 'draw-tool': true, 'selected': $parent.$parent.mouseMode === drawTool.type}"
+             ng-attr-title="{{drawTool.type}}"
              ng-click="$parent.$parent.mouseMode = drawTool.type"
              ng-repeat="drawTool in drawToolRow">
           <div class="draw-tool-content"><i class="fa fa-{{drawTool.glyph}}"></i></div>
@@ -76,9 +77,10 @@
     <!-- Colour palette -->
     <div class="grid">
       <div class="grid-row" ng-repeat="paletteRow in paletteColours">
-        <div ng-class="{'grid-cell': true, 'palette-colour': true, 'selected': $parent.$parent.penColour === paletteColour}"
-             ng-style="{'background-color': paletteColour}"
-             ng-click="$parent.$parent.penColour = paletteColour"
+        <div ng-class="{'grid-cell': true, 'palette-colour': true, 'selected': $parent.$parent.penColour === paletteColour.value}"
+             ng-style="{'background-color': paletteColour.value}"
+             ng-attr-title="{{paletteColour.title}}"
+             ng-click="$parent.$parent.penColour = paletteColour.value"
              ng-repeat="paletteColour in paletteRow">
         </div>
       </div>
@@ -93,10 +95,12 @@
     <div class="grid">
       <div class="grid-row">
         <div ng-class="{'grid-cell': true, 'draw-tool': true}"
+             title="undo"
              ng-click="$parent.$parent.undo()">
           <div class="draw-tool-content"><i class="fa fa-undo"></i></div>
         </div>
         <div ng-class="{'grid-cell': true, 'draw-tool': true}"
+             title="redo"
              ng-click="$parent.$parent.redo()">
           <div class="draw-tool-content"><i class="fa fa-repeat"></i></div>
         </div>

@@ -30,16 +30,13 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
 
     $scope.penColourCustom = '#FF0000';
     $scope.paletteColours = [
-      ['red', 'orange', 'yellow'],
-      ['green', 'blue', 'indigo'],
-      ['red', 'orange', 'yellow'],
-      ['green', 'blue', 'indigo'],
-      ['red', 'orange', 'yellow'],
-      ['green', 'blue', 'indigo'],
-      ['red', 'orange', 'yellow'],
-      ['green', 'blue', 'indigo'],
-      ['red', 'orange', 'yellow'],
-      ['green', 'blue', 'indigo']
+      [{title: 'red', value: '#FF0000'}, {title: 'orange', value: 'orange'}, {title: 'yellow', value: 'yellow'}],
+      [{title: 'green', value: '#00FF00'}, {title: 'blue', value: '#0000FF'}, {title: 'indigo', value: 'indigo'}],
+
+      [{title: 'red', value: '#FF0000'}, {title: 'orange', value: 'orange'}, {title: 'yellow', value: 'yellow'}],
+      [{title: 'green', value: '#00FF00'}, {title: 'blue', value: '#0000FF'}, {title: 'indigo', value: 'indigo'}],
+      [{title: 'red', value: '#FF0000'}, {title: 'orange', value: 'orange'}, {title: 'yellow', value: 'yellow'}],
+      [{title: 'green', value: '#00FF00'}, {title: 'blue', value: '#0000FF'}, {title: 'indigo', value: 'indigo'}]
     ];
 
     $scope.Game = new GameLogic.Game();
