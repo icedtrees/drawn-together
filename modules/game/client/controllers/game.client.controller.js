@@ -16,9 +16,17 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     // Default canvas settings
     $scope.canvas = null;
     $scope.penColour = CanvasSettings.DEFAULT_PEN_COLOUR;
-    $scope.penWidth = CanvasSettings.DEFAULT_PEN_WIDTH;
-    $scope.eraserWidth = CanvasSettings.DEFAULT_ERASER_WIDTH;
     $scope.mouseMode = 'pen';
+    $scope.drawWidth = {
+      'pen': CanvasSettings.DEFAULT_PEN_WIDTH,
+      'eraser': CanvasSettings.DEFAULT_ERASER_WIDTH
+    };
+
+    $scope.drawTools = [
+      [{type: 'pen', glyph: 'pencil'}, {type: 'eraser', glyph: 'eraser'}],
+      [{type: 'line', glyph: 'line-chart'}, {type: 'fill', glyph: 'battery-full'}],
+      [{type: 'circle', glyph: 'circle-thin'}, {type: 'rect', glyph: 'retweet'}],
+    ];
 
     $scope.penColourCustom = '#FF0000';
     $scope.paletteColours = [
