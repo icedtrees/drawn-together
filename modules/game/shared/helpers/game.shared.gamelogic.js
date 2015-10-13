@@ -87,9 +87,17 @@
       return;
     }
 
-    // First to guess gets numGuessers pts. Last person to guess gets 1 pt. Decrease reward by 1 each time.
-    //this.users[username].score += (this.users.length - this.numDrawers - this.correctGuesses);
+    // Update scores
+    // Drawers get NUM_GUESSERS points for the first guess, and 1 after that
+    // Guessers get NUM_GUESSERS - NUM_CORRECT_GUESSES_THIS_ROUND
+    // (With 3 guessers, first gets 3, second gets 2, last gets 1)
+    this.users[username].score += this.userList.length - this.numDrawers - this.correctGuesses;
+    var drawers = this.getDrawers();
+    for (var i = 0; i < this.numDrawers; i++) {
+      this.users[drawers[i]].score += this.correctGuesses === 0 ? this.userList.length - this.numDrawers : 1;
+    }
 
+    // update user information
     this.users[username].guessedCorrect = true;
     this.correctGuesses++;
   };

@@ -6,11 +6,15 @@
     <ul class="list-unstyled">
 
       <li class="row" ng-repeat="user in Game.userList">
-        <div class="col-md-3">
+        <div class="col-xs-1 col-md-3">
           <img ng-src="{{Game.getUserProfileImage(user)}}" alt="{{user}}" class="game-profile-image"/>
         </div>
-        <div class="col-md-6">
+        <div class="col-xs-6 col-md-6">
           <div ng-class="{'game-drawer': Game.isDrawer(user)}"><span ng-bind="user"></span></div>
+        </div>
+        <div class="col-md-1">
+          <div ng-if="Game.isDrawer(user)"><strong ng-bind="'(' + Game.users[user].score.toString() + ')'"></strong></div>
+          <div ng-if="!Game.isDrawer(user)"><span ng-bind="'(' + Game.users[user].score.toString() + ')'"></span></div>
         </div>
       </li>
     </ul>
@@ -46,7 +50,7 @@
     <h3 class="drawing-header">
       <span ng-bind="Game.currentRound < Game.numRounds ? 'Round ' + (Game.currentRound + 1) + ':' : 'Game over!'"></span>
       <span ng-if="Game.getDrawers().length" ng-bind="Game.isDrawer(username) ? 'Draw &quot;' + topic + '&quot;' : Utils.toCommaListIs(Game.getDrawers()) + ' drawing'"></span>
-      <button class="pull-right" ng-disabled="!Game.isDrawer(username)" ng-click="finishDrawing()">Give up</button>
+      <button class="pull-right" ng-disabled="!Game.isDrawer(username) || Game.correctGuesses !== 0" ng-click="finishDrawing()">Give up</button>
     </h3>
     <div class="dt-drawing"></div>
   </div>

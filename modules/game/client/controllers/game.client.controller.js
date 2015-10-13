@@ -107,6 +107,13 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     });
 
     /*
+     * Update score when someone guesses correctly
+     */
+    Socket.on('markCorrectGuess', function (username) {
+      $scope.Game.markCorrectGuess(username);
+    });
+
+    /*
      * Another user has connected or disconnected.
      */
     Socket.on('userConnect', function (user) {
