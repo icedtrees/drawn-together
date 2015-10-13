@@ -84,7 +84,8 @@
              ng-repeat="paletteColour in paletteRow">
         </div>
       </div>
-      <div ng-class="{'grid-cell': true, 'palette-colour': true, 'custom-palette-colour': true, 'selected': penColour === penColourCustom}"
+      <div colorpicker ng-model="selectCustomColour" ng-model-options="{getterSetter: true}" colorpicker-position="right"
+           ng-class="{'grid-cell': true, 'palette-colour': true, 'custom-palette-colour': true, 'selected': penColour === penColourCustom}"
            ng-style="{'background-color': penColourCustom}"
            ng-click="penColour = penColourCustom">
       </div>

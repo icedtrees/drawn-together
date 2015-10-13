@@ -25,10 +25,17 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     $scope.drawTools = [
       [{type: 'pen', glyph: 'pencil'}, {type: 'eraser', glyph: 'eraser'}],
       [{type: 'line', glyph: 'line-chart'}, {type: 'fill', glyph: 'battery-full'}],
-      [{type: 'circle', glyph: 'circle-thin'}, {type: 'rect', glyph: 'retweet'}],
+      [{type: 'circle', glyph: 'circle-thin'}, {type: 'rect', glyph: 'retweet'}]
     ];
 
     $scope.penColourCustom = '#FF0000';
+    $scope.selectCustomColour = function (colour) {
+      if (colour !== undefined) {
+        $scope.penColourCustom = colour;
+        $scope.penColour = colour;
+      }
+      return $scope.penColourCustom;
+    };
     $scope.paletteColours = [
       [{title: 'red', value: '#FF0000'}, {title: 'orange', value: 'orange'}, {title: 'yellow', value: 'yellow'}],
       [{title: 'green', value: '#00FF00'}, {title: 'blue', value: '#0000FF'}, {title: 'indigo', value: 'indigo'}],
