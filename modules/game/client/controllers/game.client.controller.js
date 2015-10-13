@@ -20,6 +20,20 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     $scope.eraserWidth = CanvasSettings.DEFAULT_ERASER_WIDTH;
     $scope.mouseMode = 'pen';
 
+    $scope.penColourCustom = '#FF0000';
+    $scope.paletteColours = [
+      ['red', 'orange', 'yellow'],
+      ['green', 'blue', 'indigo'],
+      ['red', 'orange', 'yellow'],
+      ['green', 'blue', 'indigo'],
+      ['red', 'orange', 'yellow'],
+      ['green', 'blue', 'indigo'],
+      ['red', 'orange', 'yellow'],
+      ['green', 'blue', 'indigo'],
+      ['red', 'orange', 'yellow'],
+      ['green', 'blue', 'indigo']
+    ];
+
     $scope.Game = new GameLogic.Game();
     $scope.Utils = Utils;
 

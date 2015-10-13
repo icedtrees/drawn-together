@@ -53,6 +53,20 @@
 
   <!-- Right column -->
   <div class="col-md-3">
+    <div class="palette">
+      <div class="palette-row" ng-repeat="paletteRow in paletteColours">
+        <div ng-class="['palette-colour', {'selected': $parent.$parent.penColour === paletteColour}]"
+             ng-style="{'background-color': paletteColour}"
+             ng-click="$parent.$parent.penColour = paletteColour"
+             ng-repeat="paletteColour in paletteRow">
+        </div>
+      </div>
+      <div class="palette-colour custom-palette-colour"
+           ng-style="{'background-color': penColourCustom}"
+           ng-click="$parent.$parent.penColour = penColourCustom">
+      </div>
+    </div>
+
     <input colorpicker="hex" type="text" name="penColour" ng-model="penColour" ng-change="mouseMode = 'pen'" colorpicker-is-open="true" size="5" maxlength="7"/>
     <div class="row">
       <div class="col-md-3">
