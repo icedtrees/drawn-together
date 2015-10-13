@@ -11,7 +11,6 @@ button:disabled {
 }
 
 .toolbox > div {
-  border: 1px dashed grey;
   margin: 0 auto;
   text-align: center;
   margin-top: 20px;
@@ -50,8 +49,7 @@ button:disabled {
 }
 .draw-tool-content {
   font-size: 20px;
-  text-align: center;
-  padding-top: 1px;
+  margin: auto;
 }
 
 .palette-colour {
