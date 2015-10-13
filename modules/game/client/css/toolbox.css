@@ -64,7 +64,13 @@ button:disabled {
   border: 3px solid black;
 }
 
+.custom-palette-colour-wrapper {
+  width: 100%;
+  padding-left: 3px;
+  padding-right: 3px;
+}
 .custom-palette-colour {
+  margin: 0;
   width: 100%;
   height: 40px;
 }
