@@ -152,7 +152,7 @@ module.exports = function (grunt) {
           src: defaultAssets.client.less,
           ext: '.css',
           rename: function (base, src) {
-            return src.replace('/less/', '/css/');
+            return 'public/' + src.replace('/less/', '/css/');
           }
 				}]
       }
