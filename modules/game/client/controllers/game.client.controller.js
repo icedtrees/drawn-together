@@ -201,13 +201,12 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
 
     // Prevent backspace from leaving game page
     $rootScope.$on('$locationChangeStart', function (event, newUrl, oldUrl) {
-          var signInUrl = 'http://' + location.host + '/authentication/signin';
-          var gameUrl = 'http://' + location.host + '/';
-          // If the old URL is the game or sign-in URL, and the event is triggered by the backspace key
-          if ((oldUrl === gameUrl || oldUrl === signInUrl) && event.keyCode === 8) {
-            event.preventDefault(); // This prevents the navigation from happening
-          }
-        }
-    );
+      var signInUrl = 'http://' + location.host + '/authentication/signin';
+      var gameUrl = 'http://' + location.host + '/';
+      // If the old URL is the game or sign-in URL, and the event is triggered by the backspace key
+      if ((oldUrl === gameUrl || oldUrl === signInUrl) && event.keyCode === 8) {
+        event.preventDefault(); // This prevents the navigation from happening
+      }
+    });
   }
 ]);
