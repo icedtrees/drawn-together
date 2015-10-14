@@ -2,7 +2,7 @@
 <section class="container game-container" ng-controller="GameController">
   <!-- Left column -->
   <div class="col-md-4 left-sidebar">
-    <h3>Players ({{Game.userList.length}}/16)</h3>
+    <h3 class="text-center">Players ({{Game.userList.length}}/16)</h3>
     <ul class="player-list" ng-class="{'two-columns' : Game.userList.length > 5}">
       <li class="player-list row" ng-repeat="user in Game.userList">
         <div class="col-sm-1 player-image">
@@ -38,7 +38,7 @@
       <form class="col-xs-12 col-md-12" ng-submit="sendMessage()">
         <fieldset class="row">
           <div class="input-group col-xs-12 col-md-12">
-            <input ng-disabled="Game.isDrawer(username)" type="text" id="messageText" name="messageText" class="form-control" ng-model="messageText" ng-trim="false" maxlength="{{ChatSettings.MAX_MSG_LEN}}" placeholder="Enter new message">
+            <input ng-disabled="Game.isDrawer(username)" type="text" id="messageText" name="messageText" class="form-control message-input" ng-model="messageText" ng-trim="false" maxlength="{{ChatSettings.MAX_MSG_LEN}}" placeholder="Enter new message">
           </div>
         </fieldset>
       </form>

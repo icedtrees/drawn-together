@@ -278,7 +278,6 @@ module.exports = function (io, socket) {
 
         // Tell the guesser that their guess was close
         message.addon = 'Your guess is close!';
-        message.username = username;
         socket.emit('gameMessage', message);
 
       } else {

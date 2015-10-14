@@ -28,8 +28,14 @@
 }
 
 .message-form {
-  padding-left: 0px;
-  padding-right: 0px;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.message-input {
+  padding: 7px 14px;
+  height: auto;
+  font-size: 12px;
 }
 
 .username {
