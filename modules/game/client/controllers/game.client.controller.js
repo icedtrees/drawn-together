@@ -1,9 +1,9 @@
 'use strict';
 
 // Create the 'game' controller
-angular.module('game').controller('GameController', ['$scope', '$location', '$document', 'Authentication', 'Socket',
+angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', 'Authentication', 'Socket',
   'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils',
-  function ($scope, $location, $document, Authentication, Socket,
+  function ($scope, $location, $document, $rootScope, Authentication, Socket,
             CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils) {
     // Settings objects
     $scope.CanvasSettings = CanvasSettings;
@@ -199,27 +199,15 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       Socket.removeListener('updateDrawHistory');
     });
 
-    // Disable backspace
-    $document.unbind('keydown').bind('keydown', function (event) {
-      var doPrevent = false;
-      if (event.keyCode === 8) {
-        var d = event.srcElement || event.target;
-        // Check if an input field is selected
-        if ((d.tagName.toUpperCase() === 'INPUT' &&
-                (d.type.toUpperCase() === 'TEXT' || d.type.toUpperCase() === 'PASSWORD' ||
-                d.type.toUpperCase() === 'FILE' || d.type.toUpperCase() === 'SEARCH' ||
-                d.type.toUpperCase() === 'EMAIL' || d.type.toUpperCase() === 'NUMBER' ||
-                d.type.toUpperCase() === 'DATE' )
-            ) || d.tagName.toUpperCase() === 'TEXTAREA') {
-          doPrevent = d.readOnly || d.disabled;
-        } else {
-          doPrevent = true;
+    // Prevent backspace from leaving game page
+    $rootScope.$on('$locationChangeStart', function (event, newUrl, oldUrl) {
+          var signInUrl = 'http://' + location.host + '/authentication/signin';
+          var gameUrl = 'http://' + location.host + '/';
+          // If the old URL is the game or sign-in URL, and the event is triggered by the backspace key
+          if ((oldUrl === gameUrl || oldUrl === signInUrl) && event.keyCode === 8) {
+            event.preventDefault(); // This prevents the navigation from happening
+          }
         }
-      }
-
-      if (doPrevent) {
-        event.preventDefault();
-      }
-    });
+    );
   }
 ]);
