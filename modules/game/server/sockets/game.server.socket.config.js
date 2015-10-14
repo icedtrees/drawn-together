@@ -101,10 +101,10 @@ module.exports = function (io, socket) {
 
     // Announce the new drawers
     var drawers = Game.getDrawers();
-    var newDrawersAre = Utils.toCommaListIs(drawers);
     broadcastMessage({
       class: 'status',
-      text: newDrawersAre + ' now drawing.'
+      username: Utils.toCommaList(drawers),
+      text: (drawers.length === 1 ? ' is' : ' are') + ' now drawing.'
     });
   }
 
@@ -127,9 +127,9 @@ module.exports = function (io, socket) {
       var winners = Game.getWinners();
       broadcastMessage({
         class: 'status',
-        text: 'The winner(s) of the game: ' + Utils.toCommaList(winners) + ' on ' +
-              Game.users[winners[0]].score + ' points! The new round will start ' +
-              'in ' + Game.timeToEnd + ' seconds.'
+        username: Utils.toCommaList(winners),
+        text: ' won the game on ' + Game.users[winners[0]].score + ' points! The new round will start ' + 'in ' +
+        Game.timeToEnd + ' seconds.'
       });
       setTimeout(function () {
         gameMessages = [];
@@ -145,8 +145,9 @@ module.exports = function (io, socket) {
 
   function giveUp() {
     broadcastMessage({
-      type: 'status',
-      text: username + ' has given up'
+      class: 'status',
+      username: username,
+      text: ' has given up'
     });
     advanceRound();
   }
@@ -166,7 +167,8 @@ module.exports = function (io, socket) {
     // Emit the status event when a new socket client is connected
     var message = {
       class: 'status',
-      text: username + ' is now connected',
+      username: username,
+      text: ' is now connected',
       created: Date.now(),
     };
     broadcastMessage(message);
