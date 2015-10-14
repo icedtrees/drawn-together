@@ -4,6 +4,7 @@ module.exports = {
   client: {
     lib: {
       css: [
+        'public/modules/core/client/css/bootswatch.css',
         'public/lib/angular-bootstrap-colorpicker/css/colorpicker.css',
         'public/lib/font-awesome/css/font-awesome.css'
       ],
@@ -24,8 +25,9 @@ module.exports = {
       tests: ['public/lib/angular-mocks/angular-mocks.js']
     },
     css: [
-      'modules/*/client/css/*.css',
-      'public/modules/*/client/css/*.css'
+      'public/modules/core/client/css/*.css', // core css must come before other modules
+      'public/modules/*/client/css/*.css',
+      'modules/*/client/css/*.css'
     ],
     less: [
       'modules/*/client/less/*.less'
