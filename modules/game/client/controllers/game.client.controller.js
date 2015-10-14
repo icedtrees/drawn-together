@@ -226,12 +226,27 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     });
 
     // Prevent backspace from leaving game page
-    $rootScope.$on('$locationChangeStart', function (event, newUrl, oldUrl) {
-      var signInUrl = 'http://' + location.host + '/authentication/signin';
-      var gameUrl = 'http://' + location.host + '/';
-      // If the old URL is the game or sign-in URL, and the event is triggered by the backspace key
-      if ((oldUrl === gameUrl || oldUrl === signInUrl) && event.keyCode === 8) {
-        event.preventDefault(); // This prevents the navigation from happening
+    $document.unbind('keydown').bind('keydown', function (event) {
+      var doPrevent = false;
+
+      // Check that we are on the game page and that the backspace key was pressed
+      if ($location.path() === '/' && event.keyCode === 8) {
+        var d = event.srcElement || event.target;
+        // Check if an input field is selected
+        if ((d.tagName.toLowerCase() === 'input' &&
+              (d.type.toLowerCase() === 'text' || d.type.toLowerCase() === 'password' ||
+              d.type.toLowerCase() === 'file' || d.type.toLowerCase() === 'search' ||
+              d.type.toLowerCase() === 'email' || d.type.toLowerCase() === 'number' ||
+              d.type.toLowerCase() === 'date' )
+            ) || d.tagName.toLowerCase() === 'textarea') {
+          doPrevent = d.readOnly || d.disabled;
+        } else {
+          doPrevent = true;
+        }
+      }
+
+      if (doPrevent) {
+        event.preventDefault();
       }
     });
   }
