@@ -24,8 +24,9 @@ module.exports = {
       tests: ['public/lib/angular-mocks/angular-mocks.js']
     },
     css: [
-      'modules/*/client/css/*.css',
-      'public/modules/*/client/css/*.css'
+      'public/modules/core/client/css/*.css', // core css including bootswatch must come first
+      'public/modules/*/client/css/*.css',
+      'modules/*/client/css/*.css'
     ],
     less: [
       'modules/*/client/less/*.less'
