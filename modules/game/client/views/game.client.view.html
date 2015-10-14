@@ -105,20 +105,20 @@
     </div>
 
     <!-- Undo/redo -->
-    <div class="grid">
-      <div class="grid-row">
-        <div ng-class="{'grid-cell': true, 'draw-tool': true}"
-             title="undo"
-             ng-click="$parent.$parent.undo()">
-          <div class="draw-tool-content"><i class="fa fa-undo"></i></div>
-        </div>
-        <div ng-class="{'grid-cell': true, 'draw-tool': true}"
-             title="redo"
-             ng-click="$parent.$parent.redo()">
-          <div class="draw-tool-content"><i class="fa fa-repeat"></i></div>
-        </div>
-      </div>
-    </div>
+    <!--<div class="grid">-->
+      <!--<div class="grid-row">-->
+        <!--<div ng-class="{'grid-cell': true, 'draw-tool': true}"-->
+             <!--title="undo"-->
+             <!--ng-click="$parent.$parent.undo()">-->
+          <!--<div class="draw-tool-content"><i class="fa fa-undo"></i></div>-->
+        <!--</div>-->
+        <!--<div ng-class="{'grid-cell': true, 'draw-tool': true}"-->
+             <!--title="redo"-->
+             <!--ng-click="$parent.$parent.redo()">-->
+          <!--<div class="draw-tool-content"><i class="fa fa-repeat"></i></div>-->
+        <!--</div>-->
+      <!--</div>-->
+    <!--</div>-->
     <!-- Clear canvas -->
     <div><button class="btn btn-primary clear-canvas" ng-disabled="!Game.isDrawer(username)" ng-click="clearDrawing()">Clear Canvas</button></div>
   </div>

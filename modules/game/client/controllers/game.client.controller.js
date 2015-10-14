@@ -23,9 +23,9 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     };
 
     $scope.drawTools = [
-      [{type: 'pen', glyph: 'pencil'}, {type: 'eraser', glyph: 'eraser'}],
-      [{type: 'line', glyph: 'arrows-h'}, {type: 'fill', glyph: 'paint-brush'}],
-      [{type: 'circle', glyph: 'circle-thin'}, {type: 'rect', glyph: 'square-o'}]
+      [{type: 'pen', glyph: 'pencil'}, {type: 'eraser', glyph: 'eraser'}]
+      //[{type: 'line', glyph: 'arrows-h'}, {type: 'fill', glyph: 'paint-brush'}],
+      //[{type: 'circle', glyph: 'circle-thin'}, {type: 'rect', glyph: 'square-o'}]
     ];
 
     $scope.penColourCustom = '#000000';

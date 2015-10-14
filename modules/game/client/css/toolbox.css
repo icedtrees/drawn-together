@@ -10,9 +10,9 @@ button:disabled {
   color: grey;
 }
 
-.toolbox {
-  border: 1px dashed grey;
-}
+/*.toolbox {*/
+  /*border: 1px dashed grey;*/
+/*}*/
 
 .toolbox > div {
   margin: 0 auto;
