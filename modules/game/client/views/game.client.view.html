@@ -21,36 +21,27 @@
     <!-- Chat stuff -->
     <!-- Make the chat container fill up the rest of the space below the player list
         leave 60px for the Player list header and 10px for padding, each row is 40px tall -->
-    <div class="chat-container" ng-style="{
-        'height': 'calc(100% - 60px - 15px - '
-           +(  Game.userList.length <= 5 ? Game.userList.length :
-           Game.userList.length % 2 == 0 ? Game.userList.length / 2 :
-                                           Game.userList.length / 2 + 0.5)
-           +'*40px)',
-        'float': 'bottom',
-        'border': '1px solid #d3d3d3'
-      }">
-      <div class="game-message-box" scroll-glue>
-        <ul class="list-unstyled">
-          <!-- List all messages -->
-          <li class="col-xs-12 col-md-12 game-message wordwrap" ng-class="message.class" ng-repeat="message in messages">
-            <span ng-bind="message.username" class="username"></span>
-            <span class="message-text" ng-bind="message.text"></span>
-            <div class="game-message-addon" ng-bind="message.addon"></div>
-          </li>
-        </ul>
-      </div>
+    <div class="chat-container" scroll-glue>
+      <ul class="list-unstyled">
+        <!-- List all messages -->
+        <li class="col-xs-12 col-md-12 game-message wordwrap" ng-class="message.class" ng-repeat="message in messages">
+          <span ng-bind="message.username" class="username"></span>
+          <span class="message-text" ng-bind="message.text"></span>
 
-      <!-- The message form -->
-      <div class="message-form col-xs-12 col-md-12">
-        <form class="col-xs-12 col-md-12" ng-submit="sendMessage()">
-          <fieldset class="row">
-            <div class="input-group col-xs-12 col-md-12">
-              <input ng-disabled="Game.isDrawer(username)" type="text" id="messageText" name="messageText" class="form-control" ng-model="messageText" ng-trim="false" maxlength="{{ChatSettings.MAX_MSG_LEN}}" placeholder="Enter new message">
-            </div>
-          </fieldset>
-        </form>
-      </div>
+          <div class="game-message-addon" ng-bind="message.addon"></div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- The message form -->
+    <div class="message-form col-xs-12 col-md-12">
+      <form class="col-xs-12 col-md-12" ng-submit="sendMessage()">
+        <fieldset class="row">
+          <div class="input-group col-xs-12 col-md-12">
+            <input ng-disabled="Game.isDrawer(username)" type="text" id="messageText" name="messageText" class="form-control" ng-model="messageText" ng-trim="false" maxlength="{{ChatSettings.MAX_MSG_LEN}}" placeholder="Enter new message">
+          </div>
+        </fieldset>
+      </form>
     </div>
   </div>
 

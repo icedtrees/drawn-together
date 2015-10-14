@@ -1,5 +1,5 @@
 .player-list {
-  padding-left: 0px;
+  padding-left: 0;
   list-style: none;
 }
 .player-list.two-columns {
@@ -31,12 +31,12 @@
 }
 
 .player-score {
-  padding-left: 60px;
+  float: right;
+  text-align: right;
 }
 
 .player-score.two-columns {
-  padding-left: 0px;
-  float: right;
+  padding-left: 0;
   margin-right: 5px;
 }
 

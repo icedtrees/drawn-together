@@ -1,8 +1,8 @@
-.game-message-box {
+.chat-container {
+  -webkit-flex:1;
+  flex: 1;
   overflow-y: scroll;
-  margin: 0;
-  /* Leave space for the message form*/
-  height: calc(100% - 40px);
+  border: 1px solid #d3d3d3;
 }
 
 .game-message {
