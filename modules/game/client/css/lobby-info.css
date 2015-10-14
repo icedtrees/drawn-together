@@ -1,0 +1,15 @@
+.lobby-info {
+  text-align: center;
+}
+.lobby-info h4 {
+  margin: 0;
+  font-weight: normal;
+}
+.lobby-info h5 {
+  margin-top: 5px;
+  margin-bottom: 15px;
+}
+.leave-lobby {
+  cursor: pointer;
+  color: #000011;
+}
