@@ -21,6 +21,15 @@ button:disabled {
   margin-bottom: 20px;
 }
 
+.size-triangle {
+  width: 0;
+  height: 0;
+  border-bottom: 30px solid grey;
+  border-left: 90px solid transparent;
+  margin: 0 auto;
+  margin-bottom: 8px;
+}
+
 .toolbox .size-slider {
   margin: 0 auto;
   width: 90px;
