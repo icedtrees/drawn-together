@@ -46,7 +46,7 @@
   </div>
 
   <!-- The middle column -->
-  <div class="col-md-5" >
+  <div class="col-md-7" >
     <h3 class="drawing-header">
       <span ng-bind="Game.currentRound < Game.numRounds ? 'Round ' + (Game.currentRound + 1) + ':' : 'Game over!'"></span>
       <span ng-if="Game.getDrawers().length" ng-bind="Game.isDrawer(username) ? 'Draw &quot;' + topic + '&quot;' : Utils.toCommaListIs(Game.getDrawers()) + ' drawing'"></span>
@@ -56,7 +56,7 @@
   </div>
 
   <!-- Right column -->
-  <div class="col-md-3">
+  <div class="col-md-1">
     <input colorpicker="hex" type="text" name="penColour" ng-model="penColour" ng-change="mouseMode = 'pen'" colorpicker-is-open="true" size="5" maxlength="7"/>
     <div class="row">
       <div class="col-md-3">

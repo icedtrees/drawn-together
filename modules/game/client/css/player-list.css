@@ -5,9 +5,11 @@
 .player-list.two-columns {
   -webkit-column-count: 2;    /* Chrome, Safari, Opera */
   -moz-column-count: 2;       /* Firefox */
+  -ms-column-count: 2;        /* CSS lint sucks */
   column-count: 2;            /* IE 10+ */
   -webkit-column-gap: 40px;   /* Chrome, Safari, Opera */
   -moz-column-gap: 40px;      /* Firefox */
+  -ms-column-gap: 40px;       /* CSS lint sucks */
   column-gap: 40px;           /* IE 10+ */
 }
 
