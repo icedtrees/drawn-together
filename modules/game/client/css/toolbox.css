@@ -1,7 +1,185 @@
+/* csslint is really really dumb */
+/*csslint
+  outline-none: false,
+  */
 [colorpicker] {
   margin-bottom: 200px;
 }
 
 button:disabled {
   color: grey;
+}
+
+/*.toolbox {*/
+  /*border: 1px dashed grey;*/
+/*}*/
+
+.toolbox > div {
+  margin: 0 auto;
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.size-triangle {
+  width: 0;
+  height: 0;
+  border-bottom: 30px solid grey;
+  border-left: 90px solid transparent;
+  margin: 0 auto;
+  margin-bottom: 8px;
+}
+
+.toolbox .size-slider {
+  margin: 0 auto;
+  width: 90px;
+}
+/* Credit http://brennaobrien.com/blog/2014/05/style-input-type-range-in-every-browser.html */
+input[type=range] {
+  -webkit-appearance: none;
+  -moz-appearance: none; /* csslint sucks */
+  padding-top: 10px;
+  padding-bottom: 10px;
+
+  /* fix for FF unable to apply focus style bug */
+  border: 2px solid white;
+}
+input[type=range]:focus {
+  outline: none;
+}
+/* Track styling */
+input[type=range]::-webkit-slider-runnable-track {
+  height: 5px;
+  cursor: pointer;
+  background: #dddddd;
+}
+input[type=range]::-moz-range-track {
+  height: 5px;
+  cursor: pointer;
+  background: #dddddd;
+}
+input[type=range]::-ms-track {
+  height: 25px;
+  cursor: pointer;
+  border: none;
+
+  /* remove bg colour - use ms-fill-lower/upper instead */
+  background: transparent;
+
+  /* leave room for the larger thumb to overflow with a transparent border */
+  /* doesn't seem to work */
+  border-color: green;
+  border-width: 100px 0;
+
+  /* remove default tick marks */
+  color: transparent;
+}
+input[type=range]::-ms-fill-lower {
+  background: #dddddd;
+}
+input[type=range]::-ms-fill-upper {
+  background: #dddddd;
+}
+input[type=range]:focus::-webkit-slider-runnable-track {
+  background: #cccccc;
+}
+input[type=range]:focus::-moz-range-track {
+  background: #cccccc;
+}
+input[type=range]:focus::-ms-fill-lower {
+  background: #cccccc;
+}
+input[type=range]:focus::-ms-fill-upper {
+  background: #cccccc;
+}
+/* Thumb styling */
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  -moz-appearance: none; /* csslint sucks */
+  width: 10px;
+  cursor: pointer;
+  height: 21px;
+  margin-top: -8px;
+  border: 1px solid grey;
+  border-radius: 0;
+  background: white;
+}
+input[type=range]::-moz-range-thumb {
+  width: 10px;
+  cursor: pointer;
+  height: 21px;
+  border: 1px solid grey;
+  border-radius: 0;
+  background: white;
+}
+input[type=range]::-ms-thumb {
+  width: 10px;
+  cursor: pointer;
+  height: 21px;
+  border: 1px solid grey;
+  border-radius: 0;
+  background: white;
+}
+/* Hacks and fixes */
+input[type=range]:-moz-focusring {
+  /* hide focus outline with a white border */
+  outline: 1px solid white;
+}
+
+.grid {
+  display: table;
+}
+
+.grid-row {
+  display: table-row;
+}
+
+.grid-cell {
+  display: inline-block;
+  text-align: center;
+  vertical-align: top;
+}
+
+.draw-tool {
+  border: 2px solid lightgrey;
+  background-clip:content-box;
+  padding: 2px;
+  margin: 3px;
+  width: 35px;
+  height: 35px;
+}
+.draw-tool.selected {
+  border: 3px solid black;
+}
+.draw-tool-content {
+  font-size: 20px;
+  margin: auto;
+}
+
+.palette-colour {
+  border: 2px solid lightgrey;
+  background-clip:content-box;
+  padding: 1px;
+  margin: 3px;
+  width: 25px;
+  height: 25px;
+}
+.palette-colour.selected {
+  border: 3px solid black;
+}
+
+.custom-palette-colour-wrapper {
+  width: 100%;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+.custom-palette-colour {
+  margin: 0;
+  width: 100%;
+  height: 40px;
+}
+
+.clear-canvas {
+  width: 90px;
+  white-space: normal !important;
 }

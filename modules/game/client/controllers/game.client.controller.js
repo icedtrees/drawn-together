@@ -16,9 +16,35 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     // Default canvas settings
     $scope.canvas = null;
     $scope.penColour = CanvasSettings.DEFAULT_PEN_COLOUR;
-    $scope.penWidth = CanvasSettings.DEFAULT_PEN_WIDTH;
-    $scope.eraserWidth = CanvasSettings.DEFAULT_ERASER_WIDTH;
     $scope.mouseMode = 'pen';
+    $scope.drawWidth = {
+      'pen': CanvasSettings.DEFAULT_PEN_WIDTH,
+      'eraser': CanvasSettings.DEFAULT_ERASER_WIDTH
+    };
+
+    $scope.drawTools = [
+      [{type: 'pen', glyph: 'pencil'}, {type: 'eraser', glyph: 'eraser'}]
+      //[{type: 'line', glyph: 'arrows-h'}, {type: 'fill', glyph: 'paint-brush'}],
+      //[{type: 'circle', glyph: 'circle-thin'}, {type: 'rect', glyph: 'square-o'}]
+    ];
+
+    $scope.penColourCustom = '#000000';
+    $scope.selectCustomColour = function (colour) {
+      if (colour !== undefined) {
+        $scope.penColourCustom = colour;
+        $scope.penColour = colour;
+      }
+      return $scope.penColourCustom;
+    };
+    $scope.paletteColours = [
+      // [{title: 'red', value: '#FF0000'}, {title: 'orange', value: 'orange'}, {title: 'yellow', value: 'yellow'}],
+      // [{title: 'green', value: '#00FF00'}, {title: 'blue', value: '#0000FF'}, {title: 'indigo', value: 'indigo'}],
+      [{title: 'black', value: 'black'}, {title: 'grey', value: 'grey'}, {title: 'white', value: 'white'}],
+      [{title: 'dark brown', value: 'brown'}, {title: 'light brown', value: 'sandybrown'}, {title: 'pink', value: 'pink'}],
+      [{title: 'red', value: 'red'}, {title: 'orange', value: 'orange'}, {title: 'yellow', value: 'yellow'}],
+      [{title: 'dark green', value: 'darkgreen'}, {title: 'green', value: 'green'}, {title: 'light green', value: 'lightgreen'}],
+      [{title: 'dark blue', value: 'darkblue'}, {title: 'blue', value: 'blue'}, {title: 'light blue', value: 'lightblue'}]
+    ];
 
     $scope.Game = new GameLogic.Game();
     $scope.Utils = Utils;
