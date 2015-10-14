@@ -10,10 +10,6 @@ button:disabled {
   color: grey;
 }
 
-/*.toolbox {*/
-  /*border: 1px dashed grey;*/
-/*}*/
-
 .toolbox > div {
   margin: 0 auto;
   text-align: center;
@@ -27,7 +23,6 @@ button:disabled {
   border-bottom: 30px solid grey;
   border-left: 90px solid transparent;
   margin: 0 auto;
-  margin-bottom: 8px;
 }
 
 .toolbox .size-slider {
@@ -38,8 +33,8 @@ button:disabled {
 input[type=range] {
   -webkit-appearance: none;
   -moz-appearance: none; /* csslint sucks */
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: 5px;
+  padding-bottom: 0;
 
   /* fix for FF unable to apply focus style bug */
   border: 2px solid white;
@@ -59,7 +54,7 @@ input[type=range]::-moz-range-track {
   background: #dddddd;
 }
 input[type=range]::-ms-track {
-  height: 25px;
+  height: 12px;
   cursor: pointer;
   border: none;
 
@@ -67,9 +62,9 @@ input[type=range]::-ms-track {
   background: transparent;
 
   /* leave room for the larger thumb to overflow with a transparent border */
-  /* doesn't seem to work */
-  border-color: green;
-  border-width: 100px 0;
+  /* doesn't seem to work, keeping it in in case we figure it out later */
+  /*border-color: transparent;*/
+  /*border-width: 100px 0;*/
 
   /* remove default tick marks */
   color: transparent;
@@ -96,26 +91,26 @@ input[type=range]:focus::-ms-fill-upper {
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
   -moz-appearance: none; /* csslint sucks */
-  width: 10px;
+  width: 20px;
   cursor: pointer;
-  height: 21px;
-  margin-top: -8px;
+  height: 11px;
+  margin-top: -3px;
   border: 1px solid grey;
   border-radius: 0;
   background: white;
 }
 input[type=range]::-moz-range-thumb {
-  width: 10px;
+  width: 20px;
   cursor: pointer;
-  height: 21px;
+  height: 11px;
   border: 1px solid grey;
   border-radius: 0;
   background: white;
 }
 input[type=range]::-ms-thumb {
-  width: 10px;
+  width: 20px;
   cursor: pointer;
-  height: 21px;
+  height: 10px;
   border: 1px solid grey;
   border-radius: 0;
   background: white;
@@ -170,6 +165,7 @@ input[type=range]:-moz-focusring {
 
 .custom-palette-colour-wrapper {
   width: 100%;
+  padding-top: 5px;
   padding-left: 3px;
   padding-right: 3px;
 }
