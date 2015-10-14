@@ -2,8 +2,16 @@
 <section class="container game-container" ng-controller="GameController">
   <!-- Left column -->
   <div class="col-md-4">
+    <!-- Lobby Information -->
+    <div class="lobby-info ui-panel unselectable bg-primary">
+      <h4><span ng-bind="Game.getHost()"></span>'s lobby</h4>
+      <h5>Topic: <span ng-bind="Game.getTopic()"></span></h5>
+      <!--<button class="leave-lobby" ng-click="">Leave Lobby</button>-->
+    </div>
+
+    <!-- Player List -->
     <h3>Players</h3>
-    <ul class="list-unstyled">
+    <ul class="list-unstyled unselectable">
 
       <li class="row" ng-repeat="user in Game.userList">
         <div class="col-xs-1 col-md-3">
@@ -47,7 +55,7 @@
 
   <!-- The middle column -->
   <div class="col-md-5" >
-    <h3 class="drawing-header">
+    <h3 class="drawing-header unselectable">
       <span ng-bind="Game.currentRound < Game.numRounds ? 'Round ' + (Game.currentRound + 1) + ':' : 'Game over!'"></span>
       <span ng-if="Game.getDrawers().length" ng-bind="Game.isDrawer(username) ? 'Draw &quot;' + topic + '&quot;' : Utils.toCommaListIs(Game.getDrawers()) + ' drawing'"></span>
       <button class="pull-right" ng-disabled="!Game.isDrawer(username) || Game.correctGuesses !== 0" ng-click="finishDrawing()">Give up</button>
