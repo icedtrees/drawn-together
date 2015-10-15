@@ -101,8 +101,7 @@ module.exports = function (io, socket) {
     });
 
     // Announce the new drawers
-    var drawers = Game.getDrawers();
-    var newDrawersAre = Utils.toCommaListIs(drawers);
+    var newDrawersAre = Utils.toCommaListIs(Utils.boldList(Game.getDrawers()));
     broadcastMessage({
       class: 'status',
       text: newDrawersAre + ' now drawing.'
@@ -128,7 +127,7 @@ module.exports = function (io, socket) {
       var winners = Game.getWinners();
       broadcastMessage({
         class: 'status',
-        text: 'The winner(s) of the game: ' + Utils.toCommaList(winners) + ' on ' +
+        text: 'The winner(s) of the game: ' + Utils.toCommaList(Utils.boldList(winners)) + ' on ' +
               Game.users[winners[0]].score + ' points! The new round will start ' +
               'in ' + Game.timeToEnd + ' seconds.'
       });
@@ -147,7 +146,7 @@ module.exports = function (io, socket) {
   function giveUp() {
     broadcastMessage({
       class: 'status',
-      text: username + ' has given up'
+      text: '<b>'+username+'</b>' + ' has given up'
     });
     advanceRound();
   }
@@ -167,7 +166,7 @@ module.exports = function (io, socket) {
     // Emit the status event when a new socket client is connected
     broadcastMessage({
       class: 'status',
-      text: username + ' is now connected'
+      text: '<b>'+username+'</b>' + ' is now connected'
     });
 
     // Notify everyone about the new joined user (not the sender though)
@@ -251,7 +250,7 @@ module.exports = function (io, socket) {
       // Alert everyone in the room that the guesser was correct
       broadcastMessage({
         class: 'status',
-        text: username + ' has guessed the prompt!'
+        text: '<b>'+username+'</b>' + ' has guessed the prompt!'
       });
 
       // End round if everyone has guessed
@@ -323,7 +322,7 @@ module.exports = function (io, socket) {
       // Emit the status event when a socket client is disconnected
       broadcastMessage({
         class: 'status',
-        text: username + ' is now disconnected',
+        text: '<b>'+username+'</b>' + ' is now disconnected',
       });
 
       // If the disconnecting user is a drawer, this is equivalent to
