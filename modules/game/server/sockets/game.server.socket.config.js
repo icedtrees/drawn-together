@@ -202,13 +202,17 @@ module.exports = function (io, socket) {
       return;
     }
 
+    // Don't trust user data - create a new object from expected user fields
+    message = {
+      class: 'user-message',
+      text: message.text.toString(),
+      username: username
+    };
+
     // Disallow messages that are empty or longer than MAX_MSG_LEN characters
     if (message.text.length > ChatSettings.MAX_MSG_LEN || /^\s*$/.test(message.text)) {
       return;
     }
-
-    message.class = 'user-message';
-    message.username = username;
 
     // If the game is over, don't check any guesses
     if (Game.currentRound >= Game.numRounds) {
