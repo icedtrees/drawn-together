@@ -198,6 +198,10 @@ module.exports = function (io, socket) {
     // Send current game state
     socket.emit('gameState', Game);
 
+    if (!Game.started) {
+      return;
+    }
+
     // Send the chat message history to the user
     socket.emit('gameMessage', gameMessages);
 

@@ -53,31 +53,25 @@
     </div>
   </div>
 
-  <!-- The pregame settings panel -->
-  <div class="col-md-8" ng-if="!Game.hasStarted()">
+   <!--The pregame settings panel -->
+  <div class="col-md-8" ng-hide="Game.hasStarted()">
     <h3 class="drawing-header unselectable">
       <span ng-bind="Game.getHost() + ' is choosing the game settings...'"></span>
       <button class="pull-right" ng-disabled="Game.getHost() !== username" ng-click="startGameButton()">Start Game</button>
     </h3>
-    <li class="" ng-class="" ng-repeat="setting in Game.getSettings()">
-      <div class="col-md-3">
-        <span ng-bind="setting.settingName"></span>
-      </div>
-      <div class="btn-group" uib-dropdown is-open="status.isopen">
-        <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
-          Button dropdown <span class="caret"></span>
-        </button>
-        <ul class="uib-dropdown-menu" role="menu" aria-labelledby="single-button">
-          <li role="menuitem"><a href="#">Action</a></li>
-          <li role="menuitem"><a href="#">Another action</a></li>
-          <li role="menuitem"><a href="#">Something else here</a></li>
-        </ul>
-      </div>
-    </li>
+    <!--<li class="" ng-class="" ng-repeat="setting in Game.getSettings()">-->
+      <!--<div class="col-md-3">-->
+        <!--<span ng-bind="setting.settingName"></span>-->
+        <!--<div class="btn-group" ng-repeat="option in setting.options">-->
+          <!--<label class="btn btn-success" ><span ng-bind="option"></span></label>-->
+        <!--</div>-->
+      <!--</div>-->
+    <!--</li>-->
   </div>
 
+
   <!-- The middle column -->
-  <div class="col-md-5" ng-if="Game.hasStarted()">
+  <div class="col-md-5" ng-hide="!Game.hasStarted()">
     <h3 class="drawing-header unselectable">
       <span ng-bind="Game.currentRound < Game.numRounds ? 'Round ' + (Game.currentRound + 1) + ':' : 'Game over!'"></span>
       <span ng-if="Game.getDrawers().length" ng-bind="Game.isDrawer(username) ? 'Draw &quot;' + topic + '&quot;' : Utils.toCommaListIs(Game.getDrawers()) + ' drawing'"></span>
@@ -87,7 +81,7 @@
   </div>
 
   <!-- Right column -->
-  <div class="toolbox col-md-3" ng-if="Game.hasStarted()">
+  <div class="toolbox col-md-3" ng-hide="!Game.hasStarted()">
     <!-- Draw tools -->
     <div class="grid">
       <div class="grid-row" ng-repeat="drawToolRow in drawTools">
