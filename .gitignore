@@ -255,10 +255,3 @@ modules/users/client/img/profile/uploads/*
 #################
 
 .idea
-
-#################
-## CSS
-#################
-
-# Automatically generated from .less files
-modules/core/client/css/bootswatch.css
