@@ -3,6 +3,7 @@
 var ChatSettings = require('../../shared/config/game.shared.chat.config.js');
 var GameLogic = require('../../shared/helpers/game.shared.gamelogic.js');
 var Utils = require('../../shared/helpers/game.shared.utils.js');
+var ServerUtils = require('../helpers/game.server.utils.js');
 
 // cln_fuzzy library (for calculating distance between words)
 var clj_fuzzy = require('clj-fuzzy');
@@ -52,7 +53,6 @@ var drawHistory = [];
 var gameMessages = [];
 
 // First one is the current topic
-//var topicList = ['fire\'s friend', 'apple of the orange the apple'];
 var topicList = ['half', 'cardboard', 'oar', 'baby-sitter', 'drip', 'shampoo', 'point', 'time machine', 'yardstick', 'think', 'lace', 'darts', 'world', 'avocado', 'bleach', 'shower curtain', 'extension cord', 'dent', 'birthday', 'lap',   'sandbox', 'bruise', 'quicksand', 'fog', 'gasoline', 'pocket', 'honk', 'sponge', 'rim', 'bride', 'wig', 'zipper', 'wag',   'letter opener', 'fiddle', 'water buffalo', 'pilot', 'brand', 'pail', 'baguette', 'rib', 'mascot', 'fireman pole', 'zoo',   'sushi', 'fizz', 'ceiling fan', 'bald', 'banister', 'punk', 'post office', 'season', 'Internet', 'chess', 'puppet', 'chime',   'ivy', 'full', 'koala', 'dentist', 'baseboards', 'ping pong', 'bonnet', 'mast', 'hut', 'welder', 'dryer sheets', 'sunburn',   'houseboat', 'sleep', 'kneel', 'crust', 'grandpa', 'speakers', 'cheerleader', 'dust bunny', 'salmon', 'cabin', 'handle',   'swamp', 'cruise', 'wedding cake', 'crow\'s nest', 'macho', 'drain', 'foil', 'orbit', 'dream', 'recycle', 'raft', 'gold', 'plank', 'cliff', 'sweater vest', 'cape', 'safe', 'picnic', 'shrink ray', 'leak', 'boa constrictor', 'deep', 'mold', 'CD', 'tiptoe', 'hurdle', 'knight', 'loveseat', 'cloak', 'bedbug', 'bobsled', 'hot tub', 'firefighter', 'cell phone charger', 'beanstalk', 'nightmare', 'coach', 'moth', 'sneeze', 'wooly mammoth', 'pigpen', 'swarm', 'goblin', 'chef', 'applause', 'wax', 'sheep dog', 's\'mores', 'plow', 'runt'];
 // Shuffle the topic list in-place using Knuth shuffle
 for (var i = topicList.length - 2; i > 0; i--) {
@@ -84,9 +84,16 @@ function checkGuess(guess, topic) {
   return {score : score, close : lev <= (guess.length - 5)/3.5 + 1, stage : 3};
 }
 
+/*
+ * returns a list of matching words from the guess and topic
+ * punctuation is ignored when finding matches
+ * common grammatical words like "the" and "a" are ignored
+ */
 function matchingWords(guess, topic) {
-  var guessWords = Utils.importantWords(guess, true); // true => remove punctuation from guess words
-  var topicWords = Utils.importantWords(topic, false);
+  // uses the original guess and topic to preserve punctuation so we can split on spaces/dash
+  // keep punctuation for topic words, so we can tell the guesser the prompt contains "fire's" rather than "fires"
+  var guessWords = ServerUtils.importantWords(guess, true); // true => remove punctuation from guess words
+  var topicWords = ServerUtils.importantWords(topic, false); // false => keep punctuation
 
   if (!guessWords || !topicWords) {
     return [];
@@ -96,7 +103,7 @@ function matchingWords(guess, topic) {
   for (var i = 0; i < guessWords.length; i++) {
     for (var j = 0; j < topicWords.length; j++) {
       if (guessWords[i] === topicWords[j].replace(/[\W_]/g, '')) {
-        matches.push(topicWords[j]);
+        matches.push(topicWords[j]); // topicWords[j] has correct punctuation, guessWords[i] has no punctuation
       }
     }
   }
