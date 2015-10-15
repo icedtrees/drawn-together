@@ -60,7 +60,7 @@
       <span ng-if="Game.getDrawers().length" ng-bind="Game.isDrawer(username) ? 'Draw &quot;' + topic + '&quot;' : Utils.toCommaListIs(Game.getDrawers()) + ' drawing'"></span>
       <button class="pull-right" ng-disabled="!Game.isDrawer(username) || Game.correctGuesses !== 0" ng-click="finishDrawing()">Give up</button>
     </h3>
-    <div class="dt-drawing"></div>
+    <div class="dt-drawing" ng-style="{cursor: Game.isDrawer(username) ? 'none' : 'not-allowed'}"></div>
   </div>
 
   <!-- Right column -->
