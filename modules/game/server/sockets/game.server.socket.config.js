@@ -3,6 +3,7 @@
 var ChatSettings = require('../../shared/config/game.shared.chat.config.js');
 var GameLogic = require('../../shared/helpers/game.shared.gamelogic.js');
 var Utils = require('../../shared/helpers/game.shared.utils.js');
+var ServerUtils = require('../helpers/game.server.utils.js');
 
 // cln_fuzzy library (for calculating distance between words)
 var clj_fuzzy = require('clj-fuzzy');
@@ -81,7 +82,33 @@ function checkGuess(guess, topic) {
 
   // STAGE 3 - check levenshtein distance of entire words
   var lev = levenshtein(guess, topic);
-  return {score : score, close : lev <= (guess.length - 5)/3 + 1, stage : 3};
+  return {score : score, close : lev <= (guess.length - 5)/3.5 + 1, stage : 3};
+}
+
+/*
+ * returns a list of matching words from the guess and topic
+ * punctuation is ignored when finding matches
+ * common grammatical words like "the" and "a" are ignored
+ */
+function matchingWords(guess, topic) {
+  // uses the original guess and topic to preserve punctuation so we can split on spaces/dash
+  // keep punctuation for topic words, so we can tell the guesser the prompt contains "fire's" rather than "fires"
+  var guessWords = ServerUtils.importantWords(guess, true); // true => remove punctuation from guess words
+  var topicWords = ServerUtils.importantWords(topic, false); // false => keep punctuation
+
+  if (!guessWords || !topicWords) {
+    return [];
+  }
+
+  var matches = [];
+  for (var i = 0; i < guessWords.length; i++) {
+    for (var j = 0; j < topicWords.length; j++) {
+      if (guessWords[i] === topicWords[j].replace(/[\W_]/g, '')) {
+        matches.push(topicWords[j]); // topicWords[j] has correct punctuation, guessWords[i] has no punctuation
+      }
+    }
+  }
+  return matches;
 }
 
 // Create the game configuration
@@ -238,8 +265,9 @@ module.exports = function (io, socket) {
     // Compare the lower-cased versions
     var guess = message.text.toLowerCase();
     var topic = topicList[0].toLowerCase();
-
-    if (guess === topic) {
+    var filteredGuess = guess.replace(/[\W_]/g, ''); // only keep letters and numbers
+    var filteredTopic = topic.replace(/[\W_]/g, '');
+    if (filteredGuess === filteredTopic) {
       // Correct guess
 
       // Send user's guess to the drawer/s
@@ -254,7 +282,7 @@ module.exports = function (io, socket) {
 
       // Don't update game state if user has already guessed the prompt
       if (Game.userHasGuessed(username)) {
-          return;
+        return;
       }
 
       // Mark user as correct and increase their score
@@ -284,24 +312,34 @@ module.exports = function (io, socket) {
       }
 
     } else {
-      var guessResult = checkGuess(guess, topic);
-      if (guessResult.close) {
-        // Tell the drawer/s the guess and that it was close
-        message.addon = 'This guess is close!';
+      var guessResult = checkGuess(filteredGuess, filteredTopic);
+      var matches = matchingWords(guess, topic);
+
+      if (!guessResult.close && matches.length === 0) {
+        // Incorrect guess: emit message to everyone
+        broadcastMessage(message);
+      } else {
         message.class = 'close-guess';
-        message.debug = guess + " has score " + guessResult.score.toFixed(2) + ". At stage " + guessResult.stage;
+        message.addon = guessResult.close ? 'This guess is close! ' : '';
+
+        if (guessResult.close) {
+          message.debug = guess + " has score " + guessResult.score.toFixed(2) + ". At stage " + guessResult.stage;
+        }
+
+        if (matches.length > 0) {
+          message.addon += 'The prompt contains: ' + Utils.toCommaList(matches);
+        }
+
+        // send message to drawers
         Game.getDrawers().forEach(function (drawer) {
           io.to(drawer).emit('gameMessage', message);
         });
 
-        // Tell the guesser that their guess was close
-        message.addon = 'Your guess is close!';
-        message.username = username;
+        // send message to guesser
+        if (guessResult.close) {
+          message.addon = message.addon.replace('This', 'Your');
+        }
         socket.emit('gameMessage', message);
-
-      } else {
-        // Incorrect guess: emit message to everyone
-        broadcastMessage(message);
       }
     }
   });
