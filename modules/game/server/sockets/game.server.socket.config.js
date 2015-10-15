@@ -212,11 +212,6 @@ module.exports = function (io, socket) {
   
   // Handle chat messages
   socket.on('gameMessage', function (message) {
-    // The current drawer cannot chat
-    if (Game.isDrawer(username)) {
-      return;
-    }
-
     // Disallow messages that are empty or longer than MAX_MSG_LEN characters
     if (message.text.length > ChatSettings.MAX_MSG_LEN || /^\s*$/.test(message.text)) {
       return;
@@ -225,9 +220,14 @@ module.exports = function (io, socket) {
     message.created = Date.now();
     message.username = username;
 
-    // If the game is over, don't check any guesses
-    if (Game.currentRound >= Game.numRounds) {
+    // If game hasn't started, or ended, don't check any guesses
+    if (!Game.started || Game.currentRound >= Game.numRounds) {
       broadcastMessage(message);
+      return;
+    }
+
+    // The current drawer cannot chat
+    if (Game.isDrawer(username)) {
       return;
     }
 
