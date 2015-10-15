@@ -180,6 +180,16 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       $scope.topic = topic;
     });
 
+    // Server tells client to start game
+    Socket.on('startGame', function(settings) {
+      $scope.Game.startGame();
+    });
+
+    // Game host tells server to start game
+    $scope.startGameButton = function () {
+      Socket.emit('startGameButton', $scope.Game.chosenSettings());
+    };
+
     // Create a controller method for sending messages
     $scope.sendMessage = function () {
       // Disallow empty messages

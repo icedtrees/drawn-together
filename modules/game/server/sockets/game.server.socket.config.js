@@ -16,6 +16,7 @@ var roundTimeout;
 var Game =  new GameLogic.Game({
   numRounds: 5,
   numDrawers: 1,
+  roundTime: 90,
   timeToEnd: 20
 }); // parameters: numRounds, numDrawers, timeToEnd
 
@@ -177,6 +178,19 @@ module.exports = function (io, socket) {
       image: profileImageURL
     });
   }
+
+  // Start the game
+  socket.on('startGameButton', function (settings) {
+    if (username === Game.getHost()) {
+      // apply settings selected by host
+      Game.numRounds = settings.numRounds;
+      Game.roundTime = settings.roundTime;
+      Game.timeToEnd = settings.timeToEnd;
+      Game.startGame();
+
+      io.emit('startGame', settings);
+    }
+  });
 
   // Send an updated version of the userlist whenever a user requests an update of the
   // current server state.

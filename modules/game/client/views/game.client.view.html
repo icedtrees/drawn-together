@@ -53,8 +53,19 @@
     </div>
   </div>
 
+  <!-- The pregame settings panel -->
+  <div class="col-md-8" ng-if="!Game.hasStarted()">
+    <h3 class="drawing-header unselectable">
+      <span ng-bind="Game.getHost() + ' is choosing the game settings...'"></span>
+      <button class="pull-right" ng-disabled="Game.getHost() !== username" ng-click="startGameButton()">Start Game</button>
+    </h3>
+    <li class="" ng-class="" ng-repeat="setting in Game.getSettings()">
+      <span ng-bind="'name: ' + setting.settingName + '|||selected: ' + setting.selected + '||| options are: ' + setting.options"></span>
+    </li>
+  </div>
+
   <!-- The middle column -->
-  <div class="col-md-5" >
+  <div class="col-md-5" ng-if="Game.hasStarted()">
     <h3 class="drawing-header unselectable">
       <span ng-bind="Game.currentRound < Game.numRounds ? 'Round ' + (Game.currentRound + 1) + ':' : 'Game over!'"></span>
       <span ng-if="Game.getDrawers().length" ng-bind="Game.isDrawer(username) ? 'Draw &quot;' + topic + '&quot;' : Utils.toCommaListIs(Game.getDrawers()) + ' drawing'"></span>
@@ -64,7 +75,7 @@
   </div>
 
   <!-- Right column -->
-  <div class="toolbox col-md-3">
+  <div class="toolbox col-md-3" ng-if="Game.hasStarted()">
     <!-- Draw tools -->
     <div class="grid">
       <div class="grid-row" ng-repeat="drawToolRow in drawTools">

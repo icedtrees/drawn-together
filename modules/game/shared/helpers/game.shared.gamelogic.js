@@ -7,15 +7,55 @@
     this.userList = [];
     this.users = {};
     this.correctGuesses = 0;
+    this.started = false;
     if (initialState) {
       this.numRounds = initialState.numRounds;
       this.numDrawers = initialState.numDrawers;
+      this.roundTime = initialState.roundTime;
       this.timeToEnd = initialState.timeToEnd;
     }
   };
 
+  exports.Game.prototype.hasStarted = function () {
+    return this.started;
+  };
+
+  exports.Game.prototype.startGame = function () {
+    this.started = true;
+  };
+
+  // Settings and options for the host to choose from in the pregame
+  exports.Game.prototype.getSettings = function () {
+    return {
+      numRounds : {
+        settingName : "Number of rounds",
+        selected : 5,
+        options : [5, 10, 15]
+      },
+      roundTime : {
+        settingName : "Round time",
+        selected: 90,
+        options: [45, 60, 90, 120]
+      },
+      timeToEnd : {
+        settingName: "Time after first correct guess",
+        selected: 20,
+        options: [10, 20, 30]
+      }
+    };
+  };
+
+  // Get the settings the host selected to send to the server
+  exports.Game.prototype.chosenSettings = function () {
+    return {
+      numRounds : this.numRounds,
+      roundTime : this.roundTime,
+      timeToEnd : this.timeToEnd
+    };
+  };
+
   exports.Game.prototype.getHost = function () {
-    return "SandwichDestroyer32";
+    return this.userList[0];
   };
 
   exports.Game.prototype.getTopic = function () {
