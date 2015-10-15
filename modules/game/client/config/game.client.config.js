@@ -14,8 +14,8 @@ angular.module('game').constant('CanvasSettings', angular.extend({
   DEFAULT_PEN_COLOUR: '#000000',
   DEFAULT_ERASER_WIDTH: 30,
 
-  RESOLUTION_WIDTH: 400,
-  RESOLUTION_HEIGHT: 400
+  RESOLUTION_WIDTH: 600,
+  RESOLUTION_HEIGHT: 600
 }, window.canvasSettings));
 
 angular.module('game').constant('ChatSettings', angular.extend({

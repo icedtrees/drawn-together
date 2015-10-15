@@ -5,9 +5,8 @@
 .dt-drawing {
   position: relative;
   outline: 1px solid black;
-  cursor: none;
-  width: 400px;
-  height: 400px;
+  width: 100%;
+  height: 600px;
 }
 
 .dt-drawing-layer {
