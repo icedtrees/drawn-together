@@ -81,7 +81,7 @@
     <div>
       <div class="size-triangle"></div>
       <input class="size-slider" type="range" ng-model="drawWidth[mouseMode]"  min="{{CanvasSettings.MIN_DRAW_WIDTH}}" max="{{CanvasSettings.MAX_DRAW_WIDTH}}">
-      <p>Size</p>
+      <p class="unselectable">Size</p>
     </div>
 
     <!-- Colour palette -->
@@ -101,7 +101,7 @@
              ng-click="penColour = penColourCustom">
         </div>
       </div>
-      <p>Custom colour</p>
+      <p class="unselectable">Custom colour</p>
     </div>
 
     <!-- Undo/redo -->
