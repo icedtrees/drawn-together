@@ -182,6 +182,9 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
 
     // Server tells client to start game
     Socket.on('startGame', function(settings) {
+      $scope.Game.numRounds = settings.numRounds;
+      $scope.Game.roundTime = settings.roundTime;
+      $scope.Game.timeToEnd = settings.timeToEnd;
       $scope.Game.startGame();
     });
 

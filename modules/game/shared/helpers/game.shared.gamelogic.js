@@ -14,35 +14,25 @@
       this.roundTime = initialState.roundTime;
       this.timeToEnd = initialState.timeToEnd;
     }
-  };
-
-  exports.Game.prototype.hasStarted = function () {
-    return this.started;
-  };
-
-  exports.Game.prototype.startGame = function () {
-    this.started = true;
-  };
-
-  // Settings and options for the host to choose from in the pregame
-  exports.Game.prototype.getSettings = function () {
-    return {
+    this.settings = {
       numRounds : {
         settingName : "Number of rounds",
-        selected : 5,
         options : [5, 10, 15]
       },
       roundTime : {
         settingName : "Round time",
-        selected: 90,
         options: [45, 60, 90, 120]
       },
       timeToEnd : {
         settingName: "Time after first correct guess",
-        selected: 20,
         options: [10, 20, 30]
       }
     };
+  };
+
+  exports.Game.prototype.startGame = function () {
+    this.started = true;
+    this.restartGame();
   };
 
   // Get the settings the host selected to send to the server

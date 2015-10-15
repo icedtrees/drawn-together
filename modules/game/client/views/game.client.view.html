@@ -54,24 +54,23 @@
   </div>
 
    <!--The pregame settings panel -->
-  <div class="col-md-8" ng-hide="Game.hasStarted()">
+  <div class="col-md-8" ng-hide="Game.started">
     <h3 class="drawing-header unselectable">
       <span ng-bind="Game.getHost() + ' is choosing the game settings...'"></span>
       <button class="pull-right" ng-disabled="Game.getHost() !== username" ng-click="startGameButton()">Start Game</button>
     </h3>
-    <!--<li class="" ng-class="" ng-repeat="setting in Game.getSettings()">-->
-      <!--<div class="col-md-3">-->
-        <!--<span ng-bind="setting.settingName"></span>-->
-        <!--<div class="btn-group" ng-repeat="option in setting.options">-->
-          <!--<label class="btn btn-success" ><span ng-bind="option"></span></label>-->
-        <!--</div>-->
-      <!--</div>-->
-    <!--</li>-->
+    <li ng-repeat="(setting, value) in Game.settings">
+      <div class="col-md-3">
+        <span ng-bind="value.settingName"></span>
+        <div class="btn-group" ng-repeat="option in value.options">
+          <label ng-disabled="Game.getHost() !== username" ng-model="Game[setting]" class="btn btn-success" btn-radio="option"><span ng-bind="option"></span></label>
+        </div>
+      </div>
+    </li>
   </div>
 
-
   <!-- The middle column -->
-  <div class="col-md-5" ng-hide="!Game.hasStarted()">
+  <div class="col-md-5" ng-hide="!Game.started">
     <h3 class="drawing-header unselectable">
       <span ng-bind="Game.currentRound < Game.numRounds ? 'Round ' + (Game.currentRound + 1) + ':' : 'Game over!'"></span>
       <span ng-if="Game.getDrawers().length" ng-bind="Game.isDrawer(username) ? 'Draw &quot;' + topic + '&quot;' : Utils.toCommaListIs(Game.getDrawers()) + ' drawing'"></span>
@@ -81,7 +80,7 @@
   </div>
 
   <!-- Right column -->
-  <div class="toolbox col-md-3" ng-hide="!Game.hasStarted()">
+  <div class="toolbox col-md-3" ng-hide="!Game.started">
     <!-- Draw tools -->
     <div class="grid">
       <div class="grid-row" ng-repeat="drawToolRow in drawTools">
