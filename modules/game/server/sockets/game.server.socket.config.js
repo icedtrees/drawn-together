@@ -127,7 +127,7 @@ module.exports = function (io, socket) {
       var winners = Game.getWinners();
       broadcastMessage({
         class: 'status',
-        text: 'The winner(s) of the game: ' + Utils.toCommaList(Utils.boldList(winners)) + ' on ' +
+        text: Utils.toCommaList(Utils.boldList(winners)) + ' won the game on ' +
               Game.users[winners[0]].score + ' points! The new round will start ' +
               'in ' + Game.timeToEnd + ' seconds.'
       });
