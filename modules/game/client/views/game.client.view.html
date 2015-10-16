@@ -34,7 +34,10 @@
           <!-- List all messages -->
           <li class="col-xs-12 col-md-12 game-message wordwrap" ng-class="message.class" ng-repeat="message in messages">
             <span ng-bind="message.username" class="username"></span>
-            <span class="message-text" ng-bind="message.text"></span>
+
+            <span class="message-text" ng-if="message.class !== 'status'" ng-bind="message.text"></span>
+            <span class="message-text" ng-if="message.class === 'status'" ng-bind-html="message.text"></span>
+
             <div class="game-message-addon" ng-bind="message.addon"></div>
           </li>
         </ul>
