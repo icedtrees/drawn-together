@@ -217,6 +217,7 @@ module.exports = function (io, socket) {
 
       // tell all clients that the game has started
       Game.getDrawers().forEach(function (drawer) {
+         // send to drawers again in case numDrawers changes
         io.to(drawer).emit('topic', topicList[0]);
       });
       io.emit('startGame', settings);
@@ -239,10 +240,6 @@ module.exports = function (io, socket) {
   socket.on('requestState', function () {
     // Send current game state
     socket.emit('gameState', Game);
-
-    if (!Game.started) {
-      return;
-    }
 
     // Send the chat message history to the user
     socket.emit('gameMessage', gameMessages);

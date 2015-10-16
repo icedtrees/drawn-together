@@ -187,7 +187,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       $scope.topic = topic;
     });
 
-    // Server tells client to start game
+    // Server tells client the game has started with the given settings
     Socket.on('startGame', function(settings) {
       $scope.Game.numRounds = settings.numRounds;
       $scope.Game.roundTime = settings.roundTime;
@@ -195,21 +195,21 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       $scope.Game.startGame();
     });
 
-    // Server tells client to start game
+    // Server tells client a setting has been updated
     Socket.on('updateSetting', function(change) {
       console.log(change.setting + " " + change.option);
       $scope.chosenSettings[change.setting] = change.option;
     });
 
-    // Game host tells server to start game
+    // Game host tells server to start game with chosen settings
     $scope.startGameButton = function () {
-      // Get the settings the host selected to send to the server
       Socket.emit('startGameButton', $scope.chosenSettings);
     };
 
     // Game host updates a setting
     $scope.changeSetting = function (setting, option) {
       if ($scope.username === $scope.Game.getHost()) {
+        // Send to server so all other players can update this setting
         Socket.emit('changeSetting', {setting : setting, option : option});
       }
     };
