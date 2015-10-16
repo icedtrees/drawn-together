@@ -1,9 +1,9 @@
 'use strict';
 
 // Create the 'game' controller
-angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', 'Authentication', 'Socket',
-  'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils',
-  function ($scope, $location, $document, $rootScope, Authentication, Socket,
+angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', '$state',
+  'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils',
+  function ($scope, $location, $document, $rootScope, $state, Authentication, Socket,
             CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils) {
     // Settings objects
     $scope.CanvasSettings = CanvasSettings;
@@ -230,7 +230,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       var doPrevent = false;
 
       // Check that we are on the game page and that the backspace key was pressed
-      if ($location.path() === '/' && event.keyCode === 8) {
+      if ($location.path() === $state.get('home').url && event.keyCode === 8) {
         var d = event.srcElement || event.target;
         // Check if an input field is selected
         if ((d.tagName.toLowerCase() === 'input' &&
