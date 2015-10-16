@@ -14,28 +14,15 @@
     return exports.toCommaList(array) + (array.length === 1 ? ' is' : ' are');
   };
 
-  exports.Timer = function (timesUp, io) {
+  exports.Timer = function (serverTick) {
     this.timeLeft = 0; // timer that counts down
     this.paused = true;
 
-    this.timesUp = function() {
-      timesUp();
+    this.tick = function () {
+      serverTick();
     };
 
-    this.tick = function (timer) {
-      console.log(timer.paused);
-      //if (timer.paused) {
-      //  return;
-      //}
-      //console.log(timer.timeLeft);
-      //timer.timeLeft--;
-      //io.emit('updateTime', timer.timeLeft);
-      //if (timer.timeLeft <= 0)  {
-      //  timer.timesUp();
-      //}
-    };
-
-    this.timer = setInterval(this.tick(this), 1000);
+    this.timer = setInterval(this.tick, 1000);
 
     this.setTimer = function (time) {
       clearInterval(this.timer);

@@ -117,7 +117,7 @@ function matchingWords(guess, topic) {
 module.exports = function (io, socket) {
   if (!timerSet) {
     timerSet = true;
-    timer = new Utils.Timer(timesUp, io);
+    timer = new Utils.Timer(tick);
   }
 
   function broadcastMessage(message) {
@@ -208,6 +208,18 @@ module.exports = function (io, socket) {
       text: "Time's up! No one guessed " + username + "'s drawing"
     });
     advanceRound();
+  }
+
+  function tick() {
+    if (timer.paused) {
+      return;
+    }
+
+    var timeLeft = --timer.timeLeft;
+    io.emit('updateTime', timeLeft);
+    if (timeLeft <= 0)  {
+      timesUp();
+    }
   }
 
   function setTimer(time) {
