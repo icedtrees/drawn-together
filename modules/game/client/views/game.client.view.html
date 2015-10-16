@@ -28,18 +28,21 @@
     </ul>
 
     <!-- Chat stuff -->
-    <div class="chat-container" scroll-glue>
-      <ul class="list-unstyled">
-        <!-- List all messages -->
-        <li class="col-xs-12 col-md-12 game-message wordwrap" ng-class="message.class" ng-repeat="message in messages">
-          <span ng-bind="message.username" class="username"></span>
-          <span class="message-text" ng-bind="message.text"></span>
+    <div class="chat-container">
+      <div class="game-message-box" scroll-glue>
+        <ul class="list-unstyled">
+          <!-- List all messages -->
+          <li class="col-xs-12 col-md-12 game-message wordwrap" ng-class="message.class" ng-repeat="message in messages">
+            <span ng-bind="message.username" class="username"></span>
 
-          <div class="game-message-addon" ng-bind="message.addon"></div>
-        </li>
-      </ul>
+            <span class="message-text" ng-if="message.class !== 'status'" ng-bind="message.text"></span>
+            <span class="message-text" ng-if="message.class === 'status'" ng-bind-html="message.text"></span>
+
+            <div class="game-message-addon" ng-bind="message.addon"></div>
+          </li>
+        </ul>
+      </div>
     </div>
-
     <!-- The message form -->
     <div class="message-form col-xs-12 col-md-12">
       <form class="col-xs-12 col-md-12" ng-submit="sendMessage()">

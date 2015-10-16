@@ -14,6 +14,12 @@
     return exports.toCommaList(array) + (array.length === 1 ? ' is' : ' are');
   };
 
+  exports.boldList = function (array) {
+    return array.map(function (item) {
+      return '<b>' + item + '</b>';
+    });
+  };
+
 })((typeof process === 'undefined' || !process.versions) ? // Not a node.js environment
   (window.utils = window.utils || {})
   : exports);
