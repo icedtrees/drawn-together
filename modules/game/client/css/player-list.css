@@ -1,8 +1,5 @@
 .player-list {
   list-style: none;
-}
-
-.player-list.two-columns {
   -webkit-column-count: 2;    /* Chrome, Safari, Opera */
   -moz-column-count: 2;       /* Firefox */
   -ms-column-count: 2;

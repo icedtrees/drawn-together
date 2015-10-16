@@ -12,8 +12,7 @@
     <!-- Player List -->
     <div class="unselectable">
       <h4 class="text-center">Players (<span ng-bind="Game.userList.length"></span>/16)</h4>
-      <ul class="list-unstyled player-list" ng-class="{'two-columns' : Game.userList.length > 5}">
-
+      <ul class="list-unstyled player-list">
         <li class="row" ng-repeat="user in Game.userList">
           <div class="col-xs-1 player-image">
             <img ng-src="{{Game.getUserProfileImage(user)}}" title="{{user}}" class="game-profile-image"/>
@@ -21,7 +20,7 @@
           <div class="col-xs-4 player-names">
             <div ng-class="{'game-drawer': Game.isDrawer(user)}"><span ng-bind="user"></span></div>
           </div>
-          <div class="col-xs-1" ng-class="{'two-columns' : Game.userList.length > 5}">
+          <div class="col-xs-1">
             <div ng-if="Game.isDrawer(user)"><strong ng-bind="Game.users[user].score.toString()"></strong></div>
             <div ng-if="!Game.isDrawer(user)"><span ng-bind="Game.users[user].score.toString()"></span></div>
           </div>
