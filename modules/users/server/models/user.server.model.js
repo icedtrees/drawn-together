@@ -23,8 +23,8 @@ var UserSchema = new Schema({
     unique: 'Username already exists',
     required: 'Please fill in a username',
     minlength: [1, 'Username must contain at least one character.'],
-    maxlength: [26, 'Username exceeds the maximum allowed length ({MAXLENGTH}).'],
-    match: [/^[a-zA-Z0-9]{1,26}$/, 'Username may only contain letters and numbers.'],
+    maxlength: [10, 'Username exceeds the maximum allowed length ({MAXLENGTH}).'],
+    match: [/^[a-zA-Z0-9]{1,10}$/, 'Username may only contain letters and numbers.'],
     trim: true // Removes surrounding whitespace
   },
   password: {

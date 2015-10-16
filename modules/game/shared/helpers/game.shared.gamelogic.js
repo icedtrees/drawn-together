@@ -39,8 +39,8 @@
 
     // The user to be removed is never going to be the current drawer - the round
     // is advanced before they are disconnected from the game
-    if (idx === this.curDrawer) {
-      console.log('Trying to remove current drawer - this should never happen');
+    if (idx === this.curDrawer && this.userList.length >= 2) {
+      console.log('Trying to remove current drawer with 2+ players - this should never happen');
     }
 
     // If idx === 0, then curDrawer !== 0 (from the above)

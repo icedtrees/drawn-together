@@ -325,6 +325,7 @@ module.exports = function (io, socket) {
         if (guessResult.close) {
           message.addon = message.addon.replace('This', 'Your');
         }
+
         socket.emit('gameMessage', message);
       }
     }

@@ -1,18 +1,15 @@
 .chat-container {
-  border: 1px solid #d3d3d3;
-  padding: 0;
-}
-
-.game-message-box {
+  /* Make the chat container take up the rest of the space after the player list */
+  -webkit-flex:1;
+  flex: 1;
   overflow-y: scroll;
-  margin: 0;
-  height: 500px;
+  border: 1px solid #d3d3d3;
 }
 
 .game-message {
   padding-top: 5px;
   padding-bottom: 5px;
-  font-size: 12px;
+  font-size: 13px;
   border-top: 1px solid #e7e7e7;
 }
 .game-message.status {
@@ -36,6 +33,12 @@
   padding-right: 0;
 }
 
+.message-input {
+  padding: 7px 14px;
+  height: auto;
+  font-size: 13px;
+}
+
 .username {
   font-weight: bold;
 }
@@ -49,4 +52,3 @@
   word-wrap: break-word;      /* IE */
   display: inline-block;      /* Firefox and IE */
 }
-
