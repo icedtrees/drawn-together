@@ -22,21 +22,6 @@ angular.module('game').constant('ChatSettings', angular.extend({
 }, window.chatSettings));
 
 angular.module('game').constant('GameSettings', angular.extend({
-  numRounds : {
-    settingName : "Number of rounds",
-    default : 5,
-    options : [5, 10, 15]
-  },
-  roundTime : {
-    settingName : "Round time",
-    default: 90,
-    options: [45, 60, 90, 120]
-  },
-  timeToEnd : {
-    settingName: "Time after first correct guess",
-    default: 20,
-    options: [10, 20, 30]
-  }
 }, window.gameSettings));
 
 angular.module('game').constant('MouseConstants', {

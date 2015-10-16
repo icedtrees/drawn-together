@@ -2,6 +2,7 @@
 
 var ChatSettings = require('../../shared/config/game.shared.chat.config.js');
 var GameLogic = require('../../shared/helpers/game.shared.gamelogic.js');
+var GameSettings = require('../../shared/config/game.shared.game.config.js');
 var Utils = require('../../shared/helpers/game.shared.utils.js');
 var ServerUtils = require('../helpers/game.server.utils.js');
 
@@ -207,26 +208,26 @@ module.exports = function (io, socket) {
   }
 
   // Start the game
-  socket.on('startGameButton', function (settings) {
-    if (username === Game.getHost()) {
-      // apply settings selected by host
-      Game.numRounds = settings.numRounds;
-      Game.roundTime = settings.roundTime;
-      Game.timeToEnd = settings.timeToEnd;
+  socket.on('startGame', function () {
+    if (!Game.started && username === Game.getHost()) {
       Game.startGame();
-
       // tell all clients that the game has started
       Game.getDrawers().forEach(function (drawer) {
          // send to drawers again in case numDrawers changes
         io.to(drawer).emit('topic', topicList[0]);
       });
-      io.emit('startGame', settings);
+      io.emit('startGame');
     }
   });
 
   // Start the game
   socket.on('changeSetting', function (change) {
-    if (username === Game.getHost()) {
+    if (!Game.started && username === Game.getHost()) {
+      // make sure change uses one of the options given
+      if (GameSettings[change.setting].options.indexOf(change.option) === -1) {
+        return;
+      }
+
       // apply settings selected by host
       Game[change.setting] = change.option;
 
@@ -359,6 +360,10 @@ module.exports = function (io, socket) {
 
   // Send a canvas drawing command to all connected sockets when a message is received
   socket.on('canvasMessage', function (message) {
+    if (!Game.started) {
+      return;
+    }
+
     if (Game.isDrawer(username)) {
       if (message.type === 'clear') {
         drawHistory = [];
@@ -373,6 +378,10 @@ module.exports = function (io, socket) {
 
   // Current drawer has finished drawing
   socket.on('finishDrawing', function () {
+    if (!Game.started) {
+      return;
+    }
+
     // If the user who submitted this message actually is a drawer
     // And prevent round ending prematurely when prompt has been guessed
     if (Game.isDrawer(username) && Game.correctGuesses === 0) {
