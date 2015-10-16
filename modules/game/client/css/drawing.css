@@ -5,11 +5,13 @@
 
 .drawing-header {
   display: table-row;
+  height: 52px; /* Set the height fixed so that elements below do not jump when content is loaded */
   width: 100%;
 }
 
 .drawing-header-text {
   display: table-cell;
+  font-size: 26px;
   vertical-align: middle;
   width: 100%;
 }
