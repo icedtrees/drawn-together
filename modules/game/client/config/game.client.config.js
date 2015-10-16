@@ -22,6 +22,7 @@ angular.module('game').constant('ChatSettings', angular.extend({
 }, window.chatSettings));
 
 angular.module('game').constant('GameSettings', angular.extend({
+  TIME_BETWEEN_ROUNDS : 10
 }, window.gameSettings));
 
 angular.module('game').constant('MouseConstants', {
