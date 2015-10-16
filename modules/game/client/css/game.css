@@ -8,8 +8,8 @@
 .left-sidebar {
   display: -webkit-flex;
   display: flex;
-  flex-direction:column;
+  flex-direction: column;
   height: 100%;
   padding-bottom: 10px;
-  min-width: 425px;
+  min-width: 400px;
 }

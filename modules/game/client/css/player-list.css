@@ -1,55 +1,39 @@
 .player-list {
-  padding-left: 0;
   list-style: none;
 }
+
 .player-list.two-columns {
   -webkit-column-count: 2;    /* Chrome, Safari, Opera */
   -moz-column-count: 2;       /* Firefox */
+  -ms-column-count: 2;
   column-count: 2;            /* IE 10+ */
-  -webkit-column-gap: 25px;   /* Chrome, Safari, Opera */
-  -moz-column-gap: 25px;      /* Firefox */
-  column-gap: 25px;           /* IE 10+ */
+  -webkit-column-gap: 30px;   /* Chrome, Safari, Opera */
+  -moz-column-gap: 30px;      /* Firefox */
+  -ms-column-gap: 30px;
+  column-gap: 30px;           /* IE 10+ */
 }
 
-.player-list.row {
-  padding-bottom: 7px;
+.player-list > li {
+  padding-bottom: 4px;
   /* So padding doesn't go into 2nd column*/
   -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
   page-break-inside: avoid;           /* Firefox */
   break-inside: avoid;                /* IE 10+ */
-  display: -webkit-flex;
-  display: flex;
-  flex-direction: row;
-  min-width: 200px;
-}
-
-.player-image {
-  width: 35px;
 }
 
 .game-profile-image {
-  height: 25px;
-  width: 25px;
+  height: 20px;
+  width: 20px;
   border-radius: 50%;
 }
 
 .player-names {
-  /* Make the player-name fill up all the space between profile image and score*/
-  -webkit-flex: 1;
-  flex: 1;
-  overflow: hidden;
   font-size: 13px;
+  width: 120px;
 }
 
-.player-score {
-  float: right;
-  text-align: right;
-  min-width: 40px;
-}
-
-.player-score.two-columns {
-  padding-left: 0;
-  margin-right: 5px;
+.player-image {
+  width: 20px;
 }
 
 .game-drawer {
