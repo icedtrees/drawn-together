@@ -12,4 +12,5 @@
   flex-direction:column;
   height: 100%;
   padding-bottom: 10px;
+  min-width: 425px;
 }

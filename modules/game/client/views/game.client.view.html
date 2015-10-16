@@ -10,11 +10,11 @@
     </div>
 
     <!-- Player List -->
-    <h3 class="text-center">Players ({{Game.userList.length}}/16)</h3>
-    <ul class="list-unstyled unselectable player-list" ng-class="{'two-columns' : Game.userList.length > 5}">
+    <h5 class="text-center unselectable">Players (<span ng-bind="Game.userList.length"></span>/16)</h5>
+    <ul class="list-unstyled player-list" ng-class="{'two-columns' : Game.userList.length > 5}">
 
       <li class="player-list row" ng-repeat="user in Game.userList">
-        <div class="col-xs-1 col-md-3 player-image">
+        <div class="col-sm-1 player-image">
           <img ng-src="{{Game.getUserProfileImage(user)}}" alt="{{user}}" class="game-profile-image"/>
         </div>
         <div class="col-sm-3 player-names">
@@ -28,8 +28,6 @@
     </ul>
 
     <!-- Chat stuff -->
-    <!-- Make the chat container fill up the rest of the space below the player list
-        leave 60px for the Player list header and 10px for padding, each row is 40px tall -->
     <div class="chat-container" scroll-glue>
       <ul class="list-unstyled">
         <!-- List all messages -->

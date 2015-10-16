@@ -5,36 +5,50 @@
 .player-list.two-columns {
   -webkit-column-count: 2;    /* Chrome, Safari, Opera */
   -moz-column-count: 2;       /* Firefox */
-  -ms-column-count: 2;        /* CSS lint sucks */
   column-count: 2;            /* IE 10+ */
-  -webkit-column-gap: 40px;   /* Chrome, Safari, Opera */
-  -moz-column-gap: 40px;      /* Firefox */
-  -ms-column-gap: 40px;       /* CSS lint sucks */
-  column-gap: 40px;           /* IE 10+ */
+  -webkit-column-gap: 25px;   /* Chrome, Safari, Opera */
+  -moz-column-gap: 25px;      /* Firefox */
+  column-gap: 25px;           /* IE 10+ */
 }
 
 .player-list.row {
-  padding-bottom: 10px;
+  padding-bottom: 7px;
   /* So padding doesn't go into 2nd column*/
   -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
   page-break-inside: avoid;           /* Firefox */
   break-inside: avoid;                /* IE 10+ */
+  display: -webkit-flex;
+  display: flex;
+  flex-direction: row;
+  min-width: 200px;
+}
+
+.player-image {
+  width: 35px;
 }
 
 .game-profile-image {
-  height: 30px;
-  width: 30px;
+  height: 25px;
+  width: 25px;
   border-radius: 50%;
 }
 
 .player-names {
-  padding-left: 20px;
-  min-width: 75px;
+  /* Make the player-name fill up all the space between profile image and score*/
+  -webkit-flex: 1;
+  flex: 1;
+  overflow: hidden;
+  font-size: 13px;
+}
+
+.player-names:hover{
+  overflow: visible;
 }
 
 .player-score {
   float: right;
   text-align: right;
+  min-width: 40px;
 }
 
 .player-score.two-columns {
