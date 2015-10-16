@@ -12,10 +12,8 @@ var porter = clj_fuzzy.stemmers.porter;
 var levenshtein = clj_fuzzy.metrics.levenshtein;
 
 // Server timer
-var timer; // save timer ID for clearTimeout()
+var timer;
 var timerSet = false; // only set server timer once
-var timeLeft; // timer that counts down
-var timePaused = true;
 
 // Game object encapsulating game logic
 var Game =  new GameLogic.Game({
@@ -117,6 +115,11 @@ function matchingWords(guess, topic) {
 
 // Create the game configuration
 module.exports = function (io, socket) {
+  if (!timerSet) {
+    timerSet = true;
+    timer = new Utils.Timer(timesUp, io);
+  }
+
   function broadcastMessage(message) {
     gameMessages.push(message);
     if (gameMessages.length > ChatSettings.MAX_MESSAGES) {
@@ -141,7 +144,7 @@ module.exports = function (io, socket) {
   }
 
   function advanceRound() {
-    timePaused = true;
+    timer.paused = true;
     var gameFinished = Game.advanceRound();
 
     // Send user list with updated drawers
@@ -162,7 +165,8 @@ module.exports = function (io, socket) {
         class: 'status',
         text: 'The winner(s) of the game: ' + Utils.toCommaList(winners) + ' on ' +
               Game.users[winners[0]].score + ' points! The new round will start ' +
-              'in ' + Game.timeAfterGuess + ' seconds.'
+              'in ' + 10 + ' seconds.'
+        //'in ' + GameSettings.TIME_BETWEEN_ROUNDS + ' seconds.'
       });
       setTimer(0);
       setTimeout(function () {
@@ -171,7 +175,8 @@ module.exports = function (io, socket) {
         Game.restartGame();
         io.emit('restartGame');
         startRound();
-      }, Game.timeAfterGuess * 1000);
+      //}, GameSettings.TIME_BETWEEN_ROUNDS * 1000);
+      }, 10 * 1000);
     } else {
       startRound();
     }
@@ -186,7 +191,7 @@ module.exports = function (io, socket) {
 
     // start round timer
     setTimer(Game.roundTime);
-    timePaused = false;
+    timer.paused = false;
   }
 
   function giveUp() {
@@ -205,23 +210,9 @@ module.exports = function (io, socket) {
     advanceRound();
   }
 
-  function tick() {
-    if (timePaused) {
-      return;
-    }
-
-    timeLeft--;
-    io.emit('updateTime', timeLeft);
-    if (timeLeft <= 0)  {
-      timesUp();
-    }
-  }
-
   function setTimer(time) {
-    clearInterval(timer);
-    timer = setInterval(tick, 1000);
-    timeLeft = time;
-    io.emit('updateTime', timeLeft);
+    timer.setTimer(time);
+    io.emit('updateTime', time);
   }
 
   var username = socket.request.user.username;
@@ -251,11 +242,6 @@ module.exports = function (io, socket) {
     });
   }
 
-  if (!timerSet) {
-    timerSet = true;
-    timer = setInterval(tick, 1000);
-  }
-
   // Send an updated version of the userlist whenever a user requests an update of the
   // current server state.
   socket.on('requestState', function () {
@@ -269,7 +255,7 @@ module.exports = function (io, socket) {
     socket.emit('canvasMessage', drawHistory);
 
     // Send time left to the user
-    socket.emit('updateTime', timeLeft);
+    socket.emit('updateTime', timer.timeLeft);
 
     // Send current topic if they are the drawer
     if (Game.isDrawer(username)) {
