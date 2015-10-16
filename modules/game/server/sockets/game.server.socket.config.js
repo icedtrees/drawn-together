@@ -268,6 +268,9 @@ module.exports = function (io, socket) {
     // Send the draw history to the user
     socket.emit('canvasMessage', drawHistory);
 
+    // Send time left to the user
+    socket.emit('updateTime', timeLeft);
+
     // Send current topic if they are the drawer
     if (Game.isDrawer(username)) {
       socket.emit('topic', topicList[0]);
