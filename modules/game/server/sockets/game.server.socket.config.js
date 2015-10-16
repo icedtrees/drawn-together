@@ -11,14 +11,19 @@ var jaro_winkler = clj_fuzzy.metrics.jaro_winkler;
 var porter = clj_fuzzy.stemmers.porter;
 var levenshtein = clj_fuzzy.metrics.levenshtein;
 
-// A timeout created to end the round seconds when someone guesses the prompt
-var roundTimeout;
+// Server timer
+var timer; // save timer ID for clearTimeout()
+var timerSet = false; // only set server timer once
+var timeLeft; // timer that counts down
+var timePaused = true;
+
 // Game object encapsulating game logic
 var Game =  new GameLogic.Game({
   numRounds: 5,
   numDrawers: 1,
-  timeToEnd: 20
-}); // parameters: numRounds, numDrawers, timeToEnd
+  roundTime: 90,
+  timeAfterGuess: 20
+});
 
 // Dictionary counting number of connects made by each user
 var userConnects = {};
@@ -136,6 +141,7 @@ module.exports = function (io, socket) {
   }
 
   function advanceRound() {
+    timePaused = true;
     var gameFinished = Game.advanceRound();
 
     // Send user list with updated drawers
@@ -156,18 +162,31 @@ module.exports = function (io, socket) {
         class: 'status',
         text: 'The winner(s) of the game: ' + Utils.toCommaList(winners) + ' on ' +
               Game.users[winners[0]].score + ' points! The new round will start ' +
-              'in ' + Game.timeToEnd + ' seconds.'
+              'in ' + Game.timeAfterGuess + ' seconds.'
       });
+      setTimer(0);
       setTimeout(function () {
         gameMessages = [];
         drawHistory = [];
         Game.restartGame();
         io.emit('restartGame');
-        sendTopic();
-      }, Game.timeToEnd * 1000);
+        startRound();
+      }, Game.timeAfterGuess * 1000);
     } else {
-      sendTopic();
+      startRound();
     }
+  }
+
+  function startRound() {
+    sendTopic();
+    broadcastMessage({
+      class: 'status',
+      text: Game.roundTime + " seconds to draw."
+    });
+
+    // start round timer
+    setTimer(Game.roundTime);
+    timePaused = false;
   }
 
   function giveUp() {
@@ -176,6 +195,33 @@ module.exports = function (io, socket) {
       text: username + ' has given up'
     });
     advanceRound();
+  }
+
+  function timesUp() {
+    broadcastMessage({
+      class: 'status',
+      text: "Time's up! No one guessed " + username + "'s drawing"
+    });
+    advanceRound();
+  }
+
+  function tick() {
+    if (timePaused) {
+      return;
+    }
+
+    timeLeft--;
+    io.emit('updateTime', timeLeft);
+    if (timeLeft <= 0)  {
+      timesUp();
+    }
+  }
+
+  function setTimer(time) {
+    clearInterval(timer);
+    timer = setInterval(tick, 1000);
+    timeLeft = time;
+    io.emit('updateTime', timeLeft);
   }
 
   var username = socket.request.user.username;
@@ -203,6 +249,11 @@ module.exports = function (io, socket) {
       username: username,
       image: profileImageURL
     });
+  }
+
+  if (!timerSet) {
+    timerSet = true;
+    timer = setInterval(tick, 1000);
   }
 
   // Send an updated version of the userlist whenever a user requests an update of the
@@ -280,17 +331,14 @@ module.exports = function (io, socket) {
 
       // End round if everyone has guessed
       if (Game.allGuessed()) {
-        clearTimeout(roundTimeout);
         advanceRound();
       } else if (Game.correctGuesses === 1) {
         // Start timer to end round if this is the first correct guess
         broadcastMessage({
           class: 'status',
-          text: "The round will end in " + Game.timeToEnd + " seconds."
+          text: "The round will end in " + Game.timeAfterGuess + " seconds."
         });
-        roundTimeout = setTimeout(function () {
-          advanceRound();
-        }, Game.timeToEnd * 1000);
+        setTimer(Game.timeAfterGuess);
       }
 
     } else {

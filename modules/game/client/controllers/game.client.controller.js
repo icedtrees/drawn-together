@@ -50,6 +50,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     $scope.Utils = Utils;
 
     $scope.messageText = '';
+    $scope.timeLeft = 0;
 
     // If user is not signed in then redirect to signin page
     if (!Authentication.user) {
@@ -178,6 +179,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
 
     Socket.on('topic', function (topic) {
       $scope.topic = topic;
+    });
+
+    Socket.on('updateTime', function (timeLeft) {
+      $scope.timeLeft = timeLeft;
     });
 
     // Create a controller method for sending messages

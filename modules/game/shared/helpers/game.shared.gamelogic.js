@@ -10,7 +10,8 @@
     if (initialState) {
       this.numRounds = initialState.numRounds;
       this.numDrawers = initialState.numDrawers;
-      this.timeToEnd = initialState.timeToEnd;
+      this.timeAfterGuess = initialState.timeAfterGuess;
+      this.roundTime = initialState.roundTime;
     }
   };
 
