@@ -41,10 +41,6 @@
   font-size: 13px;
 }
 
-.player-names:hover{
-  overflow: visible;
-}
-
 .player-score {
   float: right;
   text-align: right;

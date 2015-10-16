@@ -1,7 +1,7 @@
 <!-- The game view -->
 <section class="container game-container" ng-controller="GameController">
   <!-- Left column -->
-  <div class="col-md-4 left-sidebar" >
+  <div class="col-md-4 unselectable left-sidebar" >
     <!-- Lobby Information -->
     <div class="lobby-info ui-panel unselectable bg-primary">
       <h4><span ng-bind="Game.getHost()"></span>'s lobby</h4>
@@ -10,12 +10,12 @@
     </div>
 
     <!-- Player List -->
-    <h5 class="text-center unselectable">Players (<span ng-bind="Game.userList.length"></span>/16)</h5>
+    <h5 class="text-center">Players (<span ng-bind="Game.userList.length"></span>/16)</h5>
     <ul class="list-unstyled player-list" ng-class="{'two-columns' : Game.userList.length > 5}">
 
       <li class="player-list row" ng-repeat="user in Game.userList">
         <div class="col-sm-1 player-image">
-          <img ng-src="{{Game.getUserProfileImage(user)}}" alt="{{user}}" class="game-profile-image"/>
+          <img ng-src="{{Game.getUserProfileImage(user)}}" title="{{user}}" class="game-profile-image"/>
         </div>
         <div class="col-sm-3 player-names">
           <div ng-class="{'game-drawer': Game.isDrawer(user)}"><span ng-bind="user"></span></div>

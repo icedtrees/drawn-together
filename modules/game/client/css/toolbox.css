@@ -165,9 +165,7 @@ input[type=range]:-moz-focusring {
 
 .custom-palette-colour-wrapper {
   width: 100%;
-  padding-top: 5px;
-  padding-left: 3px;
-  padding-right: 3px;
+  padding: 5px 3px 0 3px;
 }
 .custom-palette-colour {
   margin: 0;
