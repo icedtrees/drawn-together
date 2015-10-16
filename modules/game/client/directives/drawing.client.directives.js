@@ -41,11 +41,11 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
         var doc = angular.element(document);
 
         // Generate a layer for the canvas. Higher zIndex indicates in front
-        function createLayer(zIndex) {
+        function createLayer(zIndex, width, height) {
           var canvas = document.createElement('canvas');
           canvas.setAttribute('class', 'dt-drawing-layer');
-          canvas.setAttribute('width', element[0].offsetWidth);
-          canvas.setAttribute('height', element[0].offsetHeight);
+          canvas.setAttribute('width', width);
+          canvas.setAttribute('height', height);
 
           canvas.style.zIndex = zIndex;
           return canvas;
@@ -59,14 +59,21 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
           return mouseX >= 0 && mouseX < element[0].offsetWidth && mouseY >= 0 && mouseY < element[0].offsetHeight;
         }
 
+        // Aspect ratio
+        var aspectRatio = CanvasSettings.RESOLUTION_WIDTH / CanvasSettings.RESOLUTION_HEIGHT;
+        var width = element[0].offsetWidth;
+        var height = width / aspectRatio;
+        element[0].style.width = width + 'px';
+        element[0].style.height = height + 'px';
+
         // Figure out scaling
-        element.scaleX = element[0].offsetWidth / CanvasSettings.RESOLUTION_WIDTH;
-        element.scaleY = element[0].offsetHeight / CanvasSettings.RESOLUTION_HEIGHT;
+        element.scaleX = width / CanvasSettings.RESOLUTION_WIDTH;
+        element.scaleY = height / CanvasSettings.RESOLUTION_HEIGHT;
 
         // Create the drawing (main) layer and the preview (hover) layer
         scope.canvas = element;
-        var drawLayer = createLayer(0);
-        var previewLayer = createLayer(1);
+        var drawLayer = createLayer(0, width, height);
+        var previewLayer = createLayer(1, width, height);
         element[0].appendChild(drawLayer);
         element[0].appendChild(previewLayer);
         var drawCtx = drawLayer.getContext('2d');
