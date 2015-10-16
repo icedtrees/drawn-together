@@ -55,11 +55,11 @@
 
   <!-- The middle column -->
   <div class="col-md-5" >
-    <h3 class="drawing-header unselectable">
+    <div class="drawing-header unselectable">
       <span ng-if="Game.currentRound !== undefined && Game.numRounds !== undefined" ng-bind="Game.currentRound < Game.numRounds ? 'Round ' + (Game.currentRound + 1) + ':' : 'Game over!'"></span>
       <span ng-if="Game.getDrawers().length" ng-bind="Game.isDrawer(username) ? 'Draw &quot;' + topic + '&quot;' : Utils.toCommaListIs(Game.getDrawers()) + ' drawing'"></span>
       <button class="pull-right" ng-disabled="!Game.isDrawer(username) || Game.correctGuesses !== 0" ng-click="finishDrawing()">Give up</button>
-    </h3>
+    </div>
     <div class="dt-drawing"></div>
   </div>
 

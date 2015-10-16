@@ -1,7 +1,7 @@
 .drawing-header {
   text-align: center;
-  font-size: 2em;
-  height: 2em;
+  font-size: 26px;
+  height: 52px; /* Set the height fixed so that elements below do not jump when content is loaded */
 }
 
 .dt-drawing {
@@ -15,4 +15,3 @@
 .dt-drawing-layer {
   position: absolute;
 }
-
