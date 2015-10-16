@@ -16,9 +16,10 @@
     "angular-ui-router": "~0.2",
     "angular-ui-utils": "bower",
     "bootstrap": "~3",
-    "bootswatch": "~3.3.5+4",
+    "bootswatch": "~3.3.5",
     "font-awesome": "fontawesome#~4.4.0",
-    "moment": "momentjs#~2.10.6"
+    "moment": "momentjs#~2.10.6",
+    "angular-sanitize": "~1.4.7"
   },
   "resolutions": {
     "angular": "~1.3"

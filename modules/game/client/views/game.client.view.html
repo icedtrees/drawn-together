@@ -1,7 +1,7 @@
 <!-- The game view -->
 <section class="container game-container" ng-controller="GameController">
   <!-- Left column -->
-  <div class="col-md-4">
+  <div class="col-md-4 left-sidebar" >
     <!-- Lobby Information -->
     <div class="lobby-info ui-panel unselectable bg-primary">
       <h4><span ng-bind="Game.getHost()"></span>'s lobby</h4>
@@ -10,22 +10,23 @@
     </div>
 
     <!-- Player List -->
-    <h3>Players</h3>
-    <ul class="list-unstyled unselectable">
-
-      <li class="row" ng-repeat="user in Game.userList">
-        <div class="col-xs-1 col-md-3">
-          <img ng-src="{{Game.getUserProfileImage(user)}}" alt="{{user}}" class="game-profile-image"/>
-        </div>
-        <div class="col-xs-6 col-md-6">
-          <div ng-class="{'game-drawer': Game.isDrawer(user)}"><span ng-bind="user"></span></div>
-        </div>
-        <div class="col-md-1">
-          <div ng-if="Game.isDrawer(user)"><strong ng-bind="'(' + Game.users[user].score.toString() + ')'"></strong></div>
-          <div ng-if="!Game.isDrawer(user)"><span ng-bind="'(' + Game.users[user].score.toString() + ')'"></span></div>
-        </div>
-      </li>
-    </ul>
+    <div class="unselectable">
+      <h4 class="text-center">Players (<span ng-bind="Game.userList.length"></span>/16)</h4>
+      <ul class="list-unstyled player-list">
+        <li class="row" ng-repeat="user in Game.userList">
+          <div class="col-xs-1 player-image">
+            <img ng-src="{{Game.getUserProfileImage(user)}}" title="{{user}}" class="game-profile-image"/>
+          </div>
+          <div class="col-xs-4 player-names">
+            <div ng-class="{'game-drawer': Game.isDrawer(user)}"><span ng-bind="user"></span></div>
+          </div>
+          <div class="col-xs-1">
+            <div ng-if="Game.isDrawer(user)"><strong ng-bind="Game.users[user].score.toString()"></strong></div>
+            <div ng-if="!Game.isDrawer(user)"><span ng-bind="Game.users[user].score.toString()"></span></div>
+          </div>
+        </li>
+      </ul>
+    </div>
 
     <!-- Chat stuff -->
     <div class="chat-container">
@@ -34,37 +35,39 @@
           <!-- List all messages -->
           <li class="col-xs-12 col-md-12 game-message wordwrap" ng-class="message.class" ng-repeat="message in messages">
             <span ng-bind="message.username" class="username"></span>
-            <span class="message-text" ng-bind="message.text"></span>
+
+            <span class="message-text" ng-if="message.class !== 'status'" ng-bind="message.text"></span>
+            <span class="message-text" ng-if="message.class === 'status'" ng-bind-html="message.text"></span>
+
             <div class="game-message-addon" ng-bind="message.addon"></div>
           </li>
         </ul>
       </div>
-
-      <!-- The message form -->
-      <div class="message-form col-xs-12 col-md-12">
-        <form class="col-xs-12 col-md-12" ng-submit="sendMessage()">
-          <fieldset class="row">
-            <div class="input-group col-xs-12 col-md-12">
-              <input ng-disabled="Game.isDrawer(username)" type="text" id="messageText" name="messageText" class="form-control" ng-model="messageText" ng-trim="false" maxlength="{{ChatSettings.MAX_MSG_LEN}}" placeholder="Enter new message">
-            </div>
-          </fieldset>
-        </form>
-      </div>
+    </div>
+    <!-- The message form -->
+    <div class="message-form col-xs-12 col-md-12">
+      <form class="col-xs-12 col-md-12" ng-submit="sendMessage()">
+        <fieldset class="row">
+          <div class="input-group col-xs-12 col-md-12">
+            <input ng-disabled="Game.isDrawer(username)" type="text" id="messageText" name="messageText" class="form-control message-input" ng-model="messageText" ng-trim="false" maxlength="{{ChatSettings.MAX_MSG_LEN}}" placeholder="Enter new message">
+          </div>
+        </fieldset>
+      </form>
     </div>
   </div>
 
   <!-- The middle column -->
   <div class="col-md-5" >
-    <h3 class="drawing-header unselectable">
-      <span ng-bind="Game.currentRound < Game.numRounds ? 'Round ' + (Game.currentRound + 1) + ':' : 'Game over!'"></span>
+    <div class="drawing-header unselectable">
+      <span ng-if="Game.currentRound !== undefined && Game.numRounds !== undefined" ng-bind="Game.currentRound < Game.numRounds ? 'Round ' + (Game.currentRound + 1) + ':' : 'Game over!'"></span>
       <span ng-if="Game.getDrawers().length" ng-bind="Game.isDrawer(username) ? 'Draw &quot;' + topic + '&quot;' : Utils.toCommaListIs(Game.getDrawers()) + ' drawing'"></span>
       <button class="pull-right" ng-disabled="!Game.isDrawer(username) || Game.correctGuesses !== 0" ng-click="finishDrawing()">Give up</button>
-    </h3>
+    </div>
     <div class="dt-drawing"></div>
   </div>
 
   <!-- Right column -->
-  <div class="toolbox col-md-3">
+  <div class="toolbox col-md-2">
     <!-- Draw tools -->
     <div class="grid">
       <div class="grid-row" ng-repeat="drawToolRow in drawTools">
@@ -81,7 +84,7 @@
     <div>
       <div class="size-triangle"></div>
       <input class="size-slider" type="range" ng-model="drawWidth[mouseMode]"  min="{{CanvasSettings.MIN_DRAW_WIDTH}}" max="{{CanvasSettings.MAX_DRAW_WIDTH}}">
-      <p>Size</p>
+      <p class="unselectable">Size</p>
     </div>
 
     <!-- Colour palette -->
@@ -101,7 +104,7 @@
              ng-click="penColour = penColourCustom">
         </div>
       </div>
-      <p>Custom colour</p>
+      <p class="unselectable">Custom colour</p>
     </div>
 
     <!-- Undo/redo -->
