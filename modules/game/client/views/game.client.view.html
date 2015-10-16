@@ -57,16 +57,22 @@
   <div class="col-md-8" ng-hide="Game.started">
     <h3 class="drawing-header unselectable">
       <span ng-bind="Game.getHost() + ' is choosing the game settings...'"></span>
-      <button class="pull-right" ng-disabled="Game.getHost() !== username" ng-click="startGameButton()">Start Game</button>
     </h3>
-    <li ng-repeat="(setting, value) in Game.settings">
-      <div class="col-md-3">
-        <span ng-bind="value.settingName"></span>
+    <li ng-repeat="(setting, value) in GameSettings">
+      <div class="col-md-12">
+        <div class="col-md-3">
+          <span ng-bind="value.settingName"></span>
+        </div>
         <div class="btn-group" ng-repeat="option in value.options">
-          <label ng-disabled="Game.getHost() !== username" ng-model="Game[setting]" class="btn btn-success" btn-radio="option"><span ng-bind="option"></span></label>
+          <!-- to do: the current setting is highlighted, rather than the rest of the settings ng-hidden -->
+          <div ng-if="Game.getHost() !== username" ng-bind="option" ng-hide="option !== chosenSettings[setting]" class="btn btn-success"></div>
+          <div ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" class="btn btn-success" btn-radio="option" ng-click="changeSetting(setting, option)"><span ng-bind="option"></span></div>
         </div>
       </div>
     </li>
+    <div class="start-game-div">
+      <button class="btn" ng-hide="Game.getHost() !== username" ng-click="startGameButton()">Start Game</button>
+    </div>
   </div>
 
   <!-- The middle column -->

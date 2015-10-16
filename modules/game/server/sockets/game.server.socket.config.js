@@ -156,14 +156,14 @@ module.exports = function (io, socket) {
       broadcastMessage({
         class: 'status',
         text: 'The winner(s) of the game: ' + Utils.toCommaList(winners) + ' on ' +
-              Game.users[winners[0]].score + ' points! The new round will start ' +
+              Game.users[winners[0]].score + ' points! A new game will start ' +
               'in ' + Game.timeToEnd + ' seconds.'
       });
       setTimeout(function () {
         gameMessages = [];
         drawHistory = [];
-        Game.restartGame();
-        io.emit('restartGame');
+        Game.resetGame();
+        io.emit('resetGame');
         sendTopic();
       }, Game.timeToEnd * 1000);
     } else {
@@ -215,7 +215,22 @@ module.exports = function (io, socket) {
       Game.timeToEnd = settings.timeToEnd;
       Game.startGame();
 
+      // tell all clients that the game has started
+      Game.getDrawers().forEach(function (drawer) {
+        io.to(drawer).emit('topic', topicList[0]);
+      });
       io.emit('startGame', settings);
+    }
+  });
+
+  // Start the game
+  socket.on('changeSetting', function (change) {
+    if (username === Game.getHost()) {
+      // apply settings selected by host
+      Game[change.setting] = change.option;
+
+      // tell all clients about the new setting
+      io.emit('updateSetting', change);
     }
   });
 
@@ -239,6 +254,7 @@ module.exports = function (io, socket) {
     if (Game.isDrawer(username)) {
       socket.emit('topic', topicList[0]);
     }
+
   });
   
   // Handle chat messages

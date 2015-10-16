@@ -14,34 +14,11 @@
       this.roundTime = initialState.roundTime;
       this.timeToEnd = initialState.timeToEnd;
     }
-    this.settings = {
-      numRounds : {
-        settingName : "Number of rounds",
-        options : [5, 10, 15]
-      },
-      roundTime : {
-        settingName : "Round time",
-        options: [45, 60, 90, 120]
-      },
-      timeToEnd : {
-        settingName: "Time after first correct guess",
-        options: [10, 20, 30]
-      }
-    };
   };
 
   exports.Game.prototype.startGame = function () {
+    this.resetGame();
     this.started = true;
-    this.restartGame();
-  };
-
-  // Get the settings the host selected to send to the server
-  exports.Game.prototype.chosenSettings = function () {
-    return {
-      numRounds : this.numRounds,
-      roundTime : this.roundTime,
-      timeToEnd : this.timeToEnd
-    };
   };
 
   exports.Game.prototype.getHost = function () {
@@ -175,9 +152,10 @@
     return winners;
   };
 
-  exports.Game.prototype.restartGame = function () {
+  exports.Game.prototype.resetGame = function () {
     this.currentRound = 0;
     this.correctGuesses = 0;
+    this.started = false;
     for (var i = 0; i < this.userList.length; i++) {
       this.users[this.userList[i]].score = 0;
       this.users[this.userList[i]].guessedCorrect = false;

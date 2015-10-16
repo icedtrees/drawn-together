@@ -10,6 +10,13 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     $scope.ChatSettings = ChatSettings;
     $scope.GameSettings = GameSettings;
 
+    // Pregame settings for host to change
+    $scope.chosenSettings = {
+      numRounds : GameSettings.numRounds.default,
+      roundTime : GameSettings.roundTime.default,
+      timeToEnd : GameSettings.timeToEnd.default
+    };
+
     // Create a messages array to store chat messages
     $scope.messages = [];
 
@@ -99,10 +106,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     /*
      * The game has finished and is ready to be restarted
      */
-    Socket.on('restartGame', function () {
+    Socket.on('resetGame', function () {
       $scope.messages = [];
       $scope.canvas.draw({type: 'clear'});
-      $scope.Game.restartGame();
+      $scope.Game.resetGame();
       setCursorStyle();
     });
 
@@ -188,9 +195,23 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       $scope.Game.startGame();
     });
 
+    // Server tells client to start game
+    Socket.on('updateSetting', function(change) {
+      console.log(change.setting + " " + change.option);
+      $scope.chosenSettings[change.setting] = change.option;
+    });
+
     // Game host tells server to start game
     $scope.startGameButton = function () {
-      Socket.emit('startGameButton', $scope.Game.chosenSettings());
+      // Get the settings the host selected to send to the server
+      Socket.emit('startGameButton', $scope.chosenSettings);
+    };
+
+    // Game host updates a setting
+    $scope.changeSetting = function (setting, option) {
+      if ($scope.username === $scope.Game.getHost()) {
+        Socket.emit('changeSetting', {setting : setting, option : option});
+      }
     };
 
     // Create a controller method for sending messages
