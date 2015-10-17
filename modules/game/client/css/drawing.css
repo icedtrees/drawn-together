@@ -1,17 +1,34 @@
+.drawing-container {
+  display: flex;
+  flex-direction: column;
+}
+
 .drawing-header {
-  text-align: center;
-  font-size: 26px;
   height: 78px; /* Set the height fixed so that elements below do not jump when content is loaded */
+  width: 100%;
+  margin-bottom: 10px;
+  vertical-align: middle;
+}
+
+.drawing-header-text {
+  font-size: 26px;
+  vertical-align: middle;
+  width: auto;
+  overflow: hidden;
+}
+.drawing-header-buttons {
+  float: right;
+  margin: 10px auto;
 }
 
 .dt-drawing {
   position: relative;
-  outline: 1px solid black;
-  cursor: none;
-  width: 400px;
-  height: 400px;
+  width: 100%;
+  -webkit-flex: 1;
+  flex: 1;
 }
 
 .dt-drawing-layer {
   position: absolute;
+  outline: 1px solid black;
 }
