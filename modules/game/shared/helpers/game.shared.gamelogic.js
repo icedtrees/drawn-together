@@ -7,6 +7,7 @@
     this.userList = [];
     this.users = {};
     this.correctGuesses = 0;
+    this.started = false;
     if (initialState) {
       this.numRounds = initialState.numRounds;
       this.numDrawers = initialState.numDrawers;
@@ -15,8 +16,13 @@
     }
   };
 
+  exports.Game.prototype.startGame = function () {
+    this.resetGame();
+    this.started = true;
+  };
+
   exports.Game.prototype.getHost = function () {
-    return "SandwichDestroyer32";
+    return this.userList[0];
   };
 
   exports.Game.prototype.getTopic = function () {
@@ -40,8 +46,8 @@
 
     // The user to be removed is never going to be the current drawer - the round
     // is advanced before they are disconnected from the game
-    if (idx === this.curDrawer) {
-      console.log('Trying to remove current drawer - this should never happen');
+    if (idx === this.curDrawer && this.userList.length >= 2) {
+      console.log('Trying to remove current drawer with 2+ players - this should never happen');
     }
 
     // If idx === 0, then curDrawer !== 0 (from the above)
@@ -146,9 +152,10 @@
     return winners;
   };
 
-  exports.Game.prototype.restartGame = function () {
+  exports.Game.prototype.resetGame = function () {
     this.currentRound = 0;
     this.correctGuesses = 0;
+    this.started = false;
     for (var i = 0; i < this.userList.length; i++) {
       this.users[this.userList[i]].score = 0;
       this.users[this.userList[i]].guessedCorrect = false;

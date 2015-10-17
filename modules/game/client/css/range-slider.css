@@ -43,6 +43,9 @@ input[type=range]::-ms-fill-lower {
 input[type=range]::-ms-fill-upper {
   background: #dddddd;
 }
+input[type=range]::-ms-tooltip {
+  display: none;
+}
 input[type=range]:focus::-webkit-slider-runnable-track {
   background: #cccccc;
 }
@@ -86,6 +89,25 @@ input[type=range]::-ms-thumb {
 input[type=range]:-moz-focusring {
   /* hide focus outline with a white border */
   outline: 1px solid white;
+}
+/* Disabled range input styling for track and thumb */
+input[type=range][disabled]::-webkit-slider-runnable-track {
+  cursor: default;
+}
+input[type=range][disabled]::-moz-range-track {
+  cursor: default;
+}
+input[type=range][disabled]::-ms-track {
+  cursor: default;
+}
+input[type=range][disabled]::-webkit-slider-thumb {
+  cursor: default;
+}
+input[type=range][disabled]::-moz-range-thumb {
+  cursor: default;
+}
+input[type=range][disabled]::-ms-thumb {
+  cursor: default;
 }
 
 .grid {
@@ -132,9 +154,8 @@ input[type=range]:-moz-focusring {
 
 .custom-palette-colour-wrapper {
   width: 100%;
-  padding-top: 5px;
-  padding-left: 3px;
-  padding-right: 3px;
+  /* top, right, bottom, left */
+  padding: 5px 3px 0 3px;
 }
 .custom-palette-colour {
   margin: 0;
