@@ -1,0 +1,23 @@
+<div class="container" ng-controller="LobbyController">
+  <h2>Lobby</h2>
+  <div class="col-xs-12 col-sm-12 col-md-12">
+    <table class="table table-striped table-responsive">
+      <thead>
+        <tr>
+          <th>Room</th>
+          <th>Topic</th>
+          <th>Players</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="room-listing" ng-repeat="room in rooms">
+          <td><span ng-bind="room.name"></span></td>
+          <td><span ng-bind="room.topic"></span></td>
+          <td><span ng-bind="room.numplayers"></span> / <span ng-bind="room.maxnumplayers"></span></td>
+          <td><button class="btn btn-primary btn-sm btn-block" value="Join">Join</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>

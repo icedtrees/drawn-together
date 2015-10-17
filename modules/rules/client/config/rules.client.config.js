@@ -7,7 +7,7 @@ angular.module('rules').run(['Menus',
     Menus.addMenuItem('topbar', {
       title: 'Rules',
       state: 'rules',
-      position: 1
+      position: 2
     });
   }
 ]);
