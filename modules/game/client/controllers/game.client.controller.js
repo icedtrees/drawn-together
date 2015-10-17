@@ -233,7 +233,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       var aspectRatio = CanvasSettings.RESOLUTION_WIDTH / CanvasSettings.RESOLUTION_HEIGHT;
 
       var canvasWidth = Math.min(maxMiddleWidth, canvasHeight * aspectRatio);
-      canvasWidth = Math.max(canvasWidth, 0);
+      canvasWidth = Math.max(canvasWidth, CanvasSettings.MIN_DISPLAY_WIDTH);
       middleColumn.style.width = canvasWidth + middlePadding + 'px';
 
       // Left column width is everything left over
