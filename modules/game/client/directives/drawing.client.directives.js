@@ -44,8 +44,8 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
         function createLayer(zIndex, width, height) {
           var canvas = document.createElement('canvas');
           canvas.setAttribute('class', 'dt-drawing-layer');
-          canvas.setAttribute('width', width);
-          canvas.setAttribute('height', height);
+          canvas.width = width;
+          canvas.height = height;
 
           canvas.style.zIndex = zIndex;
           return canvas;
@@ -61,22 +61,26 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
 
         // Create the drawing (main) layer and the preview (hover) layer
         scope.canvas = element;
-        var drawLayer = createLayer(0);
-        var previewLayer = createLayer(1);
+        var drawLayer = createLayer(0, 1, 1);
+        var previewLayer = createLayer(1, 1, 1);
         element[0].appendChild(drawLayer);
         element[0].appendChild(previewLayer);
         var drawCtx = drawLayer.getContext('2d');
         var previewCtx = previewLayer.getContext('2d');
+
+        // This is never resized and keeps track of history
+        var hiddenLayer = createLayer(0, CanvasSettings.RESOLUTION_WIDTH, CanvasSettings.RESOLUTION_HEIGHT);
+        var hiddenCtx = hiddenLayer.getContext('2d');
 
         element.rescale = function () {
           // Aspect ratio
           var aspectRatio = CanvasSettings.RESOLUTION_WIDTH / CanvasSettings.RESOLUTION_HEIGHT;
           var width = element[0].offsetWidth;
           var height = width / aspectRatio;
-          drawLayer.setAttribute('width', width);
-          drawLayer.setAttribute('height', height);
-          previewLayer.setAttribute('width', width);
-          previewLayer.setAttribute('height', height);
+          drawLayer.width = width;
+          drawLayer.height = height;
+          previewLayer.width = width;
+          previewLayer.height = height;
 
           // Figure out scaling
           element.scaleX = width / CanvasSettings.RESOLUTION_WIDTH;
@@ -85,6 +89,9 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
           // Scale
           drawCtx.scale(element.scaleX, element.scaleY);
           previewCtx.scale(element.scaleX, element.scaleY);
+
+          // Restore data
+          drawCtx.drawImage(hiddenLayer, 0, 0);
         };
         element.rescale();
 
@@ -195,46 +202,51 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
           lastY = mouse.y;
         };
 
-        element.draw = function (message) {
+        function drawOnCtx(message, ctx) {
           switch(message.type) {
             case 'line':
               var draw = function() {
-                drawCtx.beginPath();
+                ctx.beginPath();
                 // If the line is zero-length, draw a circle instead
                 if (message.x1 === message.x2 && message.y1 === message.y2) {
-                  drawCtx.arc(message.x1, message.y1, (+message.lineWidth + 1) / 2, 0, 2 * Math.PI);
-                  drawCtx.fillStyle = message.strokeStyle;
-                  drawCtx.fill();
+                  ctx.arc(message.x1, message.y1, (+message.lineWidth + 1) / 2, 0, 2 * Math.PI);
+                  ctx.fillStyle = message.strokeStyle;
+                  ctx.fill();
                 } else {
-                  drawCtx.lineCap = 'round';
-                  drawCtx.moveTo(message.x1, message.y1);
-                  drawCtx.lineTo(message.x2, message.y2);
-                  drawCtx.lineWidth = message.lineWidth;
-                  drawCtx.strokeStyle = message.strokeStyle;
-                  drawCtx.stroke();
+                  ctx.lineCap = 'round';
+                  ctx.moveTo(message.x1, message.y1);
+                  ctx.lineTo(message.x2, message.y2);
+                  ctx.lineWidth = message.lineWidth;
+                  ctx.strokeStyle = message.strokeStyle;
+                  ctx.stroke();
                 }
               };
               if (message.lineType === 'pen') {
                 draw();
               } else if (message.lineType === 'eraser') {
-                var temp = drawCtx.globalCompositeOperation;
-                drawCtx.globalCompositeOperation = 'destination-out';
+                var temp = ctx.globalCompositeOperation;
+                ctx.globalCompositeOperation = 'destination-out';
                 message.strokeStyle = '#000'; // Any colour will do for destination-out erasing
                 draw();
-                drawCtx.globalCompositeOperation = temp;
+                ctx.globalCompositeOperation = temp;
               }
               break;
             case 'rect':
-              drawCtx.fillStyle = message.fillStyle;
-              drawCtx.strokeStyle = message.strokeStyle;
-              drawCtx.fillRect(message.x, message.y, message.width, message.height);
+              ctx.fillStyle = message.fillStyle;
+              ctx.strokeStyle = message.strokeStyle;
+              ctx.fillRect(message.x, message.y, message.width, message.height);
               break;
             case 'clear':
-              clearLayer(drawCtx);
+              clearLayer(ctx);
               break;
             default:
               console.log('Draw message type unknown: ' + message.type);
           }
+        }
+
+        element.draw = function (message) {
+          drawOnCtx(message, drawCtx);
+          drawOnCtx(message, hiddenCtx);
         };
       }
     };
