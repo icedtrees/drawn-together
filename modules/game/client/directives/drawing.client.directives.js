@@ -73,8 +73,6 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
           var aspectRatio = CanvasSettings.RESOLUTION_WIDTH / CanvasSettings.RESOLUTION_HEIGHT;
           var width = element[0].offsetWidth;
           var height = width / aspectRatio;
-          element[0].style.width = width + 'px';
-          element[0].style.height = height + 'px';
           drawLayer.setAttribute('width', width);
           drawLayer.setAttribute('height', height);
           previewLayer.setAttribute('width', width);

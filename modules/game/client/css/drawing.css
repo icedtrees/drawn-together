@@ -22,12 +22,14 @@
 
 .dt-drawing {
   position: relative;
-  outline: 1px solid black;
   width: 100%;
+  -webkit-flex: 1;
+  flex: 1;
 }
 
 .dt-drawing-layer {
   position: absolute;
+  outline: 1px solid black;
 }
 
 .drawing-time-left {

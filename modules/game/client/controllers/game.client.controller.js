@@ -207,21 +207,39 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     function resizeColumns () {
       var leftColumn = document.getElementById('left-column');
       var middleColumn = document.getElementById('middle-column');
+      var middleColumnStyle = window.getComputedStyle(middleColumn, null);
       var rightColumn = document.getElementById('right-column');
+      var rightColumnWidth = rightColumn.offsetWidth + 5;
+      var canvas = document.getElementById('drawing-canvas');
 
-      var windowWidth = window.innerWidth;
-      var windowHeight = window.innerHeight;
-      console.log(windowWidth, windowHeight);
+      var windowWidth = document.getElementById('game-container').clientWidth;
+      var windowHeight = document.getElementById('game-container').clientHeight;
 
-      var leftMinWidth = 350;
-      var minMargins = 50;
+      var leftMinWidth = 400;
 
-      middleColumn.style.width = windowWidth - rightColumn.offsetWidth - leftMinWidth - (2 * minMargins) + 'px';
-      leftColumn.style.width = windowWidth - rightColumn.offsetWidth - middleColumn.offsetWidth - (2 * minMargins) + 'px';
+      // Maximum width of middle column possible based on left and right elements
+      var maxMiddleWidth = windowWidth - rightColumn.offsetWidth - leftMinWidth;
+      var middlePadding = parseInt(middleColumnStyle.getPropertyValue('padding-left')) +
+                          parseInt(middleColumnStyle.getPropertyValue('padding-right'));
+
+      // Maximum width of canvas based on maximum width of middle column
+      var maxCanvasWidth = maxMiddleWidth - middlePadding;
+
+      // Maximum width possible to fit vertically and maintain aspect ratio
+      var canvasHeight = canvas.offsetHeight;
+      var aspectRatio = CanvasSettings.RESOLUTION_WIDTH / CanvasSettings.RESOLUTION_HEIGHT;
+
+      var canvasWidth = Math.min(maxMiddleWidth, canvasHeight * aspectRatio);
+      canvasWidth = Math.max(canvasWidth, 0);
+
+      // Set widths
+      middleColumn.style.width = canvasWidth + middlePadding + 'px';
+      leftColumn.style.width = windowWidth - rightColumnWidth - middleColumn.offsetWidth + 'px';
+
+      // Rescale and redraw canvas contents
       if ($scope.canvas) {
         $scope.canvas.rescale();
       }
-      console.log(leftColumn.offsetWidth, middleColumn.offsetWidth, rightColumn.offsetWidth);
     }
     window.addEventListener('resize', function (e) {
       resizeColumns();

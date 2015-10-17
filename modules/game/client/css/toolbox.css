@@ -2,6 +2,9 @@ button:disabled {
   color: grey;
 }
 
+.toolbox {
+  display: inline-block;
+}
 .toolbox > div {
   margin: 20px auto;
   text-align: center;

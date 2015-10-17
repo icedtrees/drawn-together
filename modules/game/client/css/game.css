@@ -11,5 +11,20 @@
   flex-direction: column;
   height: 100%;
   padding-bottom: 10px;
-  min-width: 400px;
+}
+
+.drawing-container {
+  display: -webkit-flex;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-bottom: 10px;
+}
+
+.col {
+  position: relative;
+  min-height: 1px;
+  padding-left: 15px;
+  padding-right: 15px;
+  float: left;
 }
