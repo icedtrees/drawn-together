@@ -5,8 +5,8 @@
 
     exports.numRounds = {
         settingName : "Number of rounds",
-        default : 5,
-        options : [5, 10, 15]
+        default : 10,
+        options : [5, 10, 20]
     };
     exports.roundTime = {
         settingName : "Round time",

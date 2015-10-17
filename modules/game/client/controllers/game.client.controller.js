@@ -108,7 +108,6 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
      * The game has finished and is ready to be restarted
      */
     Socket.on('resetGame', function () {
-      $scope.messages = [];
       $scope.canvas.draw({type: 'clear'});
       $scope.Game.resetGame();
       setCursorStyle();
@@ -196,6 +195,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     Socket.on('startGame', function(settings) {
       angular.extend($scope.Game, settings);
       $scope.Game.startGame();
+    });
+
+    Socket.on('gameFinished', function() {
+      $scope.Game.finished = true;
     });
 
     // Server tells client a setting has been updated

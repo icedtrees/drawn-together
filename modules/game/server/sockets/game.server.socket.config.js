@@ -168,9 +168,8 @@ module.exports = function (io, socket) {
               Game.users[winners[0]].score + ' points! A new game will start ' +
               'in ' + GameSettings.TIME_BETWEEN_ROUNDS + ' seconds.'
       });
-      setTimer(0);
+      io.emit('gameFinished');
       setTimeout(function () {
-        gameMessages = [];
         drawHistory = [];
         Game.resetGame();
         io.emit('resetGame');
@@ -193,6 +192,10 @@ module.exports = function (io, socket) {
   }
 
   function giveUp() {
+    if (!Game.started) {
+      return;
+    }
+
     broadcastMessage({
       class: 'status',
       text: '<b>'+username+'</b>' + ' has given up'
