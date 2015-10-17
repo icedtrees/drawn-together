@@ -1,13 +1,17 @@
-button:disabled {
-  color: grey;
-}
-
 .toolbox {
   display: inline-block;
 }
 .toolbox > div {
   margin: 20px auto;
   text-align: center;
+}
+.toolbox[disabled] .grid-cell, .toolbox[disabled] .size-triangle {
+  color: gray;
+  cursor: default;
+  opacity: 0.65;
+}
+.toolbox[disabled] .selected{
+  border: 3px solid gray;
 }
 
 .size-triangle {

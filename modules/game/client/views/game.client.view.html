@@ -49,15 +49,36 @@
       <form class="col-xs-12 col-md-12" ng-submit="sendMessage()">
         <fieldset class="row">
           <div class="input-group col-xs-12 col-md-12">
-            <input ng-disabled="Game.isDrawer(username)" type="text" id="messageText" name="messageText" class="form-control message-input" ng-model="messageText" ng-trim="false" maxlength="{{ChatSettings.MAX_MSG_LEN}}" placeholder="Enter new message">
+            <input ng-disabled="Game.isDrawer(username) && Game.started" type="text" id="messageText" name="messageText" class="form-control message-input" ng-model="messageText" ng-trim="false" maxlength="{{ChatSettings.MAX_MSG_LEN}}" placeholder="Enter new message">
           </div>
         </fieldset>
       </form>
     </div>
   </div>
 
+   <!--The pregame settings panel -->
+  <div class="col-md-7" ng-hide="Game.started">
+    <h3 class="drawing-header unselectable">
+      <span ng-bind="Game.getHost() + ' is choosing the game settings...'"></span>
+    </h3>
+<!--    <li ng-repeat="(setting, value) in GameSettings">
+      <div class="col-md-12">
+        <div class="col-md-3">
+          <span ng-bind="value.settingName"></span>
+        </div>
+        <div class="btn-group" ng-repeat="option in value.options">
+          <div ng-if="Game.getHost() !== username" ng-bind="option" ng-hide="option !== chosenSettings[setting]" class="btn btn-success"></div> &lt;!&ndash; to do: the current setting is highlighted, rather than the rest of the settings ng-hidden &ndash;&gt;
+          <div ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" class="btn btn-success" btn-radio="option" ng-click="changeSetting(setting, option)"><span ng-bind="option"></span></div>
+        </div>
+      </div>
+    </li>-->
+    <div class="start-game-div">
+      <button class="btn" ng-hide="Game.getHost() !== username" ng-click="startGame()">Start Game</button>
+    </div>
+  </div>
+
   <!-- The middle column -->
-  <div id="middle-column" class="col drawing-container" >
+  <div id="middle-column" class="col drawing-container" ng-hide="!Game.started">
     <div class="drawing-header">
       <div class="drawing-header-buttons">
         <button class="btn btn-primary" ng-disabled="!Game.isDrawer(username) || Game.correctGuesses !== 0" ng-click="finishDrawing()">Pass</button>
@@ -73,13 +94,13 @@
   </div>
 
   <!-- Right column -->
-  <div id="right-column" class="col toolbox">
+  <div id="right-column" class="col toolbox" ng-hide="!Game.started" ng-disabled="!Game.isDrawer(username)">
     <!-- Draw tools -->
     <div class="grid">
       <div class="grid-row" ng-repeat="drawToolRow in drawTools">
         <div ng-class="{'grid-cell': true, 'draw-tool': true, 'selected': $parent.$parent.mouseMode === drawTool.type}"
              ng-attr-title="{{drawTool.type}}"
-             ng-click="$parent.$parent.mouseMode = drawTool.type"
+             ng-click="!Game.isDrawer(username) || ($parent.$parent.mouseMode = drawTool.type)"
              ng-repeat="drawTool in drawToolRow">
           <div class="draw-tool-content"><i class="fa fa-{{drawTool.glyph}}"></i></div>
         </div>
@@ -89,7 +110,9 @@
     <!-- Size slider -->
     <div>
       <div class="size-triangle"></div>
-      <input class="size-slider" type="range" ng-model="drawWidth[mouseMode]"  min="{{CanvasSettings.MIN_DRAW_WIDTH}}" max="{{CanvasSettings.MAX_DRAW_WIDTH}}">
+      <input class="size-slider" type="range" ng-model="drawWidth[mouseMode]"
+             min="{{CanvasSettings.MIN_DRAW_WIDTH}}" max="{{CanvasSettings.MAX_DRAW_WIDTH}}"
+             ng-disabled="!Game.isDrawer(username)">
       <p class="unselectable">Size</p>
     </div>
 
@@ -99,15 +122,21 @@
         <div ng-class="{'grid-cell': true, 'palette-colour': true, 'selected': $parent.$parent.penColour === paletteColour.value}"
              ng-style="{'background-color': paletteColour.value}"
              ng-attr-title="{{paletteColour.title}}"
-             ng-click="$parent.$parent.penColour = paletteColour.value"
+             ng-click="!Game.isDrawer(username) || ($parent.$parent.penColour = paletteColour.value)"
              ng-repeat="paletteColour in paletteRow">
         </div>
       </div>
       <div class="custom-palette-colour-wrapper">
-        <div colorpicker ng-model="selectCustomColour" ng-model-options="{getterSetter: true}" colorpicker-position="right"
+        <div ng-if="Game.isDrawer(username)"
+             ng-model="selectCustomColour" ng-model-options="{getterSetter: true}"
+             colorpicker colorpicker-position="right"
              ng-class="{'grid-cell': true, 'palette-colour': true, 'custom-palette-colour': true, 'selected': penColour === penColourCustom}"
              ng-style="{'background-color': penColourCustom}"
              ng-click="penColour = penColourCustom">
+        </div>
+        <div ng-if="!Game.isDrawer(username)"
+             ng-class="{'grid-cell': true, 'palette-colour': true, 'custom-palette-colour': true, 'selected': penColour === penColourCustom}"
+             ng-style="{'background-color': penColourCustom}">
         </div>
       </div>
       <p class="unselectable">Custom colour</p>

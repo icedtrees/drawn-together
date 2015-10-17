@@ -1,15 +1,21 @@
 'use strict';
 
 // Create the 'game' controller
-angular.module('game').controller('GameController', ['$scope', '$location', 'Authentication', 'Socket',
-  'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils',
-  function ($scope, $location, Authentication, Socket,
+angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', '$state',
+  'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils',
+  function ($scope, $location, $document, $rootScope, $state, Authentication, Socket,
             CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils) {
     // Settings objects
     $scope.CanvasSettings = CanvasSettings;
     $scope.ChatSettings = ChatSettings;
     $scope.GameSettings = GameSettings;
 
+    // Pregame settings for host to change
+    $scope.chosenSettings = {
+      numRounds : GameSettings.numRounds.default,
+      roundTime : GameSettings.roundTime.default,
+      timeToEnd : GameSettings.timeToEnd.default
+    };
 
     // Create a messages array to store chat messages
     $scope.messages = [];
@@ -86,10 +92,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     /*
      * The game has finished and is ready to be restarted
      */
-    Socket.on('restartGame', function () {
+    Socket.on('resetGame', function () {
       $scope.messages = [];
       $scope.canvas.draw({type: 'clear'});
-      $scope.Game.restartGame();
+      $scope.Game.resetGame();
     });
 
     /*
@@ -165,6 +171,31 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     Socket.on('topic', function (topic) {
       $scope.topic = topic;
     });
+
+    // Server tells client the game has started with the given settings
+    Socket.on('startGame', function(settings) {
+      angular.extend($scope.Game, settings);
+      $scope.Game.startGame();
+    });
+
+    // Server tells client a setting has been updated
+    Socket.on('updateSetting', function(change) {
+      $scope.chosenSettings[change.setting] = change.option;
+      $scope.Game[change.setting] = change.option;
+    });
+
+    // Game host tells server to start game with chosen settings
+    $scope.startGame = function () {
+      Socket.emit('startGame');
+    };
+
+    // Game host updates a setting
+    $scope.changeSetting = function (setting, option) {
+      if (!$scope.Game.started && $scope.username === $scope.Game.getHost()) {
+        // Send to server so all other players can update this setting
+        Socket.emit('changeSetting', {setting : setting, option : option});
+      }
+    };
 
     // Create a controller method for sending messages
     $scope.sendMessage = function () {
@@ -267,6 +298,31 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       Socket.removeListener('canvasMessage');
       Socket.removeListener('userUpdate');
       Socket.removeListener('updateDrawHistory');
+    });
+
+    // Prevent backspace from leaving game page
+    $document.unbind('keydown').bind('keydown', function (event) {
+      var doPrevent = false;
+
+      // Check that we are on the game page and that the backspace key was pressed
+      if ($location.path() === $state.get('home').url && event.keyCode === 8) {
+        var d = event.srcElement || event.target;
+        // Check if an input field is selected
+        if ((d.tagName.toLowerCase() === 'input' &&
+              (d.type.toLowerCase() === 'text' || d.type.toLowerCase() === 'password' ||
+              d.type.toLowerCase() === 'file' || d.type.toLowerCase() === 'search' ||
+              d.type.toLowerCase() === 'email' || d.type.toLowerCase() === 'number' ||
+              d.type.toLowerCase() === 'date' )
+            ) || d.tagName.toLowerCase() === 'textarea') {
+          doPrevent = d.readOnly || d.disabled;
+        } else {
+          doPrevent = true;
+        }
+      }
+
+      if (doPrevent) {
+        event.preventDefault();
+      }
     });
   }
 ]);
