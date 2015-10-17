@@ -241,7 +241,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       var middleColumn = document.getElementById('middle-column');
       var middleColumnStyle = window.getComputedStyle(middleColumn, null);
       var rightColumn = document.getElementById('right-column');
-      var rightColumnWidth = rightColumn.offsetWidth + 5;
+      var rightColumnWidth = rightColumn.offsetWidth;
       var canvas = document.getElementById('drawing-canvas');
 
       var gameContainer = document.getElementById('game-container');
@@ -263,7 +263,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       var canvasHeight = canvas.offsetHeight;
       var aspectRatio = CanvasSettings.RESOLUTION_WIDTH / CanvasSettings.RESOLUTION_HEIGHT;
 
-      var canvasWidth = Math.min(maxMiddleWidth, canvasHeight * aspectRatio);
+      var canvasWidth = Math.min(maxMiddleWidth - middlePadding, canvasHeight * aspectRatio);
       canvasWidth = Math.max(canvasWidth, CanvasSettings.MIN_DISPLAY_WIDTH);
       middleColumn.style.width = canvasWidth + middlePadding + 'px';
 
