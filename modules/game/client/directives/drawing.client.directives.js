@@ -6,7 +6,7 @@
  * http://stackoverflow.com/questions/10449890/detect-mouse-click-location-within-canvas
  */
 function getMouse(e, canvas) {
-  var element = canvas, offsetX = 0, offsetY = 0, mx, my;
+  var element = canvas[0], offsetX = 0, offsetY = 0, mx, my;
 
   // Compute the total offset. It's possible to cache this if you want
   if (element.offsetParent !== undefined) {
@@ -26,7 +26,7 @@ function getMouse(e, canvas) {
   my = e.pageY - offsetY;
 
   // We return a simple javascript object with x and y defined
-  return {x: mx, y: my};
+  return {x: mx / canvas.scaleX, y: my / canvas.scaleY};
 }
 
 angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'CanvasSettings',
@@ -41,31 +41,59 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
         var doc = angular.element(document);
 
         // Generate a layer for the canvas. Higher zIndex indicates in front
-        function createLayer(zIndex) {
+        function createLayer(zIndex, width, height) {
           var canvas = document.createElement('canvas');
           canvas.setAttribute('class', 'dt-drawing-layer');
-          canvas.setAttribute('width', CanvasSettings.RESOLUTION_WIDTH.toString());
-          canvas.setAttribute('height', CanvasSettings.RESOLUTION_HEIGHT.toString());
+          canvas.width = width;
+          canvas.height = height;
 
-          // Take the dimensions of the surrounding div as the display width and height
-          canvas.style.width = element[0].style.width;
-          canvas.style.height = element[0].style.height;
           canvas.style.zIndex = zIndex;
           return canvas;
         }
 
         function inCanvas(mouse) {
-          return mouse.x >= 0 && mouse.x < element[0].offsetWidth && mouse.y >= 0 && mouse.y < element[0].offsetHeight;
+          // Re-multiply the scale back in to compare against real width and height
+          var mouseX = mouse.x * element.scaleX;
+          var mouseY = mouse.y * element.scaleY;
+
+          return mouseX >= 0 && mouseX < element[0].offsetWidth && mouseY >= 0 && mouseY < element[0].offsetHeight;
         }
 
         // Create the drawing (main) layer and the preview (hover) layer
         scope.canvas = element;
-        var draw = createLayer(0);
-        var preview = createLayer(1);
-        element[0].appendChild(draw);
-        element[0].appendChild(preview);
-        var drawCtx = draw.getContext('2d');
-        var previewCtx = preview.getContext('2d');
+        var drawLayer = createLayer(0, 1, 1);
+        var previewLayer = createLayer(1, 1, 1);
+        element[0].appendChild(drawLayer);
+        element[0].appendChild(previewLayer);
+        var drawCtx = drawLayer.getContext('2d');
+        var previewCtx = previewLayer.getContext('2d');
+
+        // This is never resized and keeps track of history
+        var hiddenLayer = createLayer(0, CanvasSettings.RESOLUTION_WIDTH, CanvasSettings.RESOLUTION_HEIGHT);
+        var hiddenCtx = hiddenLayer.getContext('2d');
+
+        element.rescale = function () {
+          // Aspect ratio
+          var aspectRatio = CanvasSettings.RESOLUTION_WIDTH / CanvasSettings.RESOLUTION_HEIGHT;
+          var width = element[0].offsetWidth;
+          var height = width / aspectRatio;
+          drawLayer.width = width;
+          drawLayer.height = height;
+          previewLayer.width = width;
+          previewLayer.height = height;
+
+          // Figure out scaling
+          element.scaleX = width / CanvasSettings.RESOLUTION_WIDTH;
+          element.scaleY = height / CanvasSettings.RESOLUTION_HEIGHT;
+
+          // Scale
+          drawCtx.scale(element.scaleX, element.scaleY);
+          previewCtx.scale(element.scaleX, element.scaleY);
+
+          // Restore data
+          drawCtx.drawImage(hiddenLayer, 0, 0);
+        };
+        element.rescale();
 
         // Currently drawing with the left mouse button: i.e. mousedown was in canvas and is still down
         var drawingLeft = false;
@@ -74,7 +102,7 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
         var lastY;
         
         doc.bind('mousedown', function (e) {
-          var mouse = getMouse(e, element[0]);
+          var mouse = getMouse(e, element);
 
           // If the mouseDown event was left click within the canvas
           if (inCanvas(mouse) && e.which === MouseConstants.MOUSE_LEFT) {
@@ -100,7 +128,7 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
         });
 
         doc.bind('mousemove', function (e) {
-          var mouse = getMouse(e, element[0]);
+          var mouse = getMouse(e, element);
 
           // If we started drawing within the canvas, draw the next part of the line
           if (drawingLeft) {
@@ -149,7 +177,7 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
             return;
           }
 
-          var mouse = getMouse(e, element[0]);
+          var mouse = getMouse(e, element);
 
           var message = {
             type: 'line',
@@ -166,54 +194,59 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
             message.lineType = 'eraser';
             message.lineWidth = scope.drawWidth[scope.mouseMode];
           }
-          element.draw(message);
           Socket.emit('canvasMessage', message);
+          element.draw(message);
 
           // set current coordinates to last one
           lastX = mouse.x;
           lastY = mouse.y;
         };
 
-        element.draw = function (message) {
+        function drawOnCtx(message, ctx) {
           switch(message.type) {
             case 'line':
               var draw = function() {
-                drawCtx.beginPath();
+                ctx.beginPath();
                 // If the line is zero-length, draw a circle instead
                 if (message.x1 === message.x2 && message.y1 === message.y2) {
-                  drawCtx.arc(message.x1, message.y1, (+message.lineWidth + 1) / 2, 0, 2 * Math.PI);
-                  drawCtx.fillStyle = message.strokeStyle;
-                  drawCtx.fill();
+                  ctx.arc(message.x1, message.y1, (+message.lineWidth + 1) / 2, 0, 2 * Math.PI);
+                  ctx.fillStyle = message.strokeStyle;
+                  ctx.fill();
                 } else {
-                  drawCtx.lineCap = 'round';
-                  drawCtx.moveTo(message.x1, message.y1);
-                  drawCtx.lineTo(message.x2, message.y2);
-                  drawCtx.lineWidth = message.lineWidth;
-                  drawCtx.strokeStyle = message.strokeStyle;
-                  drawCtx.stroke();
+                  ctx.lineCap = 'round';
+                  ctx.moveTo(message.x1, message.y1);
+                  ctx.lineTo(message.x2, message.y2);
+                  ctx.lineWidth = message.lineWidth;
+                  ctx.strokeStyle = message.strokeStyle;
+                  ctx.stroke();
                 }
               };
               if (message.lineType === 'pen') {
                 draw();
               } else if (message.lineType === 'eraser') {
-                var temp = drawCtx.globalCompositeOperation;
-                drawCtx.globalCompositeOperation = 'destination-out';
+                var temp = ctx.globalCompositeOperation;
+                ctx.globalCompositeOperation = 'destination-out';
                 message.strokeStyle = '#000'; // Any colour will do for destination-out erasing
                 draw();
-                drawCtx.globalCompositeOperation = temp;
+                ctx.globalCompositeOperation = temp;
               }
               break;
             case 'rect':
-              drawCtx.fillStyle = message.fillStyle;
-              drawCtx.strokeStyle = message.strokeStyle;
-              drawCtx.fillRect(message.x, message.y, message.width, message.height);
+              ctx.fillStyle = message.fillStyle;
+              ctx.strokeStyle = message.strokeStyle;
+              ctx.fillRect(message.x, message.y, message.width, message.height);
               break;
             case 'clear':
-              clearLayer(drawCtx);
+              clearLayer(ctx);
               break;
             default:
               console.log('Draw message type unknown: ' + message.type);
           }
+        }
+
+        element.draw = function (message) {
+          drawOnCtx(message, drawCtx);
+          drawOnCtx(message, hiddenCtx);
         };
       }
     };

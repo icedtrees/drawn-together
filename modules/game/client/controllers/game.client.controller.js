@@ -76,23 +76,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     }
 
     /*
-     * Helper function to set the cursor style when hovering over the canvas
-     * based on if the user is a drawer or not
-     */
-    function setCursorStyle () {
-      if ($scope.Game.isDrawer($scope.username)) {
-        $scope.canvas[0].style.cursor = 'none';
-      } else {
-        $scope.canvas[0].style.cursor = 'not-allowed';
-      }
-    }
-
-    /*
      * Set the game state based on what the server tells us it currently is
      */
     Socket.on('gameState', function (state) {
       angular.extend($scope.Game, state);
-      setCursorStyle();
     });
 
     /*
@@ -100,7 +87,6 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
      */
     Socket.on('advanceRound', function () {
       $scope.Game.advanceRound();
-      setCursorStyle();
     });
 
     /*
@@ -110,7 +96,6 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       $scope.messages = [];
       $scope.canvas.draw({type: 'clear'});
       $scope.Game.resetGame();
-      setCursorStyle();
     });
 
     /*
@@ -248,6 +233,64 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
         Socket.emit('canvasMessage', message);
       }
     };
+
+    // On window resize, re-calculate optimal sizes for columns and redraw canvas
+    function resizeColumns () {
+      var leftColumn = document.getElementById('left-column');
+      var leftColumnStyle = window.getComputedStyle(leftColumn, null);
+      var middleColumn = document.getElementById('middle-column');
+      var middleColumnStyle = window.getComputedStyle(middleColumn, null);
+      var rightColumn = document.getElementById('right-column');
+      var rightColumnWidth = rightColumn.offsetWidth;
+      var canvas = document.getElementById('drawing-canvas');
+
+      var gameContainer = document.getElementById('game-container');
+      var windowWidth = gameContainer.clientWidth;
+      var windowHeight = gameContainer.clientHeight;
+
+      var leftMinWidth = parseInt(leftColumnStyle.getPropertyValue('min-width'), 10);
+      var leftMaxWidth = parseInt(leftColumnStyle.getPropertyValue('max-width'), 10);
+
+      // Maximum width of middle column possible based on left and right elements
+      var maxMiddleWidth = windowWidth - rightColumn.offsetWidth - leftMinWidth;
+      var middlePadding = parseInt(middleColumnStyle.getPropertyValue('padding-left'), 10) +
+                          parseInt(middleColumnStyle.getPropertyValue('padding-right'), 10);
+
+      // Maximum width of canvas based on maximum width of middle column
+      var maxCanvasWidth = maxMiddleWidth - middlePadding;
+
+      // Maximum width possible to fit vertically and maintain aspect ratio
+      var canvasHeight = canvas.offsetHeight;
+      var aspectRatio = CanvasSettings.RESOLUTION_WIDTH / CanvasSettings.RESOLUTION_HEIGHT;
+
+      var canvasWidth = Math.min(maxMiddleWidth - middlePadding, canvasHeight * aspectRatio);
+      canvasWidth = Math.max(canvasWidth, CanvasSettings.MIN_DISPLAY_WIDTH);
+      middleColumn.style.width = canvasWidth + middlePadding + 'px';
+
+      // Left column width is everything left over
+      var leftColumnWidth = windowWidth - rightColumnWidth - middleColumn.offsetWidth;
+      var spaceLeftOver = leftColumnWidth - leftMaxWidth;
+      leftColumnWidth = Math.min(leftColumnWidth, leftMaxWidth);
+      leftColumn.style.width = leftColumnWidth + 'px';
+
+      // Left and right padding for space left over
+      if (spaceLeftOver > 0) {
+        gameContainer.style.paddingLeft = (spaceLeftOver / 2) + 'px';
+        gameContainer.style.paddingRight = (spaceLeftOver / 2) + 'px';
+      } else {
+        gameContainer.style.paddingLeft = '0px';
+        gameContainer.style.paddingRight = '0px';
+      }
+
+      // Rescale and redraw canvas contents
+      if ($scope.canvas) {
+        $scope.canvas.rescale();
+      }
+    }
+    window.addEventListener('resize', function (e) {
+      resizeColumns();
+    });
+    resizeColumns();
 
     // Remove the event listener when the controller instance is destroyed
     $scope.$on('$destroy', function () {
