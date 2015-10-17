@@ -206,6 +206,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
     // On window resize, re-calculate optimal sizes for columns and redraw canvas
     function resizeColumns () {
       var leftColumn = document.getElementById('left-column');
+      var leftColumnStyle = window.getComputedStyle(leftColumn, null);
       var middleColumn = document.getElementById('middle-column');
       var middleColumnStyle = window.getComputedStyle(middleColumn, null);
       var rightColumn = document.getElementById('right-column');
@@ -216,8 +217,8 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       var windowWidth = gameContainer.clientWidth;
       var windowHeight = gameContainer.clientHeight;
 
-      var leftMinWidth = 400;
-      var leftMaxWidth = 700;
+      var leftMinWidth = parseInt(leftColumnStyle.getPropertyValue('min-width'));
+      var leftMaxWidth = parseInt(leftColumnStyle.getPropertyValue('max-width'));
 
       // Maximum width of middle column possible based on left and right elements
       var maxMiddleWidth = windowWidth - rightColumn.offsetWidth - leftMinWidth;
