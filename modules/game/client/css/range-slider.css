@@ -22,7 +22,7 @@ input[type=range]::-moz-range-track {
   background: #dddddd;
 }
 input[type=range]::-ms-track {
-  height: 5px;
+  height: 12px;
   cursor: pointer;
   border: none;
 
