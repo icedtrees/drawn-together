@@ -59,21 +59,15 @@
   <!-- The middle column -->
   <div id="middle-column" class="col drawing-container" >
     <div class="drawing-header">
+      <div class="drawing-header-buttons">
+        <button class="btn btn-primary" ng-disabled="!Game.isDrawer(username) || Game.correctGuesses !== 0" ng-click="finishDrawing()">Pass</button>
+      </div>
       <div class="drawing-header-text">
         <h3 class="text-center unselectable">
           <span ng-if="Game.currentRound !== undefined && Game.numRounds !== undefined" ng-bind="Game.currentRound < Game.numRounds ? 'Round ' + (Game.currentRound + 1) + ':' : 'Game over!'"></span>
           <span ng-if="Game.getDrawers().length" ng-bind="Game.isDrawer(username) ? 'Draw &quot;' + topic + '&quot;' : Utils.toCommaListIs(Game.getDrawers()) + ' drawing'"></span>
         </h3>
       </div>
-      <div class="drawing-header-buttons">
-        <button class="btn btn-primary" ng-disabled="!Game.isDrawer(username) || Game.correctGuesses !== 0" ng-click="finishDrawing()">Pass</button>
-      </div>
-    </div>
-    <div class="drawing-time-left">
-      <div class="drawing-round-time" ng-style="{width: '70%'}"></div>
-    </div>
-    <div class="drawing-time-left">
-      <div class="drawing-guessed-time" ng-style="{width: '100%'}"></div>
     </div>
     <div id="drawing-canvas" class="dt-drawing" ng-style="{cursor: Game.isDrawer(username) ? 'none' : 'not-allowed'}"></div>
   </div>

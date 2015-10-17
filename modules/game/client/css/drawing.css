@@ -4,20 +4,21 @@
 }
 
 .drawing-header {
-  display: table-row;
   height: 52px; /* Set the height fixed so that elements below do not jump when content is loaded */
   width: 100%;
+  margin-bottom: 10px;
+  vertical-align: middle;
 }
 
 .drawing-header-text {
-  display: table-cell;
   font-size: 26px;
   vertical-align: middle;
-  width: 100%;
+  width: auto;
+  overflow: hidden;
 }
 .drawing-header-buttons {
-  display: table-cell;
-  vertical-align: middle;
+  float: right;
+  margin: 10px auto;
 }
 
 .dt-drawing {
@@ -31,20 +32,3 @@
   position: absolute;
   outline: 1px solid black;
 }
-
-.drawing-time-left {
-  display: table-row;
-  border-top: 1px solid white;
-  border-bottom: 1px solid white;
-  height: 15px;
-  width: 100%;
-}
-.drawing-round-time {
-  background-color: lightgreen;
-  height: 100%;
-}
-.drawing-guessed-time {
-  background-color: lightgrey;
-  height: 100%;
-}
-
