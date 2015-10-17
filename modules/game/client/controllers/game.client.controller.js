@@ -203,6 +203,31 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       }
     };
 
+    // On window resize, re-calculate optimal sizes for columns and redraw canvas
+    function resizeColumns () {
+      var leftColumn = document.getElementById('left-column');
+      var middleColumn = document.getElementById('middle-column');
+      var rightColumn = document.getElementById('right-column');
+
+      var windowWidth = window.innerWidth;
+      var windowHeight = window.innerHeight;
+      console.log(windowWidth, windowHeight);
+
+      var leftMinWidth = 350;
+      var minMargins = 50;
+
+      middleColumn.style.width = windowWidth - rightColumn.offsetWidth - leftMinWidth - (2 * minMargins) + 'px';
+      leftColumn.style.width = windowWidth - rightColumn.offsetWidth - middleColumn.offsetWidth - (2 * minMargins) + 'px';
+      if ($scope.canvas) {
+        $scope.canvas.rescale();
+      }
+      console.log(leftColumn.offsetWidth, middleColumn.offsetWidth, rightColumn.offsetWidth);
+    }
+    window.addEventListener('resize', function (e) {
+      resizeColumns();
+    });
+    resizeColumns();
+
     // Remove the event listener when the controller instance is destroyed
     $scope.$on('$destroy', function () {
       Socket.removeListener('gameMessage');

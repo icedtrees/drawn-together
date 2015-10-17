@@ -59,27 +59,36 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
           return mouseX >= 0 && mouseX < element[0].offsetWidth && mouseY >= 0 && mouseY < element[0].offsetHeight;
         }
 
-        // Aspect ratio
-        var aspectRatio = CanvasSettings.RESOLUTION_WIDTH / CanvasSettings.RESOLUTION_HEIGHT;
-        var width = element[0].offsetWidth;
-        var height = width / aspectRatio;
-        element[0].style.width = width + 'px';
-        element[0].style.height = height + 'px';
-
-        // Figure out scaling
-        element.scaleX = width / CanvasSettings.RESOLUTION_WIDTH;
-        element.scaleY = height / CanvasSettings.RESOLUTION_HEIGHT;
-
         // Create the drawing (main) layer and the preview (hover) layer
         scope.canvas = element;
-        var drawLayer = createLayer(0, width, height);
-        var previewLayer = createLayer(1, width, height);
+        var drawLayer = createLayer(0);
+        var previewLayer = createLayer(1);
         element[0].appendChild(drawLayer);
         element[0].appendChild(previewLayer);
         var drawCtx = drawLayer.getContext('2d');
         var previewCtx = previewLayer.getContext('2d');
-        drawCtx.scale(element.scaleX, element.scaleY);
-        previewCtx.scale(element.scaleX, element.scaleY);
+
+        element.rescale = function () {
+          // Aspect ratio
+          var aspectRatio = CanvasSettings.RESOLUTION_WIDTH / CanvasSettings.RESOLUTION_HEIGHT;
+          var width = element[0].offsetWidth;
+          var height = width / aspectRatio;
+          element[0].style.width = width + 'px';
+          element[0].style.height = height + 'px';
+          drawLayer.setAttribute('width', width);
+          drawLayer.setAttribute('height', height);
+          previewLayer.setAttribute('width', width);
+          previewLayer.setAttribute('height', height);
+
+          // Figure out scaling
+          element.scaleX = width / CanvasSettings.RESOLUTION_WIDTH;
+          element.scaleY = height / CanvasSettings.RESOLUTION_HEIGHT;
+
+          // Scale
+          drawCtx.scale(element.scaleX, element.scaleY);
+          previewCtx.scale(element.scaleX, element.scaleY);
+        };
+        element.rescale();
 
         // Currently drawing with the left mouse button: i.e. mousedown was in canvas and is still down
         var drawingLeft = false;
