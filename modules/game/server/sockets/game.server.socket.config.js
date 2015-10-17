@@ -2,6 +2,7 @@
 
 var ChatSettings = require('../../shared/config/game.shared.chat.config.js');
 var GameLogic = require('../../shared/helpers/game.shared.gamelogic.js');
+var GameSettings = require('../../shared/config/game.shared.game.config.js');
 var Utils = require('../../shared/helpers/game.shared.utils.js');
 var ServerUtils = require('../helpers/game.server.utils.js');
 
@@ -17,6 +18,7 @@ var roundTimeout;
 var Game =  new GameLogic.Game({
   numRounds: 5,
   numDrawers: 1,
+  roundTime: 90,
   timeToEnd: 20
 }); // parameters: numRounds, numDrawers, timeToEnd
 
@@ -155,14 +157,14 @@ module.exports = function (io, socket) {
       broadcastMessage({
         class: 'status',
         text: Utils.toCommaList(Utils.boldList(winners)) + ' won the game on ' +
-              Game.users[winners[0]].score + ' points! The new round will start ' +
+              Game.users[winners[0]].score + ' points! A new game will start ' +
               'in ' + Game.timeToEnd + ' seconds.'
       });
       setTimeout(function () {
         gameMessages = [];
         drawHistory = [];
-        Game.restartGame();
-        io.emit('restartGame');
+        Game.resetGame();
+        io.emit('resetGame');
         sendTopic();
       }, Game.timeToEnd * 1000);
     } else {
@@ -203,6 +205,35 @@ module.exports = function (io, socket) {
     });
   }
 
+  // Start the game
+  socket.on('startGame', function () {
+    if (!Game.started && username === Game.getHost()) {
+      Game.startGame();
+      // tell all clients that the game has started
+      Game.getDrawers().forEach(function (drawer) {
+         // send to drawers again in case numDrawers changes
+        io.to(drawer).emit('topic', topicList[0]);
+      });
+      io.emit('startGame');
+    }
+  });
+
+  // Start the game
+  socket.on('changeSetting', function (change) {
+    if (!Game.started && username === Game.getHost()) {
+      // make sure change uses one of the options given
+      if (GameSettings[change.setting].options.indexOf(change.option) === -1) {
+        return;
+      }
+
+      // apply settings selected by host
+      Game[change.setting] = change.option;
+
+      // tell all clients about the new setting
+      io.emit('updateSetting', change);
+    }
+  });
+
   // Send an updated version of the userlist whenever a user requests an update of the
   // current server state.
   socket.on('requestState', function () {
@@ -219,15 +250,11 @@ module.exports = function (io, socket) {
     if (Game.isDrawer(username)) {
       socket.emit('topic', topicList[0]);
     }
+
   });
   
   // Handle chat messages
   socket.on('gameMessage', function (message) {
-    // The current drawer cannot chat
-    if (Game.isDrawer(username)) {
-      return;
-    }
-
     // Don't trust user data - create a new object from expected user fields
     message = {
       class: 'user-message',
@@ -240,9 +267,14 @@ module.exports = function (io, socket) {
       return;
     }
 
-    // If the game is over, don't check any guesses
-    if (Game.currentRound >= Game.numRounds) {
+    // If game hasn't started, or ended, don't check any guesses
+    if (!Game.started || Game.currentRound >= Game.numRounds) {
       broadcastMessage(message);
+      return;
+    }
+
+    // The current drawer cannot chat
+    if (Game.isDrawer(username)) {
       return;
     }
 
@@ -333,6 +365,10 @@ module.exports = function (io, socket) {
 
   // Send a canvas drawing command to all connected sockets when a message is received
   socket.on('canvasMessage', function (message) {
+    if (!Game.started) {
+      return;
+    }
+
     if (Game.isDrawer(username)) {
       if (message.type === 'clear') {
         drawHistory = [];
@@ -347,6 +383,10 @@ module.exports = function (io, socket) {
 
   // Current drawer has finished drawing
   socket.on('finishDrawing', function () {
+    if (!Game.started) {
+      return;
+    }
+
     // If the user who submitted this message actually is a drawer
     // And prevent round ending prematurely when prompt has been guessed
     if (Game.isDrawer(username) && Game.correctGuesses === 0) {
