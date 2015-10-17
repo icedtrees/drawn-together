@@ -56,36 +56,34 @@
     </div>
   </div>
 
-   <!--The pregame settings panel -->
-  <div class="col drawing-container" ng-hide="Game.started">
-    <div class="drawing-header">
-      <div class="drawing-header-text">
-        <h3 class="text-center unselectable">
-          <span ng-bind="Game.getHost() + ' is choosing the game settings...'"></span>
-        </h3>
-      </div>
-<!--    <li ng-repeat="(setting, value) in GameSettings">
-      <div class="col-md-12">
-        <div class="col-md-3">
-          <span ng-bind="value.settingName"></span>
-        </div>
-        <div class="btn-group" ng-repeat="option in value.options">
-          <div ng-if="Game.getHost() !== username" ng-bind="option" ng-hide="option !== chosenSettings[setting]" class="btn btn-success"></div> &lt;!&ndash; to do: the current setting is highlighted, rather than the rest of the settings ng-hidden &ndash;&gt;
-          <div ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" class="btn btn-success" btn-radio="option" ng-click="changeSetting(setting, option)"><span ng-bind="option"></span></div>
-        </div>
-      </div>
-    </li>-->
+ <!--The pregame settings panel -->
+  <div class="drawing-header" ng-hide="Game.started">
+    <div class="drawing-header-text">
+      <h3 class="text-center unselectable">
+        <span ng-bind="Game.getHost() + ' is choosing the game settings...'"></span>
+      </h3>
     </div>
-    <div class="start-game-div">
-      <button class="btn" ng-hide="Game.getHost() !== username" ng-click="startGame()">Start Game</button>
+  </div>
+<!--  <li ng-repeat="(setting, value) in GameSettings">
+    <div class="col-md-12">
+      <div class="col-md-3">
+        <span ng-bind="value.settingName"></span>
+      </div>
+      <div class="btn-group" ng-repeat="option in value.options">
+        <div ng-if="Game.getHost() !== username" ng-bind="option" ng-hide="option !== chosenSettings[setting]" class="btn btn-success"></div> &lt;!&ndash; to do: the current setting is highlighted, rather than the rest of the settings ng-hidden &ndash;&gt;
+        <div ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" class="btn btn-success" btn-radio="option" ng-click="changeSetting(setting, option)"><span ng-bind="option"></span></div>
+      </div>
     </div>
+  </li>-->
+  <div class="start-game-div" ng-hide="Game.started">
+    <button class="btn" ng-hide="Game.getHost() !== username" ng-click="startGame()">Start Game</button>
   </div>
 
   <!-- The middle column -->
   <div id="middle-column" class="col drawing-container" ng-hide="!Game.started">
     <div class="drawing-header">
-      <div class="drawing-header-buttons">
-        <button class="btn btn-primary" ng-disabled="!Game.isDrawer(username) || Game.correctGuesses !== 0" ng-click="finishDrawing()">Pass</button>
+      <div class="drawing-header-buttons align-vertical">
+        <button class="btn btn-primary " ng-disabled="!Game.isDrawer(username) || Game.correctGuesses !== 0" ng-click="finishDrawing()">Pass</button>
       </div>
       <div class="drawing-header-text">
         <h3 class="text-center unselectable">

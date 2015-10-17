@@ -18,10 +18,10 @@ var timerSet = false; // only set server timer once
 
 // Game object encapsulating game logic
 var Game =  new GameLogic.Game({
-  numRounds: 5,
+  numRounds: GameSettings.numRounds.default,
   numDrawers: 1,
-  roundTime: 90,
-  timeAfterGuess: 20
+  roundTime: GameSettings.roundTime.default,
+  timeAfterGuess: GameSettings.timeAfterGuess.default
 });
 
 // Dictionary counting number of connects made by each user

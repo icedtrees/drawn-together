@@ -11,7 +11,7 @@
   border: 1px solid #2d2b4b;
   padding: 10px;
 }
-.vertical-align {
+.align-vertical {
   position: relative;
   top: 50%;
   transform: translateY(-50%);

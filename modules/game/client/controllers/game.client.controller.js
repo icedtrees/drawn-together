@@ -14,7 +14,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     $scope.chosenSettings = {
       numRounds : GameSettings.numRounds.default,
       roundTime : GameSettings.roundTime.default,
-      timeToEnd : GameSettings.timeToEnd.default
+      timeAfterGuess : GameSettings.timeAfterGuess.default
     };
 
     // Create a messages array to store chat messages

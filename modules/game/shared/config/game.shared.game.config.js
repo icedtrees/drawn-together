@@ -13,7 +13,7 @@
         default: 90,
         options: [45, 60, 90, 120]
     };
-    exports.timeToEnd = {
+    exports.timeAfterGuess = {
         settingName: "Time after first correct guess",
         default: 20,
         options: [10, 20, 30]
