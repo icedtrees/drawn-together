@@ -27,13 +27,13 @@ describe('User Model Unit Tests:', function () {
     user2 = user1;
     user3 = {
       email: 'test3@test.com',
-      username: 'differentusername',
+      username: 'username2',
       password: 'Different_Password1!',
       provider: 'local'
     };
     // user4 is a clone of user1 with a differently cased username
     user4 = {
-      email: 'test@test.com',
+      email: 'test4@test.com',
       username: 'UseRname',
       password: 'M3@n.jsI$Aw3$0m3',
       provider: 'local'
