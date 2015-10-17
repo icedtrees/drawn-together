@@ -212,10 +212,12 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
       var rightColumnWidth = rightColumn.offsetWidth + 5;
       var canvas = document.getElementById('drawing-canvas');
 
-      var windowWidth = document.getElementById('game-container').clientWidth;
-      var windowHeight = document.getElementById('game-container').clientHeight;
+      var gameContainer = document.getElementById('game-container');
+      var windowWidth = gameContainer.clientWidth;
+      var windowHeight = gameContainer.clientHeight;
 
       var leftMinWidth = 400;
+      var leftMaxWidth = 700;
 
       // Maximum width of middle column possible based on left and right elements
       var maxMiddleWidth = windowWidth - rightColumn.offsetWidth - leftMinWidth;
@@ -231,10 +233,22 @@ angular.module('game').controller('GameController', ['$scope', '$location', 'Aut
 
       var canvasWidth = Math.min(maxMiddleWidth, canvasHeight * aspectRatio);
       canvasWidth = Math.max(canvasWidth, 0);
-
-      // Set widths
       middleColumn.style.width = canvasWidth + middlePadding + 'px';
-      leftColumn.style.width = windowWidth - rightColumnWidth - middleColumn.offsetWidth + 'px';
+
+      // Left column width is everything left over
+      var leftColumnWidth = windowWidth - rightColumnWidth - middleColumn.offsetWidth;
+      var spaceLeftOver = leftColumnWidth - leftMaxWidth;
+      leftColumnWidth = Math.min(leftColumnWidth, leftMaxWidth);
+      leftColumn.style.width = leftColumnWidth + 'px';
+
+      // Left and right padding for space left over
+      if (spaceLeftOver > 0) {
+        gameContainer.style.paddingLeft = (spaceLeftOver / 2) + 'px';
+        gameContainer.style.paddingRight = (spaceLeftOver / 2) + 'px';
+      } else {
+        gameContainer.style.paddingLeft = '0px';
+        gameContainer.style.paddingRight = '0px';
+      }
 
       // Rescale and redraw canvas contents
       if ($scope.canvas) {
