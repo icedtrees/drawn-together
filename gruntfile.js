@@ -106,7 +106,9 @@ module.exports = function (grunt) {
         csslintrc: '.csslintrc'
       },
       all: {
-        src: defaultAssets.client.css
+        src: defaultAssets.client.css.slice().concat(
+          defaultAssets.client.csslint_exclude.map(function (s) { return '!' + s })
+        )
       }
     },
     ngAnnotate: {
@@ -152,7 +154,7 @@ module.exports = function (grunt) {
           src: defaultAssets.client.less,
           ext: '.css',
           rename: function (base, src) {
-            return src.replace('/less/', '/css/');
+            return 'public/' + src.replace('/less/', '/css/');
           }
 				}]
       }
@@ -194,7 +196,10 @@ module.exports = function (grunt) {
     },
     karma: {
       unit: {
-        configFile: 'karma.conf.js'
+        configFile: 'karma.conf.js',
+        options: {
+          singleRun: true
+        }
       }
     },
     protractor: {
@@ -256,6 +261,38 @@ module.exports = function (grunt) {
     });
   });
 
+  grunt.registerTask('mongo-drop', 'Drop mongodb database.', function() {
+    var options,
+        mongoose = require('mongoose'),
+        done = this.async(),
+        db;
+
+    options = this.options({
+      dbname: 'mean-dev',
+      host: 'localhost'
+    });
+
+    grunt.verbose.writeflags(options, 'Options');
+
+    db = mongoose.connect('mongodb://' + options.host + '/' + options.dbname, function(err) {
+      if (err) {
+        grunt.log.writeln('Could not connect to mongodb -- is mongo running?');
+        done(err);
+      } else {
+        grunt.log.writeln('Open db connection');
+        db.connection.db.dropDatabase(function(err) {
+          if (err) {
+            grunt.log.writeln('Could not drop database');
+            done(err);
+          } else {
+            grunt.log.writeln('Database dropped');
+            done();
+          }
+        });
+      }
+    });
+  });
+
   grunt.task.registerTask('server', 'Starting the server', function () {
     // Get the callback
     var done = this.async();
@@ -268,12 +305,12 @@ module.exports = function (grunt) {
   });
 
   grunt.task.registerTask('install', 'install the backend and frontend dependencies', function() {
-      var exec = require('child_process').exec;
-      var cb = this.async();
-      exec('npm install', {}, function(err, stdout, stderr) {
-          console.log(stdout);
-          cb();
-      });
+    var exec = require('child_process').exec;
+    var cb = this.async();
+    exec('npm install', {}, function(err, stdout, stderr) {
+      console.log(stdout);
+      cb();
+    });
   });
 
   // Lint CSS and JavaScript files.

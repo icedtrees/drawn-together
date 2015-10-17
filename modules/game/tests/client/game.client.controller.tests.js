@@ -33,8 +33,8 @@
         });
       }));
 
-      it('should redirect logged out user to /', function () {
-        expect($location.path).toHaveBeenCalledWith('/');
+      it('should redirect logged out user to /authentication/signin', function () {
+        expect($location.path).toHaveBeenCalledWith('/authentication/signin');
       });
     });
 
@@ -57,11 +57,6 @@
       it('should define messages array', function () {
         expect(scope.messages).toBeDefined();
         expect(scope.messages.length).toBe(0);
-      });
-
-      it('should define users array', function () {
-        expect(scope.users).toBeDefined();
-        expect(scope.users.length).toBe(0);
       });
 
       describe('sendMessage', function () {

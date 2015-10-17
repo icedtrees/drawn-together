@@ -129,10 +129,6 @@ publish/
 *.pubxml
 *.publishproj
 
-# NuGet Packages Directory
-## TODO: If you have NuGet Package Restore enabled, uncomment the next line
-#packages/
-
 # Windows Azure Build Output
 csx
 *.build.csdef
@@ -250,6 +246,9 @@ node_modules
 
 # Possibly created by whatever webserver/middleware we have?
 public/*
+
+# Profile picture uploads from user
+modules/users/client/img/profile/uploads/*
 
 #################
 ## WebStorm

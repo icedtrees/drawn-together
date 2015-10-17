@@ -17,13 +17,13 @@ angular.module('users').config(['$stateProvider',
         url: '/profile',
         templateUrl: 'modules/users/client/views/settings/edit-profile.client.view.html'
       })
-      .state('settings.password', {
-        url: '/password',
+      .state('settings.change-password', {
+        url: '/change-password',
         templateUrl: 'modules/users/client/views/settings/change-password.client.view.html'
       })
-      .state('settings.accounts', {
-        url: '/accounts',
-        templateUrl: 'modules/users/client/views/settings/manage-social-accounts.client.view.html'
+      .state('settings.remove-password', {
+        url: '/remove-password',
+        templateUrl: 'modules/users/client/views/settings/remove-password.client.view.html'
       })
       .state('settings.picture', {
         url: '/picture',

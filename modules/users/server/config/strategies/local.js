@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 var passport = require('passport'),
-  LocalStrategy = require('passport-local').Strategy,
+  LocalStrategy = require('passport-local-optional-password').Strategy,
   User = require('mongoose').model('User');
 
 module.exports = function () {
@@ -15,14 +15,19 @@ module.exports = function () {
     },
     function (username, password, done) {
       User.findOne({
-        username: username.toLowerCase()
+        username : new RegExp('^' + username + '$', 'i')
       }, function (err, user) {
         if (err) {
           return done(err);
         }
-        if (!user || !user.authenticate(password)) {
+
+        if (user && user.authenticate && !user.authenticate(password)) {
           return done(null, false, {
-            message: 'Invalid username or password'
+            message: 'Invalid password'
+          });
+        } else if (!user) {
+          return done(null, false, {
+            message: 'Invalid username'
           });
         }
 

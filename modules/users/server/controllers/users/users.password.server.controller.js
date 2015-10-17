@@ -36,10 +36,6 @@ exports.forgot = function (req, res, next) {
             return res.status(400).send({
               message: 'No account with that username has been found'
             });
-          } else if (user.provider !== 'local') {
-            return res.status(400).send({
-              message: 'It seems like you signed up using your ' + user.provider + ' account'
-            });
           } else {
             user.resetPasswordToken = token;
             user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
@@ -249,6 +245,55 @@ exports.changePassword = function (req, res, next) {
         message: 'Please provide a new password'
       });
     }
+  } else {
+    res.status(400).send({
+      message: 'User is not signed in'
+    });
+  }
+};
+
+/**
+ * Remove Password
+ */
+exports.removePassword = function (req, res, next) {
+  // Init Variables
+  var passwordDetails = req.body;
+  var message = null;
+
+  if (req.user) {
+    User.findById(req.user.id, function (err, user) {
+      if (!err && user) {
+        if (user.authenticate(passwordDetails.currentPassword)) {
+            user.password = '';
+
+            user.save(function (err) {
+              if (err) {
+                return res.status(400).send({
+                  message: errorHandler.getErrorMessage(err)
+                });
+              } else {
+                req.login(user, function (err) {
+                  if (err) {
+                    res.status(400).send(err);
+                  } else {
+                    res.send({
+                      message: 'Password removed successfully'
+                    });
+                  }
+                });
+              }
+            });
+        } else {
+          res.status(400).send({
+            message: 'Current password is incorrect'
+          });
+        }
+      } else {
+        res.status(400).send({
+          message: 'User is not found'
+        });
+      }
+    });
   } else {
     res.status(400).send({
       message: 'User is not signed in'
