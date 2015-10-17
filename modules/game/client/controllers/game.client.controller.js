@@ -248,13 +248,13 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       var windowWidth = gameContainer.clientWidth;
       var windowHeight = gameContainer.clientHeight;
 
-      var leftMinWidth = parseInt(leftColumnStyle.getPropertyValue('min-width'));
-      var leftMaxWidth = parseInt(leftColumnStyle.getPropertyValue('max-width'));
+      var leftMinWidth = parseInt(leftColumnStyle.getPropertyValue('min-width'), 10);
+      var leftMaxWidth = parseInt(leftColumnStyle.getPropertyValue('max-width'), 10);
 
       // Maximum width of middle column possible based on left and right elements
       var maxMiddleWidth = windowWidth - rightColumn.offsetWidth - leftMinWidth;
-      var middlePadding = parseInt(middleColumnStyle.getPropertyValue('padding-left')) +
-                          parseInt(middleColumnStyle.getPropertyValue('padding-right'));
+      var middlePadding = parseInt(middleColumnStyle.getPropertyValue('padding-left'), 10) +
+                          parseInt(middleColumnStyle.getPropertyValue('padding-right'), 10);
 
       // Maximum width of canvas based on maximum width of middle column
       var maxCanvasWidth = maxMiddleWidth - middlePadding;
