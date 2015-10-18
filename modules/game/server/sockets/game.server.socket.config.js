@@ -14,6 +14,7 @@ var levenshtein = clj_fuzzy.metrics.levenshtein;
 
 // Server timer
 var timer;
+var timerInterval;
 var timerSet = false; // only set server timer once
 
 // Game object encapsulating game logic
@@ -117,8 +118,9 @@ function matchingWords(guess, topic) {
 // Create the game configuration
 module.exports = function (io, socket) {
   if (!timerSet) {
+    timer = new Utils.Timer();
     timerSet = true;
-    timer = new Utils.Timer(tick);
+    timerInterval = setInterval(tick, 1000);
   }
 
   function broadcastMessage(message) {
@@ -140,7 +142,7 @@ module.exports = function (io, socket) {
     var newDrawersAre = Utils.toCommaListIs(Utils.boldList(Game.getDrawers()));
     broadcastMessage({
       class: 'status',
-      text: newDrawersAre + ' now drawing.'
+      text: newDrawersAre + ' now drawing'
     });
   }
 
@@ -157,7 +159,7 @@ module.exports = function (io, socket) {
     // Explain what the word was
     broadcastMessage({
       class: 'status',
-      text: 'Round over! The topic was "' + topicList[0] + '"'
+      text: 'The prompt was "' + topicList[0] + '"'
     });
 
     if (gameFinished) {
@@ -166,14 +168,14 @@ module.exports = function (io, socket) {
         class: 'status',
         text: Utils.toCommaList(Utils.boldList(winners)) + ' won the game on ' +
               Game.users[winners[0]].score + ' points! A new game will start ' +
-              'in ' + GameSettings.TIME_BETWEEN_ROUNDS + ' seconds.'
+              'in ' + GameSettings.TIME_BETWEEN_GAMES + ' seconds'
       });
       io.emit('gameFinished');
       setTimeout(function () {
         drawHistory = [];
         Game.resetGame();
         io.emit('resetGame');
-      }, GameSettings.TIME_BETWEEN_ROUNDS * 1000);
+      }, GameSettings.TIME_BETWEEN_GAMES * 1000);
     } else {
       startRound();
     }
@@ -206,8 +208,9 @@ module.exports = function (io, socket) {
   function timesUp() {
     broadcastMessage({
       class: 'status',
-      text: "Time's up! No one guessed " + username + "'s drawing"
+      text: Game.correctGuesses === 0 ? "Time's up! No one guessed " + username + "'s drawing" : 'Round over!'
     });
+
     advanceRound();
   }
 
@@ -216,15 +219,33 @@ module.exports = function (io, socket) {
       return;
     }
 
-    var timeLeft = --timer.timeLeft;
+    timer.timeLeft--;
+    var timeLeft = timer.timeLeft;
     io.emit('updateTime', timeLeft);
+
+    if (timeLeft === 20) {
+      broadcastMessage({
+        class: 'status',
+        text: '20 seconds left.'
+      });
+    }
+
+    if (timeLeft === 10) {
+      broadcastMessage({
+        class: 'status',
+        text: '10 seconds left.'
+      });
+    }
+
     if (timeLeft <= 0)  {
       timesUp();
     }
   }
 
   function setTimer(time) {
-    timer.setTimer(time);
+    clearInterval(timerInterval);
+    timerInterval = setInterval(tick, 1000);
+    timer.timeLeft = time;
     io.emit('updateTime', time);
   }
 
@@ -362,6 +383,10 @@ module.exports = function (io, socket) {
 
       // End round if everyone has guessed
       if (Game.allGuessed()) {
+        broadcastMessage({
+          class: 'status',
+          text: 'Round over! Everyone has guessed correctly!'
+        });
         advanceRound();
       } else if (Game.correctGuesses === 1) {
         // Start timer to end round if this is the first correct guess

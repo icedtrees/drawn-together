@@ -4,7 +4,7 @@
 }
 
 .drawing-header {
-  height: 78px; /* Set the height fixed so that elements below do not jump when content is loaded */
+  height: 52px; /* Set the height fixed so that elements below do not jump when content is loaded */
   width: 100%;
   margin-bottom: 10px;
   vertical-align: middle;

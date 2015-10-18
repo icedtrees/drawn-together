@@ -14,27 +14,15 @@
     return exports.toCommaList(array) + (array.length === 1 ? ' is' : ' are');
   };
 
-  exports.Timer = function (serverTick) {
-    this.timeLeft = 0; // timer that counts down
-    this.paused = true;
-
-    this.tick = function () {
-      serverTick();
-    };
-
-    this.timer = setInterval(this.tick, 1000);
-
-    this.setTimer = function (time) {
-      clearInterval(this.timer);
-      this.timer = setInterval(this.tick, 1000);
-      this.timeLeft = time;
-    };
-  };
-
   exports.boldList = function (array) {
     return array.map(function (item) {
       return '<b>' + item + '</b>';
     });
+  };
+
+  exports.Timer = function () {
+    this.timeLeft;
+    this.paused = true;
   };
 
 })((typeof process === 'undefined' || !process.versions) ? // Not a node.js environment

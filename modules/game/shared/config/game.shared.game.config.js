@@ -1,7 +1,7 @@
 'use strict';
 
 (function(exports) {
-    exports.TIME_BETWEEN_ROUNDS = 10;
+    exports.TIME_BETWEEN_GAMES = 10;
 
     exports.numRounds = {
         settingName : "Number of rounds",
