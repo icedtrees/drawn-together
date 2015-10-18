@@ -148,7 +148,6 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
                   previewCtx.strokeStyle = '#000';
                   previewCtx.lineWidth = 1;
                   previewCtx.stroke();
-                  console.log(scope.penColour);
                 }
                 previewCtx.fillStyle = scope.penColour;
                 previewCtx.fill();
