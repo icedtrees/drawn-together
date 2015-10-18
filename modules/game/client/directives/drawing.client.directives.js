@@ -143,12 +143,18 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
                 // Solid circle with the matching pen colour
                 previewCtx.beginPath();
                 previewCtx.arc(mouse.x, mouse.y, (+scope.drawWidth[scope.mouseMode] + 1) / 2, 0, Math.PI * 2);
-                // Add black outline if the penColour is white or yellow
-                if (scope.penColour === scope.paletteColours[0][2].value || scope.penColour === scope.paletteColours[2][2].value) {
-                  previewCtx.strokeStyle = '#000';
-                  previewCtx.lineWidth = 1;
-                  previewCtx.stroke();
-                }
+
+                // Add outline of most contrasting colour
+                var r = parseInt('0x' + scope.penColour.substring(1, 3));
+                var g = parseInt('0x' + scope.penColour.substring(3, 5));
+                var b = parseInt('0x' + scope.penColour.substring(5, 7));
+                // Convert colour to grey-scale. Formula taken from http://stackoverflow.com/questions/9780632/how-do-i-determine-if-a-color-is-closer-to-white-or-black
+                var luminance = 0.2126*r + 0.7152*g + 0.0722*b;
+                // Choose the more contrasting colour (black/white) according to luminance
+                previewCtx.strokeStyle = luminance < 128 ? '#fff' : '#000';
+                previewCtx.lineWidth = 1;
+                previewCtx.stroke();
+
                 previewCtx.fillStyle = scope.penColour;
                 previewCtx.fill();
               } else if (scope.mouseMode === 'eraser') {

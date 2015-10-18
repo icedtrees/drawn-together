@@ -46,11 +46,11 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     $scope.paletteColours = [
       // [{title: 'red', value: '#FF0000'}, {title: 'orange', value: 'orange'}, {title: 'yellow', value: 'yellow'}],
       // [{title: 'green', value: '#00FF00'}, {title: 'blue', value: '#0000FF'}, {title: 'indigo', value: 'indigo'}],
-      [{title: 'black', value: 'black'}, {title: 'grey', value: 'grey'}, {title: 'white', value: 'white'}],
-      [{title: 'dark brown', value: 'brown'}, {title: 'light brown', value: 'sandybrown'}, {title: 'pink', value: 'pink'}],
-      [{title: 'red', value: 'red'}, {title: 'orange', value: 'orange'}, {title: 'yellow', value: '#FFF200'}],
-      [{title: 'dark green', value: 'darkgreen'}, {title: 'green', value: 'green'}, {title: 'light green', value: 'lightgreen'}],
-      [{title: 'dark blue', value: 'darkblue'}, {title: 'blue', value: 'blue'}, {title: 'light blue', value: 'lightblue'}]
+      [{title: 'black', value: '#000000'}, {title: 'grey', value: '#808080'}, {title: 'white', value: '#FFFFFF'}],
+      [{title: 'dark brown', value: '#A52A2A'}, {title: 'light brown', value: '#F4A460'}, {title: 'pink', value: '#FFC0CB'}],
+      [{title: 'red', value: '#FF0000'}, {title: 'orange', value: '#FFA500'}, {title: 'yellow', value: '#FFF200'}],
+      [{title: 'dark green', value: '#006400'}, {title: 'green', value: '#008000'}, {title: 'light green', value: '#90EE90'}],
+      [{title: 'dark blue', value: '#00008B'}, {title: 'blue', value: '#0000FF'}, {title: 'light blue', value: '#ADD8E6'}]
     ];
 
     $scope.Game = new GameLogic.Game();
