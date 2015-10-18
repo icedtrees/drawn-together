@@ -83,6 +83,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
 
       // We now know what the state of the game is, so we can resize appropriately
       resizeColumns();
+      resizeColumns();
     });
 
     /*
@@ -187,6 +188,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
 
       // Game layout changes, resize to get the toolbox to display properly
       resizeColumns();
+      resizeColumns();
     });
 
     // Server tells client a setting has been updated
@@ -267,7 +269,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
         middleColumn.style.display = 'flex';
         rightColumn.style.display = 'block';
         var middleColumnStyle = window.getComputedStyle(middleColumn, null);
-        var rightColumnWidth = rightColumn.offsetWidth;
+        var rightColumnWidth = rightColumn.offsetWidth + 10;
 
         // Maximum width of middle column possible based on left and right elements
         var maxMiddleWidth = windowWidth - rightColumn.offsetWidth - leftMinWidth;
@@ -293,12 +295,12 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
           $scope.canvas.rescale();
         }
       } else {
-        settings.style.display = 'inline-block';
+        settings.style.display = 'block';
         middleColumn.style.display = 'none';
         rightColumn.style.display = 'none';
 
         // Settings width is pretty much everything except leftMinWidth
-        var settingsWidth = windowWidth - leftMinWidth - 20;
+        var settingsWidth = windowWidth - leftMinWidth;
 
         settings.style.width = settingsWidth + 'px';
         spaceLeftOver = windowWidth - settings.offsetWidth;
