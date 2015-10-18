@@ -80,6 +80,9 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
      */
     Socket.on('gameState', function (state) {
       angular.extend($scope.Game, state);
+
+      // We now know what the state of the game is, so we can resize appropriately
+      resizeColumns();
     });
 
     /*
@@ -96,6 +99,11 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       $scope.messages = [];
       $scope.canvas.draw({type: 'clear'});
       $scope.Game.resetGame();
+
+      // Game layout changes, resize to get the toolbox to display properly
+      // No idea why this has to be done twice
+      resizeColumns();
+      resizeColumns();
     });
 
     /*
@@ -176,6 +184,9 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     Socket.on('startGame', function(settings) {
       angular.extend($scope.Game, settings);
       $scope.Game.startGame();
+
+      // Game layout changes, resize to get the toolbox to display properly
+      resizeColumns();
     });
 
     // Server tells client a setting has been updated
@@ -238,10 +249,9 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     function resizeColumns () {
       var leftColumn = document.getElementById('left-column');
       var leftColumnStyle = window.getComputedStyle(leftColumn, null);
+      var settings = document.getElementById('settings');
       var middleColumn = document.getElementById('middle-column');
-      var middleColumnStyle = window.getComputedStyle(middleColumn, null);
       var rightColumn = document.getElementById('right-column');
-      var rightColumnWidth = rightColumn.offsetWidth;
       var canvas = document.getElementById('drawing-canvas');
 
       var gameContainer = document.getElementById('game-container');
@@ -251,27 +261,51 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       var leftMinWidth = parseInt(leftColumnStyle.getPropertyValue('min-width'), 10);
       var leftMaxWidth = parseInt(leftColumnStyle.getPropertyValue('max-width'), 10);
 
-      // Maximum width of middle column possible based on left and right elements
-      var maxMiddleWidth = windowWidth - rightColumn.offsetWidth - leftMinWidth;
-      var middlePadding = parseInt(middleColumnStyle.getPropertyValue('padding-left'), 10) +
-                          parseInt(middleColumnStyle.getPropertyValue('padding-right'), 10);
+      var spaceLeftOver;
+      if ($scope.Game.started) {
+        settings.style.display = 'none';
+        middleColumn.style.display = 'flex';
+        rightColumn.style.display = 'block';
+        var middleColumnStyle = window.getComputedStyle(middleColumn, null);
+        var rightColumnWidth = rightColumn.offsetWidth;
 
-      // Maximum width of canvas based on maximum width of middle column
-      var maxCanvasWidth = maxMiddleWidth - middlePadding;
+        // Maximum width of middle column possible based on left and right elements
+        var maxMiddleWidth = windowWidth - rightColumn.offsetWidth - leftMinWidth;
+        var middlePadding = parseInt(middleColumnStyle.getPropertyValue('padding-left'), 10) +
+          parseInt(middleColumnStyle.getPropertyValue('padding-right'), 10);
 
-      // Maximum width possible to fit vertically and maintain aspect ratio
-      var canvasHeight = canvas.offsetHeight;
-      var aspectRatio = CanvasSettings.RESOLUTION_WIDTH / CanvasSettings.RESOLUTION_HEIGHT;
+        // Maximum width of canvas based on maximum width of middle column
+        var maxCanvasWidth = maxMiddleWidth - middlePadding;
 
-      var canvasWidth = Math.min(maxMiddleWidth - middlePadding, canvasHeight * aspectRatio);
-      canvasWidth = Math.max(canvasWidth, CanvasSettings.MIN_DISPLAY_WIDTH);
-      middleColumn.style.width = canvasWidth + middlePadding + 'px';
+        // Maximum width possible to fit vertically and maintain aspect ratio
+        var canvasHeight = canvas.offsetHeight;
+        var aspectRatio = CanvasSettings.RESOLUTION_WIDTH / CanvasSettings.RESOLUTION_HEIGHT;
 
-      // Left column width is everything left over
-      var leftColumnWidth = windowWidth - rightColumnWidth - middleColumn.offsetWidth;
-      var spaceLeftOver = leftColumnWidth - leftMaxWidth;
-      leftColumnWidth = Math.min(leftColumnWidth, leftMaxWidth);
+        var canvasWidth = Math.min(maxMiddleWidth - middlePadding, canvasHeight * aspectRatio);
+        canvasWidth = Math.max(canvasWidth, CanvasSettings.MIN_DISPLAY_WIDTH);
+        middleColumn.style.width = canvasWidth + middlePadding + 'px';
+
+        // Left column width is everything left over
+        spaceLeftOver = windowWidth - rightColumnWidth - middleColumn.offsetWidth;
+
+        // Rescale and redraw canvas contents
+        if ($scope.canvas) {
+          $scope.canvas.rescale();
+        }
+      } else {
+        settings.style.display = 'inline-block';
+        middleColumn.style.display = 'none';
+        rightColumn.style.display = 'none';
+
+        // Settings width is pretty much everything except leftMinWidth
+        var settingsWidth = windowWidth - leftMinWidth - 20;
+
+        settings.style.width = settingsWidth + 'px';
+        spaceLeftOver = windowWidth - settings.offsetWidth;
+      }
+      var leftColumnWidth = Math.min(spaceLeftOver, leftMaxWidth);
       leftColumn.style.width = leftColumnWidth + 'px';
+      spaceLeftOver -= leftMaxWidth;
 
       // Left and right padding for space left over
       if (spaceLeftOver > 0) {
@@ -281,16 +315,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
         gameContainer.style.paddingLeft = '0px';
         gameContainer.style.paddingRight = '0px';
       }
-
-      // Rescale and redraw canvas contents
-      if ($scope.canvas) {
-        $scope.canvas.rescale();
-      }
     }
     window.addEventListener('resize', function (e) {
       resizeColumns();
     });
-    resizeColumns();
 
     // Remove the event listener when the controller instance is destroyed
     $scope.$on('$destroy', function () {
