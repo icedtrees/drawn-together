@@ -143,6 +143,13 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
                 // Solid circle with the matching pen colour
                 previewCtx.beginPath();
                 previewCtx.arc(mouse.x, mouse.y, (+scope.drawWidth[scope.mouseMode] + 1) / 2, 0, Math.PI * 2);
+                // Add black outline if the penColour is white or yellow
+                if (scope.penColour === scope.paletteColours[0][2].value || scope.penColour === scope.paletteColours[2][2].value) {
+                  previewCtx.strokeStyle = '#000';
+                  previewCtx.lineWidth = 1;
+                  previewCtx.stroke();
+                  console.log(scope.penColour);
+                }
                 previewCtx.fillStyle = scope.penColour;
                 previewCtx.fill();
               } else if (scope.mouseMode === 'eraser') {
