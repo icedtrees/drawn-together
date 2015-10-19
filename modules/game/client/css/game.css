@@ -6,9 +6,12 @@
 }
 
 .left-sidebar {
-  display: -webkit-flex;
   display: flex;
-  flex-direction: column;
+  display: -webkit-flex;
+  display: -ms-flex;
+  flex-direction:column;
+  -ms-flex-direction:column;
+  -webkit-flex-direction:column;
   height: 100%;
   padding-bottom: 10px;
   min-width: 400px;
