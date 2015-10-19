@@ -4,8 +4,8 @@
 angular.module('game').config(['$stateProvider',
   function ($stateProvider) {
     $stateProvider
-      .state('home', {
-        url: '/',
+      .state('game', {
+        url: '/game',
         templateUrl: 'modules/game/client/views/game.client.view.html',
         data: {
           roles: ['user', 'admin']
