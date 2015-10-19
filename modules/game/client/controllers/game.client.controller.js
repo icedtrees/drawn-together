@@ -319,6 +319,8 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
         gameContainer.style.paddingLeft = '0px';
         gameContainer.style.paddingRight = '0px';
       }
+
+      $scope.loaded = true; // We can display things now
     }
     window.addEventListener('resize', function (e) {
       resizeColumns();
