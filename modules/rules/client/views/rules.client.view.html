@@ -1,40 +1,141 @@
 <!-- The rules view -->
 <section class="container" ng-controller="RulesController">
   <div class="page-header">
-    <h1>Rules Example</h1>
+    <h1>Rules</h1>
   </div>
-  <h3>Rules for a Default Game</h3>
-  A game lasts 15 minutes. It is made up of rounds.<br><br>
-  Each round has a drawer. All other players in the room are guessers. <br><br>
-  <b>The drawer will be given a prompt that only they can see</b>, and have 90 seconds to draw the prompt on the canvas.<br>
-  Drawers are not allowed to write letters or numbers. In general, drawers should just draw the prompt instead of trying
-  to get around restrictions. However, it is acceptable to split compound words into individual words. For example when
-  given the prompt "paper boat", one could draw paper, a plus sign, and a boat. Ultimately, the rules are enforced by the
-  room host rather than the game, and if players disagree with the rules of the host, they are encouraged to host their
-  own room.<br><br>
-  <b>Guessers can make guesses in the guess box</b> while the drawer is drawing.<br>
-  All players can see what the guesses are, unless a guess is close to the prompt, in which case the person who made that
-  guess will be notified that they are close, and their guess only visible to them. When the prompt is guessed correctly,
-  the drawer and the person who guessed correctly will each get N points, where N is the number of players in the room,
-  and the remaining time of the round will be cut to 15 seconds, unless it was already less. The drawer will receive an
-  additional point for each guesser who guesses correctly after the first, and those guessers will receive one point
-  less than the person who guessed correctly before them.<br>
-  Each round, drawers are given a "Get Different Prompt" option, which allows them to discard the current prompt and
-  draw a new one. They are only allowed to do this once. Drawers are also given the "End Round" option which skips
-  their turn if they do not wish to draw. This cannot be used if a guesser has already guessed the prompt.<br><br>
-  After the last round, the player with the most points wins!
 
-  <h3> Custom Settings </h3>
-  <!--Hosts can modify:
-  <list>
-    <li> the length of a game to be between 10 and 30 minutes</li>
-    <li> the length of a round to be between 30 and 180 seconds</li>
-    <li> the remaining length of a round after the prompt is first guessed correctly</li>
-  </list>-->
-  Coming Soon! ...
-  <h3> Custom Game Modes </h3>
-  <!--<list>
-  <li><b>Co-op mode:</b> Prompts are drawn by teams, whose members are given alternating time slices to contribute to the drawing.</li>
-  <li><b>VIM mode:</b> The drawer can only draw using keyboard commands. </li>-->
-  Coming Soon! ...
+  <div class="col-sm-12 col-md-6">
+    <h1>Getting Started</h1>
+    <div class="thumbnail">
+      <img src="modules/rules/client/img/round.png" alt="The round number is displayed above the canvas."/>
+      <div class="caption">
+        <blockquote><b>Each game is made up of a number of rounds.</b> Each round has a drawer.</blockquote>
+        The current round and current drawer are displayed in the middle column of the game page.
+      </div>
+    </div>
+
+    <div class="thumbnail">
+      <img src="modules/rules/client/img/players.png" alt="In this room there are 3 players: 1 drawer and 2 guessers."/>
+      <div class="caption">
+        <blockquote>The player list shows the usernames and points of all the players in the room.
+          <b>After the last round, the player with the most points wins!</b></blockquote>
+        In the player list, the drawer's username is bolded.<sup>1</sup> All other players in the room are guessers.<sup>2</sup>
+        The drawer changes each round according to the order in the player list. The player list also shows the number of points
+        each user has to the right of their username. The current and maximum number of players is displayed at the top of the player list.
+      </div>
+    </div>
+
+    <div class="thumbnail">
+      <img src="modules/rules/client/img/drawer.png" alt="The drawer tries to draw a drain on the canvas."/>
+      <div class="caption">
+        <blockquote><p>
+          <b>The drawer will be given a prompt that only they can see</b>, and have 90 seconds to draw the prompt on the canvas.
+        </p></blockquote>
+
+        Drawers are not allowed to write letters or numbers. In general, drawers should just draw the prompt instead of trying
+        to get around restrictions. However, it is acceptable to split compound words into individual words. For example when
+        given the prompt "paper boat", one could draw paper, a plus sign, and a boat. Ultimately, the rules are enforced by the
+        room host rather than the game. If players disagree with the rules of the host, they are encouraged to host their
+        own room.
+      </div>
+    </div>
+
+    <div class="thumbnail">
+      <img src="modules/rules/client/img/guess.png"/>
+      <div class="caption">
+        <blockquote><p>
+          <b>Guessers can make guesses in the guess box</b> while the drawer is drawing.
+        </p></blockquote>
+        All players can see what the guesses are, unless a guess is close to the prompt. If the guess is close to the prompt,
+        the person who made that guess will be notified that they are close, and their guess only visible to them. When the prompt is guessed correctly,
+        the drawer and the person who guessed correctly will each get N points, where N is the number of players in the room,
+        and the remaining time of the round will be cut to 20 seconds, unless it was already less. The drawer will receive an
+        additional point for each guesser who guesses correctly after the first, and those guessers will receive one point
+        less than the person who guessed correctly before them.<br>
+        Drawers can pass the round if they do not wish to draw. This cannot be used if someone has already guessed the prompt.
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-12 col-md-6">
+    <h1>Using the Toolbox</h1>
+    <div class="thumbnail">
+      <img src="modules/rules/client/img/toolbox.png"/>
+      <div class="caption">
+        <blockquote><p>
+          <b>The drawer has 5 different types of tools</b> at their disposal.
+        </p></blockquote>
+
+        <ul class="media-list">
+          <li class="media">
+            <div class="media-left">
+              <img class="media-object" src="modules/rules/client/img/toolbox1.png" alt="The brush and eraser tool.">
+            </div>
+            <div class="media-body">
+              <h4 class="media-heading">The brush and eraser tool.</h4>
+              <b>You can switch between the brush and the eraser tool using these buttons.</b>
+              The brush tool lets you draw on the canvas and the eraser tool lets you remove parts of your drawing.
+            </div>
+          </li>
+
+          <li class="media">
+            <div class="media-left">
+              <img class="media-object" src="modules/rules/client/img/toolbox2.png" alt="The size slider.">
+            </div>
+            <div class="media-body">
+              <h4 class="media-heading">The size slider.</h4>
+              <b>The size slider lets you choose the size of your brush or eraser. Moving the slider to the left makes
+              your tool smaller whereas moving it to the right makes it larger.</b>
+            </div>
+          </li>
+
+          <li class="media">
+            <div class="media-left">
+              <img class="media-object" src="modules/rules/client/img/toolbox3.png" alt="The colour palette.">
+            </div>
+            <div class="media-body">
+              <h4 class="media-heading">The colour palette.</h4>
+              <b>The colour palette gives you 15 different colours to paint with.</b> If you hover over each colour,
+              a tooltip will pop up telling you the name of the colour you're hovering over.
+            </div>
+          </li>
+
+          <li class="media">
+            <div class="media-left">
+              <img class="media-object" src="modules/rules/client/img/toolbox4.png" alt="The custom colour tool.">
+            </div>
+            <div class="media-body">
+              <h4 class="media-heading">The custom colour tool.</h4>
+              <b>The custom colour tool lets you choose your own colour!</b> Click on the custom colour button
+              to bring up the colour selection pop up.
+            </div>
+          </li>
+
+          <li class="media">
+            <div class="media-left">
+              <img class="media-object" src="modules/rules/client/img/toolbox5.png" alt="The clear canvas button.">
+            </div>
+            <div class="media-body">
+              <h4 class="media-heading">The clear canvas button.</h4>
+              <b>The size slider lets you change the size of your brush or eraser.</b> Moving the slider to the left
+              makes the tool smaller, whereas moving it to the right makes it larger.
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <h1>Custom Settings</h1>
+    At the start of a game, hosts can choose:
+    <ol>
+      <li> the number of rounds</li>
+      <li> the length of each round</li>
+      <li> the remaining length of a round after the prompt is first guessed correctly</li>
+    </ol>
+  </div>
+  <!--<h3> Custom Game Modes </h3>-->
+  <!--<list>-->
+    <!--<li><b>Co-op mode:</b> Prompts are drawn by teams, whose members are given alternating time slices to contribute to the drawing.</li>-->
+    <!--<li><b>VIM mode:</b> The drawer can only draw using keyboard commands. </li>&ndash;&gt;-->
+  <!--</list>-->
 </section>
