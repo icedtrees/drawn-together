@@ -1,0 +1,14 @@
+div .thumbnail {
+    border: 0;
+}
+
+div .thumbnail .caption {
+    font-size: 18px;
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+.rules-anchor {
+    padding-top: 40px;
+    margin-top: -40px;
+}
