@@ -209,8 +209,12 @@ module.exports = function (io, socket) {
     if (!Game.started && username === Game.getHost()) {
       Game.startGame();
       // tell all clients that the game has started
-      sendTopic();
       io.emit('startGame');
+      io.emit('gameMessage', {
+        class: 'status',
+        text: 'The game has started!'
+      });
+      sendTopic();
     }
   });
 
