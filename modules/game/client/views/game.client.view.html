@@ -49,7 +49,7 @@
       <form class="col-xs-12 col-md-12" ng-submit="sendMessage()">
         <fieldset class="row">
           <div class="input-group col-xs-12 col-md-12">
-            <input ng-disabled="Game.isDrawer(username) && Game.started" type="text" id="messageText" name="messageText" class="form-control message-input" ng-model="messageText" ng-trim="false" maxlength="{{ChatSettings.MAX_MSG_LEN}}" placeholder="Enter new message">
+            <input autocomplete="off" ng-disabled="Game.isDrawer(username) && Game.started" type="text" id="messageText" name="messageText" class="form-control message-input" ng-model="messageText" ng-trim="false" maxlength="{{ChatSettings.MAX_MSG_LEN}}" placeholder="Enter new message">
           </div>
         </fieldset>
       </form>
