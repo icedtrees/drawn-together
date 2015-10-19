@@ -16,35 +16,35 @@ angular.module('lobby').controller('LobbyController', ['$scope', '$location', 'A
         'host': 'alice',
         'topic': 'fruit',
         'numplayers': 4,
-        'maxnumplayers': 16
+        'maxnumplayers': MAX_NUM_PLAYERS
       },
       {
         'name': 'my room',
         'host': 'bob',
         'topic': 'fruit',
         'numplayers': 4,
-        'maxnumplayers': 16
+        'maxnumplayers': MAX_NUM_PLAYERS
       },
       {
         'name': 'my room',
         'host': 'carol',
         'topic': 'fruit',
         'numplayers': 4,
-        'maxnumplayers': 16
+        'maxnumplayers': MAX_NUM_PLAYERS
       },
       {
         'name': 'my room',
         'host': 'daniel',
         'topic': 'fruit',
         'numplayers': 4,
-        'maxnumplayers': 16
+        'maxnumplayers': MAX_NUM_PLAYERS
       },
       {
         'name': 'retards unite',
         'host': 'claudia',
         'topic': 'something',
         'numplayers': 1,
-        'maxnumplayers': 16
+        'maxnumplayers': MAX_NUM_PLAYERS
       }
     ];
   }
