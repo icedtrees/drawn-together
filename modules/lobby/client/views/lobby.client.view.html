@@ -13,6 +13,7 @@
       <tbody>
         <tr id="room-listing" ng-repeat="room in rooms">
           <td><span ng-bind="room.name"></span></td>
+          <td><span ng-bind="room.host"></span></td>
           <td><span ng-bind="room.topic"></span></td>
           <td><span ng-bind="room.numplayers"></span> / <span ng-bind="room.maxnumplayers"></span></td>
           <td><button class="btn btn-primary btn-sm btn-block" ui-sref="game" value="Join">Join</button></td>

@@ -13,30 +13,35 @@ angular.module('lobby').controller('LobbyController', ['$scope', '$location', 'A
     $scope.rooms = [
       {
         'name': 'my room',
+        'host': 'alice',
         'topic': 'fruit',
         'numplayers': 4,
         'maxnumplayers': 16
       },
       {
         'name': 'my room',
+        'host': 'bob',
         'topic': 'fruit',
         'numplayers': 4,
         'maxnumplayers': 16
       },
       {
         'name': 'my room',
+        'host': 'carol',
         'topic': 'fruit',
         'numplayers': 4,
         'maxnumplayers': 16
       },
       {
         'name': 'my room',
+        'host': 'daniel',
         'topic': 'fruit',
         'numplayers': 4,
         'maxnumplayers': 16
       },
       {
         'name': 'retards unite',
+        'host': 'claudia',
         'topic': 'something',
         'numplayers': 1,
         'maxnumplayers': 16
