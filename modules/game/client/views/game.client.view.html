@@ -57,7 +57,7 @@
   </div>
 
    <!--The pregame settings panel -->
-  <div class="col-md-7" ng-hide="Game.started">
+  <div id="settings" class="col" style="display: none; height: 100%; text-align: center">
     <h3 class="drawing-header unselectable">
       <span ng-bind="Game.getHost() + ' is choosing the game settings...'"></span>
     </h3>
@@ -78,7 +78,7 @@
   </div>
 
   <!-- The middle column -->
-  <div id="middle-column" class="col drawing-container" ng-hide="!Game.started">
+  <div id="middle-column" class="col drawing-container" style="display: none;">
     <div class="drawing-header">
       <div class="drawing-header-buttons">
         <button class="btn btn-primary" ng-disabled="!Game.isDrawer(username) || Game.correctGuesses !== 0" ng-click="finishDrawing()">Pass</button>
@@ -90,11 +90,11 @@
         </h3>
       </div>
     </div>
-    <div id="drawing-canvas" class="dt-drawing" ng-style="{cursor: Game.isDrawer(username) ? 'none' : 'not-allowed'}"></div>
+    <div id="drawing-canvas" class="dt-drawing" ng-style="{cursor: Game.isDrawer(username) ? 'none' : 'default'}"></div>
   </div>
 
   <!-- Right column -->
-  <div id="right-column" class="col toolbox" ng-hide="!Game.started" ng-disabled="!Game.isDrawer(username)">
+  <div id="right-column" class="col toolbox" ng-disabled="!Game.isDrawer(username)" style="display: none;">
     <!-- Draw tools -->
     <div class="grid">
       <div class="grid-row" ng-repeat="drawToolRow in drawTools">
