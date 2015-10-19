@@ -1,0 +1,55 @@
+.chat-container {
+  /* Make the chat container take up the rest of the space after the player list */
+  -webkit-flex:1;
+  flex: 1;
+  -ms-flex: 1;
+  overflow-y: scroll;
+  border: 1px solid #d3d3d3;
+}
+
+.game-message {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-size: 13px;
+  border-top: 1px solid #e7e7e7;
+}
+.game-message.status {
+  background-color: #f5f5f5;
+}
+.game-message.close-guess {
+  background-color: #ffff80;
+}
+.game-message.correct-guess {
+  background-color: #99ff75;
+}
+.game-message-addon {
+  font-style: italic;
+  font-weight: bold;
+  color: grey;
+  content: "Your guess is close!";
+}
+
+.message-form {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.message-input {
+  padding: 7px 14px;
+  height: auto;
+  font-size: 13px;
+}
+
+.username {
+  font-weight: bold;
+}
+
+/* Source: http://snipplr.com/view/10979/css-cross-browser-word-wrap */
+.wordwrap {
+  white-space: -moz-pre-wrap; /* Firefox */
+  white-space: -pre-wrap;     /* Opera <7 */
+  white-space: -o-pre-wrap;   /* Opera 7 */
+  word-break: break-all;      /* This is the important one */
+  word-wrap: break-word;      /* IE */
+  display: inline-block;      /* Firefox and IE */
+}

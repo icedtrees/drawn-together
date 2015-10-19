@@ -12,9 +12,6 @@ var seedUser = {
   password: 'User_Password1!',
   provider: 'local',
   email: 'user@localhost.com',
-  firstName: 'User',
-  lastName: 'Local',
-  displayName: 'User Local',
   roles: ['user']
 };
 
@@ -23,9 +20,6 @@ var seedAdmin = {
   password: 'Admin_Password1!',
   provider: 'local',
   email: 'admin@localhost.com',
-  firstName: 'Admin',
-  lastName: 'Local',
-  displayName: 'Admin Local',
   roles: ['user', 'admin']
 };
 

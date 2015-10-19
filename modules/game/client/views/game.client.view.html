@@ -1,52 +1,167 @@
 <!-- The game view -->
-<section class="container" ng-controller="GameController">
-  <div class="page-header">
-    <h1>Game Example</h1>
-  </div>
-  <div class="col-xs-12 col-md-3">
-    <h3>Connected Users</h3>
-    <ul class="list-unstyled">
-      <!-- List all messages -->
-      <li class="col-xs-12 col-md-offset-4 col-md-4" ng-repeat="user in users">
-        <div class="pull-left">
-          <div ng-if="user.drawer"><strong ng-bind="user.username"></strong></div>
-          <div ng-if="!user.drawer"><span ng-bind="user.username"></span></div>
-        </div>
-      </li>
-    </ul>
-    <button ng-disabled="!isDrawer()" ng-click="finishDrawing();">Finish Drawing</button>
-  </div>
+<section id="game-container" class="row game-container" ng-controller="GameController" ng-style="{'visible': loaded}">
+  <!-- Left column -->
+  <div id="left-column" class="col left-sidebar">
+    <!-- Lobby Information -->
+    <div class="lobby-info ui-panel unselectable bg-primary">
+      <h4><span ng-bind="Game.getHost()"></span>'s lobby</h4>
+      <h5>Topic: <span ng-bind="Game.getTopic()"></span></h5>
+      <!--<button class="leave-lobby" ng-click="">Leave Lobby</button>-->
+    </div>
 
-  <!-- Chat stuff -->
-  <div class="col-xs-12 col-md-3" style="border:1px solid #d3d3d3;padding:0px;">
-    <div class="game-message-box" style="margin:0px;" scroll-glue>
-      <ul class="list-unstyled">
-        <!-- List all messages -->
-        <li class="col-xs-12 col-md-12 game-message" ng-repeat="message in messages">
-          <small class="pull-right text-muted" am-time-ago="message.created"></small>
-          <img ng-src="{{message.profileImageURL}}" alt="{{message.username}}" class="pull-left game-profile-image" />
-          <div class="pull-left game-message-details">
-            <strong ng-bind="message.username"></strong>
-            <br>
-            <span class="wordwrap" ng-bind="message.text"></span>
+    <!-- Player List -->
+    <div class="unselectable">
+      <h4 class="text-center">Players (<span ng-bind="Game.userList.length"></span>/16)</h4>
+      <ul class="list-unstyled player-list">
+        <li class="row" ng-repeat="user in Game.userList">
+          <div class="col-xs-1 player-image">
+            <img ng-src="{{Game.getUserProfileImage(user)}}" title="{{user}}" class="game-profile-image"/>
+          </div>
+          <div class="col-xs-4 player-names">
+            <div ng-class="{'game-drawer': Game.isDrawer(user)}"><span ng-bind="user"></span></div>
+          </div>
+          <div class="col-xs-1">
+            <div ng-if="Game.isDrawer(user)"><strong ng-bind="Game.users[user].score.toString()"></strong></div>
+            <div ng-if="!Game.isDrawer(user)"><span ng-bind="Game.users[user].score.toString()"></span></div>
           </div>
         </li>
       </ul>
     </div>
 
+    <!-- Chat stuff -->
+    <div id="chat-container" class="chat-container" scroll-glue="{{isIE ? 'false' : ''}}">
+      <div class="game-message-box">
+        <ul class="list-unstyled">
+          <!-- List all messages -->
+          <li class="col-xs-12 col-md-12 game-message wordwrap" ng-class="message.class" ng-repeat="message in messages">
+            <span ng-bind="message.username" class="username"></span>
+
+            <span class="message-text" ng-if="message.class !== 'status'" ng-bind="message.text"></span>
+            <span class="message-text" ng-if="message.class === 'status'" ng-bind-html="message.text"></span>
+
+            <div class="game-message-addon" ng-bind="message.addon"></div>
+          </li>
+        </ul>
+      </div>
+    </div>
     <!-- The message form -->
-    <div style="padding:5px;" class="col-xs-12 col-md-12">
-      <form class="col-xs-12 col-md-12" ng-submit="sendMessage();">
+    <div class="message-form col-xs-12 col-md-12">
+      <form class="col-xs-12 col-md-12" ng-submit="sendMessage()">
         <fieldset class="row">
           <div class="input-group col-xs-12 col-md-12">
-            <input type="text" id="messageText" name="messageText" class="form-control" ng-model="messageText" placeholder="Enter new message">
+            <input autocomplete="off" ng-disabled="Game.isDrawer(username) && Game.started" type="text" id="messageText" name="messageText" class="form-control message-input" ng-model="messageText" ng-trim="false" maxlength="{{ChatSettings.MAX_MSG_LEN}}" placeholder="Enter new message">
           </div>
         </fieldset>
       </form>
     </div>
   </div>
-  <div class="col-xs-12 col-md-6" >
-    <h3 class="text-center">Canvas goes here</h3>
-    <canvas dt-drawing id="canvas" width="500" height="500" style="border:1px solid #d3d3d3;"></canvas>
+
+   <!--The pregame settings panel -->
+  <div id="settings" class="col" style="display: none; height: 100%; text-align: center">
+    <h3 class="drawing-header unselectable">
+      <span ng-bind="username === Game.getHost() ? 'You are' : Game.getHost() + ' is'"></span> choosing the game settings...
+    </h3>
+<!--    <li ng-repeat="(setting, value) in GameSettings">
+      <div class="col-md-12">
+        <div class="col-md-3">
+          <span ng-bind="value.settingName"></span>
+        </div>
+        <div class="btn-group" ng-repeat="option in value.options">
+          <div ng-if="Game.getHost() !== username" ng-bind="option" ng-hide="option !== chosenSettings[setting]" class="btn btn-success"></div> &lt;!&ndash; to do: the current setting is highlighted, rather than the rest of the settings ng-hidden &ndash;&gt;
+          <div ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" class="btn btn-success" btn-radio="option" ng-click="changeSetting(setting, option)"><span ng-bind="option"></span></div>
+        </div>
+      </div>
+    </li>-->
+    <div class="start-game-div">
+      <button class="btn" ng-hide="Game.getHost() !== username" ng-click="startGame()">Start Game</button>
+    </div>
+  </div>
+
+  <!-- The middle column -->
+  <div id="middle-column" class="col drawing-container" style="display: none;">
+    <div class="drawing-header">
+      <div class="drawing-header-buttons">
+        <button class="btn btn-primary" ng-disabled="!Game.isDrawer(username) || Game.correctGuesses !== 0" ng-click="finishDrawing()">Pass</button>
+      </div>
+      <div class="drawing-header-text">
+        <h3 class="text-center unselectable">
+          <span ng-if="Game.currentRound !== undefined && Game.numRounds !== undefined" ng-bind="Game.currentRound < Game.numRounds ? 'Round ' + (Game.currentRound + 1) + ':' : 'Game over!'"></span>
+          <span ng-if="Game.getDrawers().length" ng-bind="Game.isDrawer(username) ? 'Draw &quot;' + topic + '&quot;' : Utils.toCommaListIs(Game.getDrawers()) + ' drawing'"></span>
+        </h3>
+      </div>
+    </div>
+    <div id="drawing-canvas" class="dt-drawing" ng-style="{cursor: Game.isDrawer(username) ? 'none' : 'default'}"></div>
+  </div>
+
+  <!-- Right column -->
+  <div id="right-column" class="col toolbox right-sidebar" ng-disabled="!toolboxUsable()" style="display: none;">
+    <!-- Draw tools -->
+    <div class="grid">
+      <div class="grid-row" ng-repeat="drawToolRow in drawTools">
+        <div ng-repeat="drawTool in drawToolRow"
+             ng-class="{'grid-cell': true, 'draw-tool': true, 'selected': $parent.$parent.mouseMode === drawTool.type}"
+             ng-attr-title="{{drawTool.type}}"
+             ng-click="toolboxUsable() && ($parent.$parent.mouseMode = drawTool.type)" >
+          <div class="draw-tool-content"><i class="fa fa-{{drawTool.glyph}}"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Size slider -->
+    <div>
+      <div class="size-triangle"></div>
+      <input class="size-slider" type="range" ng-model="drawWidth[mouseMode]"
+             min="{{CanvasSettings.MIN_DRAW_WIDTH}}" max="{{CanvasSettings.MAX_DRAW_WIDTH}}"
+             ng-disabled="!toolboxUsable()">
+      <p class="unselectable">Size</p>
+    </div>
+
+    <!-- Colour palette -->
+    <div class="grid" style="margin-bottom: 10px">
+      <div class="grid-row" ng-repeat="paletteRow in paletteColours">
+        <div ng-repeat="paletteColour in paletteRow"
+             ng-class="{'grid-cell': true, 'palette-colour': true, 'selected': $parent.$parent.penColour === paletteColour.value}"
+             ng-style="{'background-color': paletteColour.value}"
+             ng-attr-title="{{paletteColour.title}}"
+             ng-click="toolboxUsable() && (($parent.$parent.mouseMode = 'pen') && ($parent.$parent.penColour = paletteColour.value))">
+        </div>
+      </div>
+      <div class="custom-palette-colour-wrapper"
+           ng-click="toolboxUsable() && ((mouseMode = 'pen') && (penColour = penColourCustom))">
+        <div ng-if="toolboxUsable()"
+             ng-model="selectCustomColour" ng-model-options="{getterSetter: true}"
+             colorpicker colorpicker-position="left" colorpicker-parent="true"
+             ng-class="{'grid-cell': true, 'palette-colour': true, 'custom-palette-colour': true, 'selected': penColour === penColourCustom}"
+             ng-style="{'background-color': penColourCustom}"
+             ng-attr-title="{{penColourCustom}}">
+        </div>
+        <div ng-if="!toolboxUsable()"
+             ng-class="{'grid-cell': true, 'palette-colour': true, 'custom-palette-colour': true, 'selected': penColour === penColourCustom}"
+             ng-style="{'background-color': penColourCustom}"
+             ng-attr-title="{{penColourCustom}}">
+        </div>
+      </div>
+      <p class="unselectable">Custom colour</p>
+    </div>
+
+    <!-- Undo/redo -->
+    <!--<div class="grid">-->
+      <!--<div class="grid-row">-->
+        <!--<div ng-class="{'grid-cell': true, 'draw-tool': true}"-->
+             <!--title="undo"-->
+             <!--ng-click="$parent.$parent.undo()">-->
+          <!--<div class="draw-tool-content"><i class="fa fa-undo"></i></div>-->
+        <!--</div>-->
+        <!--<div ng-class="{'grid-cell': true, 'draw-tool': true}"-->
+             <!--title="redo"-->
+             <!--ng-click="$parent.$parent.redo()">-->
+          <!--<div class="draw-tool-content"><i class="fa fa-repeat"></i></div>-->
+        <!--</div>-->
+      <!--</div>-->
+    <!--</div>-->
+    <!-- Clear canvas -->
+    <div style="margin-bottom: 0; margin-top: 12px">
+      <button class="btn btn-primary clear-canvas" style="cursor: default" ng-disabled="!toolboxUsable()" ng-click="clearDrawing()">Clear Canvas</button>
+    </div>
   </div>
 </section>

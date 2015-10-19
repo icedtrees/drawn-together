@@ -1,13 +1,12 @@
 'use strict';
 
-angular.module('users').controller('ChangePasswordController', ['$scope', '$http', 'Authentication', 'PasswordValidator',
-  function ($scope, $http, Authentication, PasswordValidator) {
+angular.module('users').controller('ChangePasswordController', ['$scope', '$http', 'Authentication',
+  function ($scope, $http, Authentication) {
     $scope.user = Authentication.user;
-    $scope.popoverMsg = PasswordValidator.getPopoverMsg();
 
     // Change user password
     $scope.changeUserPassword = function (isValid) {
-      $scope.success = $scope.error = null;
+      $scope.success = $scope.removed = $scope.error = null;
 
       if (!isValid) {
         $scope.$broadcast('show-errors-check-validity', 'passwordForm');
@@ -19,6 +18,20 @@ angular.module('users').controller('ChangePasswordController', ['$scope', '$http
         // If successful show success message and clear form
         $scope.$broadcast('show-errors-reset', 'passwordForm');
         $scope.success = true;
+        $scope.passwordDetails = null;
+      }).error(function (response) {
+        $scope.error = response.message;
+      });
+    };
+
+    // Remove user password - set to empty string
+    $scope.removeUserPassword = function () {
+      $scope.success = $scope.removed = $scope.error = null;
+
+      $http.post('/api/users/removepassword', $scope.passwordDetails).success(function (response) {
+        // If successful show success message and clear form
+        $scope.$broadcast('show-errors-reset', 'passwordForm');
+        $scope.removed = true;
         $scope.passwordDetails = null;
       }).error(function (response) {
         $scope.error = response.message;

@@ -1,69 +1,48 @@
 'use strict';
-
 /**
  * Module dependencies.
  */
 var mongoose = require('mongoose'),
   Schema = mongoose.Schema,
   crypto = require('crypto'),
-  validator = require('validator'),
-  owasp = require('owasp-password-strength-test');
-
-/**
- * A Validation function for local strategy properties
- */
-var validateLocalStrategyProperty = function (property) {
-  return ((this.provider !== 'local' && !this.updated) || property.length);
-};
+  validator = require('validator');
 
 /**
  * A Validation function for local strategy email
  */
 var validateLocalStrategyEmail = function (email) {
-  return ((this.provider !== 'local' && !this.updated) || validator.isEmail(email));
+  return ((email === '') || validator.isEmail(email));
 };
 
 /**
  * User Schema
  */
 var UserSchema = new Schema({
-  firstName: {
-    type: String,
-    trim: true,
-    default: '',
-    validate: [validateLocalStrategyProperty, 'Please fill in your first name']
-  },
-  lastName: {
-    type: String,
-    trim: true,
-    default: '',
-    validate: [validateLocalStrategyProperty, 'Please fill in your last name']
-  },
-  displayName: {
-    type: String,
-    trim: true
-  },
-  email: {
-    type: String,
-    unique: true,
-    lowercase: true,
-    trim: true,
-    default: '',
-    validate: [validateLocalStrategyEmail, 'Please fill a valid email address']
-  },
   username: {
     type: String,
     unique: 'Username already exists',
     required: 'Please fill in a username',
-    lowercase: true,
-    trim: true
+    minlength: [1, 'Username must contain at least one character.'],
+    maxlength: [10, 'Username exceeds the maximum allowed length ({MAXLENGTH}).'],
+    match: [/^[a-zA-Z0-9]{1,10}$/, 'Username may only contain letters and numbers.'],
+    trim: true // Removes surrounding whitespace
   },
   password: {
     type: String,
-    default: ''
+    default: '',
+    maxlength: [128, 'Password exceeds the maximum allowed length ({MAXLENGTH}).']
   },
   salt: {
     type: String
+  },
+  email: {
+    type: String,
+    unique: true,
+    sparse: true,
+    lowercase: true,
+    trim: true,
+    default: undefined,
+    validate: [validateLocalStrategyEmail, 'Please fill a valid email address']
   },
   profileImageURL: {
     type: String,
@@ -74,7 +53,7 @@ var UserSchema = new Schema({
     required: 'Provider is required'
   },
   providerData: {},
-  additionalProvidersData: {},
+  additionalProvidersData: {}, // Gives us the flexibility to easily add social integration later on.
   roles: {
     type: [{
       type: String,
@@ -100,30 +79,50 @@ var UserSchema = new Schema({
 });
 
 /**
+ * Hook a pre validate method to validate the password
+ */
+UserSchema.pre('validate', function (next) {
+  if (this.password && this.password.length > 128) {
+    this.invalidate('password', 'Password exceeds the maximum allowed length (128).');
+    next();
+  } else {
+    var self = this;
+    // Query database for user with username matching the regex '/^myUsername$/i'.
+    this.constructor.findOne({username : new RegExp('^' + this.username + '$', 'i')}, function (err, result){
+      if(err) {
+        next(err);
+      } else if (result && result.username !== self.username) {
+        self.invalidate('username', 'Username must be unique');
+        next();
+      } else {
+        next();
+      }
+    });
+  }
+});
+
+/**
  * Hook a pre save method to hash the password
  */
 UserSchema.pre('save', function (next) {
   if (this.password && this.isModified('password')) {
     this.salt = crypto.randomBytes(16).toString('base64');
     this.password = this.hashPassword(this.password);
+    next();
+  } else {
+    var self = this;
+    // Query database for user with username matching the regex '/^myUsername$/i'.
+    this.constructor.findOne({username : new RegExp('^' + this.username + '$', 'i')}, function (err, result){
+      if(err) {
+        next(err);
+      } else if (result && result.username !== self.username) {
+        self.invalidate('username', 'Username must be unique');
+        next();
+      } else {
+        next();
+      }
+    });
   }
-
-  next();
-});
-
-/**
- * Hook a pre validate method to test the local password
- */
-UserSchema.pre('validate', function (next) {
-  if (this.provider === 'local' && this.password) {
-    var result = owasp.test(this.password);
-    if (result.errors.length) {
-      var error = result.errors.join(' ');
-      this.invalidate('password', error);
-    }
-  }
-
-  next();
 });
 
 /**
@@ -141,7 +140,11 @@ UserSchema.methods.hashPassword = function (password) {
  * Create instance method for authenticating user
  */
 UserSchema.methods.authenticate = function (password) {
-  return this.password === this.hashPassword(password);
+  if (password) {
+    return this.password === this.hashPassword(password);
+  } else {
+    return this.password === '';
+  }
 };
 
 /**

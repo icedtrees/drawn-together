@@ -36,7 +36,7 @@ angular.module('core')
         return toggleClasses(invalid);
       });
 
-      scope.$on('show-errors-check-validity', function (event, name) {
+      scope.$on('show-errors-check-validity', function (e, name) {
         if (angular.isUndefined(name) || formCtrl.$name === name) {
           initCheck = true;
           showValidationMessages = true;
@@ -45,7 +45,7 @@ angular.module('core')
         }
       });
 
-      scope.$on('show-errors-reset', function (event, name) {
+      scope.$on('show-errors-reset', function (e, name) {
         if (angular.isUndefined(name) || formCtrl.$name === name) {
           return reset();
         }
