@@ -5,6 +5,9 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
   'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils',
   function ($scope, $location, $document, $rootScope, $state, Authentication, Socket,
             CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils) {
+
+    $scope.isIE = /*@cc_on!@*/false || !!document.documentMode;
+
     // Settings objects
     $scope.CanvasSettings = CanvasSettings;
     $scope.ChatSettings = ChatSettings;
