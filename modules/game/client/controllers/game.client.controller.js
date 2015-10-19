@@ -140,12 +140,6 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
      * }
      */
     Socket.on('gameMessage', function (message) {
-      // TODO remove in future release (including the extra debug field for messages)
-      // Debugging information for close guesses.
-      if (message.debug) {
-        console.log(message.debug);
-      }
-
       if (Array.isArray(message)) {
         message.forEach(function (m) {
           $scope.messages.push(m);

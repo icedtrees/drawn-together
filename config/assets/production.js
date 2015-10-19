@@ -16,8 +16,6 @@ module.exports = {
         'public/lib/angular-ui-utils/ui-utils.min.js',
         'public/lib/angular-bootstrap/ui-bootstrap-tpls.min.js',
         'public/lib/angular-file-upload/angular-file-upload.min.js',
-        'public/lib/moment/min/moment.min.js',
-        'public/lib/angular-moment/angular-moment.min.js',  // moment must come before angular-moment
         'public/lib/angular-bootstrap-colorpicker/js/bootstrap-colorpicker-module.min.js',
         'public/lib/angular-scroll-glue/src/scrollglue.js'
       ]
