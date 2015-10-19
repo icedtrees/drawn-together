@@ -100,7 +100,7 @@
       <div class="grid-row" ng-repeat="drawToolRow in drawTools">
         <div ng-class="{'grid-cell': true, 'draw-tool': true, 'selected': $parent.$parent.mouseMode === drawTool.type}"
              ng-attr-title="{{drawTool.type}}"
-             ng-click="$parent.$parent.mouseMode = drawTool.type"
+             ng-click="!Game.isDrawer(username) || ($parent.$parent.mouseMode = drawTool.type)"
              ng-repeat="drawTool in drawToolRow">
           <div class="draw-tool-content"><i class="fa fa-{{drawTool.glyph}}"></i></div>
         </div>
