@@ -59,7 +59,7 @@
    <!--The pregame settings panel -->
   <div id="settings" class="col" style="display: none; height: 100%; text-align: center">
     <h3 class="drawing-header unselectable">
-      <span ng-bind="Game.getHost() + ' is choosing the game settings...'"></span>
+      <span ng-bind="username === Game.getHost() ? 'You are' : Game.getHost() + ' is'"></span> choosing the game settings...
     </h3>
 <!--    <li ng-repeat="(setting, value) in GameSettings">
       <div class="col-md-12">
