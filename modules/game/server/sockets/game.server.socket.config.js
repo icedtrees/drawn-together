@@ -165,7 +165,6 @@ module.exports = function (io, socket) {
         drawHistory = [];
         Game.resetGame();
         io.emit('resetGame');
-        sendTopic();
       }, Game.timeToEnd * 1000);
     } else {
       sendTopic();
@@ -210,10 +209,7 @@ module.exports = function (io, socket) {
     if (!Game.started && username === Game.getHost()) {
       Game.startGame();
       // tell all clients that the game has started
-      Game.getDrawers().forEach(function (drawer) {
-         // send to drawers again in case numDrawers changes
-        io.to(drawer).emit('topic', topicList[0]);
-      });
+      sendTopic();
       io.emit('startGame');
     }
   });
