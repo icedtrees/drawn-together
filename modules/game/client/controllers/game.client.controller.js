@@ -75,6 +75,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       Socket.emit('requestState');
     }
 
+    $scope.toolboxUsable = function () {
+      return !$scope.Game.started || $scope.Game.isDrawer($scope.username);
+    };
+
     /*
      * Set the game state based on what the server tells us it currently is
      */
@@ -351,5 +355,6 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
         event.preventDefault();
       }
     });
+
   }
 ]);
