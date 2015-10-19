@@ -144,11 +144,17 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
                 previewCtx.beginPath();
                 previewCtx.arc(mouse.x, mouse.y, (+scope.drawWidth[scope.mouseMode] + 1) / 2, 0, Math.PI * 2);
 
+
                 // Add outline of most contrasting colour
-                var r = parseInt('0x' + scope.penColour.substring(1, 3));
-                var g = parseInt('0x' + scope.penColour.substring(3, 5));
-                var b = parseInt('0x' + scope.penColour.substring(5, 7));
-                // Convert colour to grey-scale. Formula taken from http://stackoverflow.com/questions/9780632/how-do-i-determine-if-a-color-is-closer-to-white-or-black
+                // Get the rgb value from html colour name or hex value
+                var d = document.createElement("div");
+                d.style.color = scope.penColour;
+                document.body.appendChild(d);
+                var rgb = window.getComputedStyle(d).color.replace(/[^\d,]/g, '').split(',');
+                document.body.removeChild(d);
+                var r = rgb[0];
+                var g = rgb[1];
+                var b = rgb[2];
                 var luminance = 0.2126*r + 0.7152*g + 0.0722*b;
                 // Choose the more contrasting colour (black/white) according to luminance
                 previewCtx.strokeStyle = luminance < 128 ? '#fff' : '#000';
