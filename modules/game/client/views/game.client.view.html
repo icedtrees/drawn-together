@@ -100,7 +100,7 @@
       <div class="grid-row" ng-repeat="drawToolRow in drawTools">
         <div ng-class="{'grid-cell': true, 'draw-tool': true, 'selected': $parent.$parent.mouseMode === drawTool.type}"
              ng-attr-title="{{drawTool.type}}"
-             ng-click="!Game.isDrawer(username) || ($parent.$parent.mouseMode = drawTool.type)"
+             ng-click="$parent.$parent.mouseMode = drawTool.type"
              ng-repeat="drawTool in drawToolRow">
           <div class="draw-tool-content"><i class="fa fa-{{drawTool.glyph}}"></i></div>
         </div>
@@ -112,7 +112,6 @@
       <div class="size-triangle"></div>
       <input class="size-slider" type="range" ng-model="drawWidth[mouseMode]"
              min="{{CanvasSettings.MIN_DRAW_WIDTH}}" max="{{CanvasSettings.MAX_DRAW_WIDTH}}"
-             ng-disabled="!Game.isDrawer(username)">
       <p class="unselectable">Size</p>
     </div>
 
@@ -122,7 +121,7 @@
         <div ng-class="{'grid-cell': true, 'palette-colour': true, 'selected': $parent.$parent.penColour === paletteColour.value}"
              ng-style="{'background-color': paletteColour.value}"
              ng-attr-title="{{paletteColour.title}}"
-             ng-click="$parent.$parent.penColour = paletteColour.value"
+             ng-click="$parent.$parent.penColour = paletteColour.value; $parent.$parent.mouseMode = 'pen'"
              ng-repeat="paletteColour in paletteRow">
         </div>
       </div>
@@ -131,7 +130,7 @@
              colorpicker colorpicker-position="left" colorpicker-parent="true"
              ng-class="{'grid-cell': true, 'palette-colour': true, 'custom-palette-colour': true, 'selected': penColour === penColourCustom}"
              ng-style="{'background-color': penColourCustom}"
-             ng-click="penColour = penColourCustom">
+             ng-click="penColour = penColourCustom; mouseMode = 'pen'">
         </div>
       </div>
       <p class="unselectable">Custom colour</p>
