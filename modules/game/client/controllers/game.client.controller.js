@@ -288,6 +288,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       var canvasWidth = Math.min(maxMiddleWidth - middlePadding, canvasHeight * aspectRatio);
       canvasWidth = Math.max(canvasWidth, CanvasSettings.MIN_DISPLAY_WIDTH);
       var middleColumnWidth = canvasWidth + middlePadding;
+      middleColumnWidth -= 20; // Fix display on firefox
       middleColumn.style.width = middleColumnWidth + 'px';
 
       // Left column width is everything left over
@@ -320,6 +321,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       }
     }
     window.addEventListener('resize', function (e) {
+      resizeColumns();
       resizeColumns();
     });
 
