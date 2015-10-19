@@ -5,6 +5,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
   'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils',
   function ($scope, $location, $document, $rootScope, $state, Authentication, Socket,
             CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils) {
+
+    var isIE = /*@cc_on!@*/false || !!document.documentMode;
+    $scope.isIE = isIE;
+
     // Settings objects
     $scope.CanvasSettings = CanvasSettings;
     $scope.ChatSettings = ChatSettings;
@@ -75,6 +79,22 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       Socket.emit('requestState');
     }
 
+    var scroller = document.getElementById('chat-container');
+    var ieIsEnd = function () {
+      var diff = (scroller.scrollTop - (scroller.scrollHeight - scroller.offsetHeight));
+      return (-20 < diff && diff < 20); // close enough
+    };
+    var ieScroll = function() {
+      if (isIE) {
+        console.log('ie-scroll');
+        scroller.scrollTop = scroller.scrollHeight;
+      }
+    };
+
+    $scope.toolboxUsable = function () {
+      return $scope.Game.started && $scope.Game.isDrawer($scope.username);
+    };
+
     /*
      * Set the game state based on what the server tells us it currently is
      */
@@ -136,12 +156,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
      * }
      */
     Socket.on('gameMessage', function (message) {
-      // TODO remove in future release (including the extra debug field for messages)
-      // Debugging information for close guesses.
-      if (message.debug) {
-        console.log(message.debug);
+      var ieNeedsScroll = false;
+      if (isIE && (ieIsEnd() || Array.isArray(message))) {
+        ieNeedsScroll = true;
       }
-
       if (Array.isArray(message)) {
         message.forEach(function (m) {
           $scope.messages.push(m);
@@ -153,6 +171,11 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       // delete old messages if MAX_MESSAGES is exceeded
       while ($scope.messages.length > ChatSettings.MAX_MESSAGES) {
         $scope.messages.shift();
+      }
+
+      if (ieNeedsScroll) {
+        ieScroll();
+        setTimeout(ieScroll, 100); // Wait a bit for element to load
       }
     });
 
@@ -212,6 +235,11 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
 
     // Create a controller method for sending messages
     $scope.sendMessage = function () {
+      var ieNeedsScroll = false;
+      if (isIE && ieIsEnd()) {
+        ieNeedsScroll = true;
+      }
+
       // Disallow empty messages
       if (/^\s*$/.test($scope.messageText)) {
         $scope.messageText = '';
@@ -228,6 +256,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
 
       // Clear the message text
       $scope.messageText = '';
+
+      if (ieNeedsScroll) {
+        ieScroll();
+      }
     };
 
     // Send a 'finished drawing' message to the server. Must be the current drawer
@@ -284,6 +316,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       var canvasWidth = Math.min(maxMiddleWidth - middlePadding, canvasHeight * aspectRatio);
       canvasWidth = Math.max(canvasWidth, CanvasSettings.MIN_DISPLAY_WIDTH);
       var middleColumnWidth = canvasWidth + middlePadding;
+      middleColumnWidth -= 20; // Fix display on firefox
       middleColumn.style.width = middleColumnWidth + 'px';
 
       // Left column width is everything left over
@@ -314,16 +347,26 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
         gameContainer.style.paddingLeft = '0px';
         gameContainer.style.paddingRight = '0px';
       }
+
+      $scope.loaded = true; // We can display things now
     }
     window.addEventListener('resize', function (e) {
+      resizeColumns();
       resizeColumns();
     });
 
     // Remove the event listener when the controller instance is destroyed
     $scope.$on('$destroy', function () {
+      Socket.removeListener('gameState');
+      Socket.removeListener('advanceRound');
+      Socket.removeListener('resetGame');
+      Socket.removeListener('markCorrectGuess');
+      Socket.removeListener('userConnect');
+      Socket.removeListener('userDisconnect');
       Socket.removeListener('gameMessage');
       Socket.removeListener('canvasMessage');
-      Socket.removeListener('userUpdate');
+      Socket.removeListener('topic');
+      Socket.removeListener('startGame');
       Socket.removeListener('updateDrawHistory');
     });
 
@@ -351,5 +394,6 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
         event.preventDefault();
       }
     });
+
   }
 ]);

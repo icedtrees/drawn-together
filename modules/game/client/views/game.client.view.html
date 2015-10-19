@@ -1,5 +1,5 @@
 <!-- The game view -->
-<section id="game-container" class="row game-container" ng-controller="GameController">
+<section id="game-container" class="row game-container" ng-controller="GameController" ng-style="{'visible': loaded}">
   <!-- Left column -->
   <div id="left-column" class="col left-sidebar">
     <!-- Lobby Information -->
@@ -29,7 +29,7 @@
     </div>
 
     <!-- Chat stuff -->
-    <div class="chat-container" scroll-glue>
+    <div id="chat-container" class="chat-container" scroll-glue="{{isIE ? 'false' : ''}}">
       <div class="game-message-box">
         <ul class="list-unstyled">
           <!-- List all messages -->
@@ -49,7 +49,7 @@
       <form class="col-xs-12 col-md-12" ng-submit="sendMessage()">
         <fieldset class="row">
           <div class="input-group col-xs-12 col-md-12">
-            <input ng-disabled="Game.isDrawer(username) && Game.started" type="text" id="messageText" name="messageText" class="form-control message-input" ng-model="messageText" ng-trim="false" maxlength="{{ChatSettings.MAX_MSG_LEN}}" placeholder="Enter new message">
+            <input autocomplete="off" ng-disabled="Game.isDrawer(username) && Game.started" type="text" id="messageText" name="messageText" class="form-control message-input" ng-model="messageText" ng-trim="false" maxlength="{{ChatSettings.MAX_MSG_LEN}}" placeholder="Enter new message">
           </div>
         </fieldset>
       </form>
@@ -59,7 +59,7 @@
    <!--The pregame settings panel -->
   <div id="settings" class="col" style="display: none; height: 100%; text-align: center">
     <h3 class="drawing-header unselectable">
-      <span ng-bind="Game.getHost() + ' is choosing the game settings...'"></span>
+      <span ng-bind="username === Game.getHost() ? 'You are' : Game.getHost() + ' is'"></span> choosing the game settings...
     </h3>
 <!--    <li ng-repeat="(setting, value) in GameSettings">
       <div class="col-md-12">
@@ -94,14 +94,14 @@
   </div>
 
   <!-- Right column -->
-  <div id="right-column" class="col toolbox" ng-disabled="!Game.isDrawer(username)" style="display: none;">
+  <div id="right-column" class="col toolbox right-sidebar" ng-disabled="!toolboxUsable()" style="display: none;">
     <!-- Draw tools -->
     <div class="grid">
       <div class="grid-row" ng-repeat="drawToolRow in drawTools">
-        <div ng-class="{'grid-cell': true, 'draw-tool': true, 'selected': $parent.$parent.mouseMode === drawTool.type}"
+        <div ng-repeat="drawTool in drawToolRow"
+             ng-class="{'grid-cell': true, 'draw-tool': true, 'selected': $parent.$parent.mouseMode === drawTool.type}"
              ng-attr-title="{{drawTool.type}}"
-             ng-click="!Game.isDrawer(username) || ($parent.$parent.mouseMode = drawTool.type)"
-             ng-repeat="drawTool in drawToolRow">
+             ng-click="toolboxUsable() && ($parent.$parent.mouseMode = drawTool.type)" >
           <div class="draw-tool-content"><i class="fa fa-{{drawTool.glyph}}"></i></div>
         </div>
       </div>
@@ -112,31 +112,33 @@
       <div class="size-triangle"></div>
       <input class="size-slider" type="range" ng-model="drawWidth[mouseMode]"
              min="{{CanvasSettings.MIN_DRAW_WIDTH}}" max="{{CanvasSettings.MAX_DRAW_WIDTH}}"
-             ng-disabled="!Game.isDrawer(username)">
+             ng-disabled="!toolboxUsable()">
       <p class="unselectable">Size</p>
     </div>
 
     <!-- Colour palette -->
-    <div class="grid">
+    <div class="grid" style="margin-bottom: 10px">
       <div class="grid-row" ng-repeat="paletteRow in paletteColours">
-        <div ng-class="{'grid-cell': true, 'palette-colour': true, 'selected': $parent.$parent.penColour === paletteColour.value}"
+        <div ng-repeat="paletteColour in paletteRow"
+             ng-class="{'grid-cell': true, 'palette-colour': true, 'selected': $parent.$parent.penColour === paletteColour.value}"
              ng-style="{'background-color': paletteColour.value}"
              ng-attr-title="{{paletteColour.title}}"
-             ng-click="!Game.isDrawer(username) || ($parent.$parent.penColour = paletteColour.value)"
-             ng-repeat="paletteColour in paletteRow">
+             ng-click="toolboxUsable() && (($parent.$parent.mouseMode = 'pen') && ($parent.$parent.penColour = paletteColour.value))">
         </div>
       </div>
-      <div class="custom-palette-colour-wrapper">
-        <div ng-if="Game.isDrawer(username)"
+      <div class="custom-palette-colour-wrapper"
+           ng-click="toolboxUsable() && ((mouseMode = 'pen') && (penColour = penColourCustom))">
+        <div ng-if="toolboxUsable()"
              ng-model="selectCustomColour" ng-model-options="{getterSetter: true}"
-             colorpicker colorpicker-position="right"
+             colorpicker colorpicker-position="left" colorpicker-parent="true"
              ng-class="{'grid-cell': true, 'palette-colour': true, 'custom-palette-colour': true, 'selected': penColour === penColourCustom}"
              ng-style="{'background-color': penColourCustom}"
-             ng-click="penColour = penColourCustom">
+             ng-attr-title="{{penColourCustom}}">
         </div>
-        <div ng-if="!Game.isDrawer(username)"
+        <div ng-if="!toolboxUsable()"
              ng-class="{'grid-cell': true, 'palette-colour': true, 'custom-palette-colour': true, 'selected': penColour === penColourCustom}"
-             ng-style="{'background-color': penColourCustom}">
+             ng-style="{'background-color': penColourCustom}"
+             ng-attr-title="{{penColourCustom}}">
         </div>
       </div>
       <p class="unselectable">Custom colour</p>
@@ -158,6 +160,8 @@
       <!--</div>-->
     <!--</div>-->
     <!-- Clear canvas -->
-    <div><button class="btn btn-primary clear-canvas" ng-disabled="!Game.isDrawer(username)" ng-click="clearDrawing()">Clear Canvas</button></div>
+    <div style="margin-bottom: 0; margin-top: 12px">
+      <button class="btn btn-primary clear-canvas" style="cursor: default" ng-disabled="!toolboxUsable()" ng-click="clearDrawing()">Clear Canvas</button>
+    </div>
   </div>
 </section>

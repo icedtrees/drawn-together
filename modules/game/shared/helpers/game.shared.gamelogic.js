@@ -65,6 +65,10 @@
   };
 
   exports.Game.prototype.isDrawer = function (username) {
+    // Before the game, no one is a drawer
+    if (!this.started) {
+      return false;
+    }
     // At the end of the game, noone is a drawer
     if (this.currentRound >= this.numRounds) {
       return false;
