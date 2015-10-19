@@ -174,7 +174,8 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       }
 
       if (ieNeedsScroll) {
-        setTimeout(ieScroll, 1000); // Wait a bit for element to load
+        ieScroll();
+        setTimeout(ieScroll, 100); // Wait a bit for element to load
       }
     });
 
