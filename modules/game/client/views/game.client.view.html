@@ -94,7 +94,7 @@
   </div>
 
   <!-- Right column -->
-  <div id="right-column" class="col toolbox" ng-disabled="Game.started && !Game.isDrawer(username)" style="display: none;">
+  <div id="right-column" class="col toolbox right-sidebar" ng-disabled="Game.started && !Game.isDrawer(username)" style="display: none;">
     <!-- Draw tools -->
     <div class="grid">
       <div class="grid-row" ng-repeat="drawToolRow in drawTools">
@@ -116,7 +116,7 @@
     </div>
 
     <!-- Colour palette -->
-    <div class="grid">
+    <div class="grid" style="margin-bottom: 10px">
       <div class="grid-row" ng-repeat="paletteRow in paletteColours">
         <div ng-class="{'grid-cell': true, 'palette-colour': true, 'selected': $parent.$parent.penColour === paletteColour.value}"
              ng-style="{'background-color': paletteColour.value}"
@@ -152,6 +152,6 @@
       <!--</div>-->
     <!--</div>-->
     <!-- Clear canvas -->
-    <div><button class="btn btn-primary clear-canvas" ng-click="clearDrawing()">Clear Canvas</button></div>
+    <div style="margin-bottom: 0; margin-top: 12px"><button class="btn btn-primary clear-canvas" ng-click="clearDrawing()">Clear Canvas</button></div>
   </div>
 </section>

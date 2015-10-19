@@ -15,6 +15,10 @@
   max-width: 700px;
 }
 
+.right-sidebar {
+  padding-top: 0;
+}
+
 .drawing-container {
   display: -webkit-flex;
   display: flex;

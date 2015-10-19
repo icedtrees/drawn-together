@@ -1,6 +1,7 @@
 .toolbox > div {
-  margin: 20px auto;
+  margin: 13px auto;
   text-align: center;
+  font-size: 18px;
 }
 .toolbox[disabled] .grid-cell, .toolbox[disabled] .size-triangle {
   color: gray;
@@ -15,11 +16,11 @@
   width: 0;
   height: 0;
   border-bottom: 30px solid grey;
-  border-left: 90px solid transparent;
+  border-left: 110px solid transparent;
   margin: 0 auto;
 }
 
 .toolbox .size-slider {
   margin: 0 auto;
-  width: 90px;
+  width: 110px;
 }
