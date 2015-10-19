@@ -263,56 +263,53 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       var leftMinWidth = parseInt(leftColumnStyle.getPropertyValue('min-width'), 10);
       var leftMaxWidth = parseInt(leftColumnStyle.getPropertyValue('max-width'), 10);
 
-      var spaceLeftOver;
-      if ($scope.Game.started) {
-        settings.style.display = 'none';
-        middleColumn.style.display = 'flex';
-        rightColumn.style.display = 'block';
-        var middleColumnStyle = window.getComputedStyle(middleColumn, null);
-        var rightColumnWidth = rightColumn.offsetWidth + 10;
+      settings.style.display = 'none';
+      middleColumn.style.display = 'flex';
+      rightColumn.style.display = 'block';
+      var middleColumnStyle = window.getComputedStyle(middleColumn, null);
+      var rightColumnWidth = rightColumn.offsetWidth + 10;
 
-        // Maximum width of middle column possible based on left and right elements
-        var maxMiddleWidth = windowWidth - rightColumn.offsetWidth - leftMinWidth;
-        var middlePadding = parseInt(middleColumnStyle.getPropertyValue('padding-left'), 10) +
-          parseInt(middleColumnStyle.getPropertyValue('padding-right'), 10);
+      // Maximum width of middle column possible based on left and right elements
+      var maxMiddleWidth = windowWidth - rightColumn.offsetWidth - leftMinWidth;
+      var middlePadding = parseInt(middleColumnStyle.getPropertyValue('padding-left'), 10) +
+        parseInt(middleColumnStyle.getPropertyValue('padding-right'), 10);
 
-        // Maximum width of canvas based on maximum width of middle column
-        var maxCanvasWidth = maxMiddleWidth - middlePadding;
+      // Maximum width of canvas based on maximum width of middle column
+      var maxCanvasWidth = maxMiddleWidth - middlePadding;
 
-        // Maximum width possible to fit vertically and maintain aspect ratio
-        var canvasHeight = canvas.offsetHeight;
-        var aspectRatio = CanvasSettings.RESOLUTION_WIDTH / CanvasSettings.RESOLUTION_HEIGHT;
+      // Maximum width possible to fit vertically and maintain aspect ratio
+      var canvasHeight = canvas.offsetHeight;
+      var aspectRatio = CanvasSettings.RESOLUTION_WIDTH / CanvasSettings.RESOLUTION_HEIGHT;
 
-        var canvasWidth = Math.min(maxMiddleWidth - middlePadding, canvasHeight * aspectRatio);
-        canvasWidth = Math.max(canvasWidth, CanvasSettings.MIN_DISPLAY_WIDTH);
-        middleColumn.style.width = canvasWidth + middlePadding + 'px';
+      var canvasWidth = Math.min(maxMiddleWidth - middlePadding, canvasHeight * aspectRatio);
+      canvasWidth = Math.max(canvasWidth, CanvasSettings.MIN_DISPLAY_WIDTH);
+      var middleColumnWidth = canvasWidth + middlePadding;
+      middleColumn.style.width = middleColumnWidth + 'px';
 
-        // Left column width is everything left over
-        spaceLeftOver = windowWidth - rightColumnWidth - middleColumn.offsetWidth;
+      // Left column width is everything left over
+      var spaceLeftOver = windowWidth - rightColumnWidth - middleColumn.offsetWidth;
 
-        // Rescale and redraw canvas contents
-        if ($scope.canvas) {
-          $scope.canvas.rescale();
-        }
-      } else {
+      // Rescale and redraw canvas contents
+      if ($scope.canvas) {
+        $scope.canvas.rescale();
+      }
+
+      if (!$scope.Game.started) {
         settings.style.display = 'block';
         middleColumn.style.display = 'none';
-        rightColumn.style.display = 'none';
 
-        // Settings width is pretty much everything except leftMinWidth
-        var settingsWidth = windowWidth - leftMinWidth;
-
-        settings.style.width = settingsWidth + 'px';
-        spaceLeftOver = windowWidth - settings.offsetWidth;
+        // Settings width is same as min window width would otherwise be
+        settings.style.width = middleColumnWidth + 'px';
       }
       var leftColumnWidth = Math.min(spaceLeftOver, leftMaxWidth);
       leftColumn.style.width = leftColumnWidth + 'px';
-      spaceLeftOver -= leftMaxWidth;
+      spaceLeftOver -= leftColumnWidth;
 
       // Left and right padding for space left over
       if (spaceLeftOver > 0) {
-        gameContainer.style.paddingLeft = (spaceLeftOver / 2) + 'px';
-        gameContainer.style.paddingRight = (spaceLeftOver / 2) + 'px';
+        // Break 0.5 double rounding up
+        gameContainer.style.paddingLeft = Math.round(spaceLeftOver / 2 - 0.01) + 'px';
+        gameContainer.style.paddingRight = Math.round(spaceLeftOver / 2 + 0.01) + 'px';
       } else {
         gameContainer.style.paddingLeft = '0px';
         gameContainer.style.paddingRight = '0px';
