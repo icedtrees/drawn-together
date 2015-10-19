@@ -6,7 +6,8 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
   function ($scope, $location, $document, $rootScope, $state, Authentication, Socket,
             CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils) {
 
-    $scope.isIE = /*@cc_on!@*/false || !!document.documentMode;
+    var isIE = /*@cc_on!@*/false || !!document.documentMode;
+    $scope.isIE = isIE;
 
     // Settings objects
     $scope.CanvasSettings = CanvasSettings;
@@ -78,6 +79,18 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       Socket.emit('requestState');
     }
 
+    var scroller = document.getElementById('chat-container');
+    var ieIsEnd = function () {
+      var diff = (scroller.scrollTop - (scroller.scrollHeight - scroller.offsetHeight));
+      return (-20 < diff && diff < 20); // close enough
+    };
+    var ieScroll = function() {
+      if (isIE) {
+        console.log('ie-scroll');
+        scroller.scrollTop = scroller.scrollHeight;
+      }
+    };
+
     $scope.toolboxUsable = function () {
       return $scope.Game.started && $scope.Game.isDrawer($scope.username);
     };
@@ -143,6 +156,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
      * }
      */
     Socket.on('gameMessage', function (message) {
+      var ieNeedsScroll = false;
+      if (isIE && (ieIsEnd() || Array.isArray(message))) {
+        ieNeedsScroll = true;
+      }
       if (Array.isArray(message)) {
         message.forEach(function (m) {
           $scope.messages.push(m);
@@ -154,6 +171,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       // delete old messages if MAX_MESSAGES is exceeded
       while ($scope.messages.length > ChatSettings.MAX_MESSAGES) {
         $scope.messages.shift();
+      }
+
+      if (ieNeedsScroll) {
+        setTimeout(ieScroll, 1000); // Wait a bit for element to load
       }
     });
 
@@ -213,6 +234,11 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
 
     // Create a controller method for sending messages
     $scope.sendMessage = function () {
+      var ieNeedsScroll = false;
+      if (isIE && ieIsEnd()) {
+        ieNeedsScroll = true;
+      }
+
       // Disallow empty messages
       if (/^\s*$/.test($scope.messageText)) {
         $scope.messageText = '';
@@ -229,6 +255,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
 
       // Clear the message text
       $scope.messageText = '';
+
+      if (ieNeedsScroll) {
+        ieScroll();
+      }
     };
 
     // Send a 'finished drawing' message to the server. Must be the current drawer
