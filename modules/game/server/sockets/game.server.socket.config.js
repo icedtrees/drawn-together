@@ -406,7 +406,7 @@ module.exports = function (io, socket) {
 
       // If the disconnecting user is a drawer, this is equivalent to
       // 'giving up' or passing
-      if (Game.isDrawer(username)) {
+      if (Game.started && Game.isDrawer(username)) {
         giveUp();
       }
       delete userConnects[username];
