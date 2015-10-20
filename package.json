@@ -1,7 +1,7 @@
 {
   "name": "drawn-together",
   "description": "iSketch upgraded.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "meanjs-version": "0.4.1",
   "author": "https://github.com/icedtrees/drawn-together/graphs/contributors",
   "license": "MIT",
