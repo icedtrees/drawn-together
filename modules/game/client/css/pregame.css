@@ -1,4 +1,30 @@
 .start-game-div {
-    margin-top: 100px;
+    padding-top: 30px;
     text-align: center;
+}
+
+.pregame-group {
+    cursor: default;
+}
+
+.pregame-display:hover, .pregame-display:active, .pregame-display:active:hover,
+.pregame-display:active:hover:focus, .pregame-display:focus, .pregame-display:focus:active,
+.pregame-display:focus:hover {
+    color: #ffffff;
+    background-color: #3fb618;
+    border-color: #3fb618;
+    cursor: default;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+
+.pregame-display.active:hover {
+    color: #ffffff;
+    background-color: #2f8912;
+    border-color: #2c8011;
+    cursor: default;
+    -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    -moz-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
 }
