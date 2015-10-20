@@ -173,7 +173,6 @@ input[type=range][disabled]::-ms-thumb {
 
 .clear-canvas {
   width: 93%;
-  font-size: 18px;
   text-align: center;
   padding-left: 0;
   padding-right: 0;
