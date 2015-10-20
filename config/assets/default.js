@@ -17,8 +17,6 @@ module.exports = {
         'public/lib/angular-ui-utils/ui-utils.js',
         'public/lib/angular-bootstrap/ui-bootstrap-tpls.js',
         'public/lib/angular-file-upload/angular-file-upload.js',
-        'public/lib/moment/moment.js',
-        'public/lib/angular-moment/angular-moment.js', // moment must come before angular-moment
         'public/lib/angular-bootstrap-colorpicker/js/bootstrap-colorpicker-module.js',
         'public/lib/angular-scroll-glue/src/scrollglue.js',
         'public/lib/angular-sanitize/angular-sanitize.js'

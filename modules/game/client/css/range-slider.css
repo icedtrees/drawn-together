@@ -112,6 +112,8 @@ input[type=range][disabled]::-ms-thumb {
 
 .grid {
   display: table;
+  padding-top: 0;
+  margin-top: 0;
 }
 
 .grid-row {
@@ -129,14 +131,14 @@ input[type=range][disabled]::-ms-thumb {
   background-clip:content-box;
   padding: 2px;
   margin: 3px;
-  width: 35px;
-  height: 35px;
+  width: 55px;
+  height: 55px;
 }
 .draw-tool.selected {
   border: 3px solid black;
 }
 .draw-tool-content {
-  font-size: 20px;
+  font-size: 33px;
   margin: auto;
 }
 
@@ -145,8 +147,8 @@ input[type=range][disabled]::-ms-thumb {
   background-clip:content-box;
   padding: 1px;
   margin: 3px;
-  width: 25px;
-  height: 25px;
+  width: 35px;
+  height: 35px;
 }
 .palette-colour.selected {
   border: 3px solid black;
@@ -155,7 +157,7 @@ input[type=range][disabled]::-ms-thumb {
 .custom-palette-colour-wrapper {
   width: 100%;
   /* top, right, bottom, left */
-  padding: 5px 3px 0 3px;
+  padding: 10px 3px 0 3px;
 }
 .custom-palette-colour {
   margin: 0;
@@ -163,7 +165,16 @@ input[type=range][disabled]::-ms-thumb {
   height: 40px;
 }
 
+/* Custom color picker */
+.colorpicker {
+  margin-top: 388px;
+  margin-left: 30px;
+}
+
 .clear-canvas {
-  width: 90px;
-  white-space: normal !important;
+  width: 93%;
+  font-size: 18px;
+  text-align: center;
+  padding-left: 0;
+  padding-right: 0;
 }

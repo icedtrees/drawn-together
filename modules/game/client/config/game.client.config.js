@@ -7,14 +7,14 @@ angular.module('game').run(['Menus',
 
 // Configure settings and constants
 angular.module('game').constant('CanvasSettings', angular.extend({
-  MIN_DRAW_WIDTH: 1,
+  MIN_DRAW_WIDTH: 3,
   MAX_DRAW_WIDTH: 30,
 
   DEFAULT_PEN_WIDTH: 3,
   DEFAULT_PEN_COLOUR: 'black',
   DEFAULT_ERASER_WIDTH: 30,
 
-  MIN_DISPLAY_WIDTH: 300,
+  MIN_DISPLAY_WIDTH: 200,
   RESOLUTION_WIDTH: 600,
   RESOLUTION_HEIGHT: 600
 }, window.canvasSettings));

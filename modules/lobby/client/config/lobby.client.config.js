@@ -5,6 +5,6 @@ angular.module('lobby').run(['Menus',
   function (Menus) {}
 ]);
 
-angular.module('game').constant('MouseConstants', {
+angular.module('lobby').constant('PlayerConstants', {
   MAX_NUM_PLAYERS: 16
 });
