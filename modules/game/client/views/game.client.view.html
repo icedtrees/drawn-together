@@ -56,24 +56,26 @@
     </div>
   </div>
 
-   <!--The pregame settings panel -->
+  <!--The pregame settings panel -->
   <div id="settings" class="col" style="display: none; height: 100%; text-align: center">
     <h3 class="drawing-header unselectable">
       <span ng-bind="username === Game.getHost() ? 'You are' : Game.getHost() + ' is'"></span> choosing the game settings...
     </h3>
-<!--    <li ng-repeat="(setting, value) in GameSettings">
-      <div class="col-md-12">
-        <div class="col-md-3">
-          <span ng-bind="value.settingName"></span>
-        </div>
-        <div class="btn-group" ng-repeat="option in value.options">
-          <div ng-if="Game.getHost() !== username" ng-bind="option" ng-hide="option !== chosenSettings[setting]" class="btn btn-success"></div> &lt;!&ndash; to do: the current setting is highlighted, rather than the rest of the settings ng-hidden &ndash;&gt;
-          <div ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" class="btn btn-success" btn-radio="option" ng-click="changeSetting(setting, option)"><span ng-bind="option"></span></div>
+    <div class="col-md-12">
+      <div ng-repeat="(setting, value) in GameSettings">
+        <h4><span ng-bind="value.settingName"></span></h4>
+        <div class="btn-group pregame-group" ng-repeat="option in value.options">
+          <div ng-if="Game.getHost() !== username" ng-bind="option"
+               ng-class="{'active': chosenSettings[setting] === option}"
+               class="btn btn-success pregame-display"></div>
+          <label ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" ng-bind="option"
+                 class="btn btn-success" ng-click="changeSetting(setting, option)" btn-radio="option">
+          </label>
         </div>
       </div>
-    </li>-->
-    <div class="start-game-div">
-      <button class="btn" ng-hide="Game.getHost() !== username" ng-click="startGame()">Start Game</button>
+    </div>
+    <div class="col-md-12 start-game-div">
+      <button class="btn btn-primary" ng-hide="Game.getHost() !== username" ng-click="startGame()">Start Game</button>
     </div>
   </div>
 
@@ -146,18 +148,18 @@
 
     <!-- Undo/redo -->
     <!--<div class="grid">-->
-      <!--<div class="grid-row">-->
-        <!--<div ng-class="{'grid-cell': true, 'draw-tool': true}"-->
-             <!--title="undo"-->
-             <!--ng-click="$parent.$parent.undo()">-->
-          <!--<div class="draw-tool-content"><i class="fa fa-undo"></i></div>-->
-        <!--</div>-->
-        <!--<div ng-class="{'grid-cell': true, 'draw-tool': true}"-->
-             <!--title="redo"-->
-             <!--ng-click="$parent.$parent.redo()">-->
-          <!--<div class="draw-tool-content"><i class="fa fa-repeat"></i></div>-->
-        <!--</div>-->
-      <!--</div>-->
+    <!--<div class="grid-row">-->
+    <!--<div ng-class="{'grid-cell': true, 'draw-tool': true}"-->
+    <!--title="undo"-->
+    <!--ng-click="$parent.$parent.undo()">-->
+    <!--<div class="draw-tool-content"><i class="fa fa-undo"></i></div>-->
+    <!--</div>-->
+    <!--<div ng-class="{'grid-cell': true, 'draw-tool': true}"-->
+    <!--title="redo"-->
+    <!--ng-click="$parent.$parent.redo()">-->
+    <!--<div class="draw-tool-content"><i class="fa fa-repeat"></i></div>-->
+    <!--</div>-->
+    <!--</div>-->
     <!--</div>-->
     <!-- Clear canvas -->
     <div style="margin-bottom: 0; margin-top: 12px">

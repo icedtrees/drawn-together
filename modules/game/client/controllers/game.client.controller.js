@@ -2,9 +2,9 @@
 
 // Create the 'game' controller
 angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', '$state',
-  'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils',
+  'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils', 'TopicList',
   function ($scope, $location, $document, $rootScope, $state, Authentication, Socket,
-            CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils) {
+            CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils, TopicList) {
 
     var isIE = /*@cc_on!@*/false || !!document.documentMode;
     $scope.isIE = isIE;
@@ -13,13 +13,18 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     $scope.CanvasSettings = CanvasSettings;
     $scope.ChatSettings = ChatSettings;
     $scope.GameSettings = GameSettings;
+    $scope.TopicList = TopicList;
 
     // Pregame settings for host to change
     $scope.chosenSettings = {
       numRounds : GameSettings.numRounds.default,
       roundTime : GameSettings.roundTime.default,
-      timeToEnd : GameSettings.timeToEnd.default
+      timeToEnd : GameSettings.timeToEnd.default,
+      topicListName: GameSettings.topicListName.default
     };
+    $scope.TopicLists = new TopicList.TopicLists();
+    $scope.TopicLists.loadTopicLists();
+    GameSettings.topicListName.options = $scope.TopicLists.getAllTopicListNames();
 
     // Create a messages array to store chat messages
     $scope.messages = [];
