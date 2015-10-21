@@ -53,7 +53,7 @@ exports.forgot = function (req, res, next) {
     },
     function (token, user, done) {
       res.render(path.resolve('modules/users/server/templates/reset-password-email'), {
-        name: user.displayName,
+        name: user.username,
         appName: config.app.title,
         url: 'http://' + req.headers.host + '/api/auth/reset/' + token
       }, function (err, emailHTML) {
@@ -71,7 +71,7 @@ exports.forgot = function (req, res, next) {
       smtpTransport.sendMail(mailOptions, function (err) {
         if (!err) {
           res.send({
-            message: 'An email has been sent to the provided email with further instructions.'
+            message: 'We have sent you an email with further instructions to reset your password.'
           });
         } else {
           return res.status(400).send({
@@ -125,7 +125,8 @@ exports.reset = function (req, res, next) {
         }
       }, function (err, user) {
         if (!err && user) {
-          if (passwordDetails.newPassword === passwordDetails.verifyPassword) {
+          if (passwordDetails.newPassword === passwordDetails.verifyPassword  ||
+              (passwordDetails.newPassword === '' && passwordDetails.verifyPassword === '')) {
             user.password = passwordDetails.newPassword;
             user.resetPasswordToken = undefined;
             user.resetPasswordExpires = undefined;
@@ -165,7 +166,7 @@ exports.reset = function (req, res, next) {
     },
     function (user, done) {
       res.render('modules/users/server/templates/reset-password-confirm-email', {
-        name: user.displayName,
+        name: user.username,
         appName: config.app.title
       }, function (err, emailHTML) {
         done(err, emailHTML, user);
