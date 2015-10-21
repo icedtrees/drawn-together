@@ -21,8 +21,8 @@
   };
 
   exports.Timer = function () {
-    this.timeLeft;
-    this.paused = true;
+    var timeLeft;
+    var paused = true;
   };
 
 })((typeof process === 'undefined' || !process.versions) ? // Not a node.js environment

@@ -143,6 +143,24 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
                 // Solid circle with the matching pen colour
                 previewCtx.beginPath();
                 previewCtx.arc(mouse.x, mouse.y, (+scope.drawWidth[scope.mouseMode] + 1) / 2, 0, Math.PI * 2);
+
+
+                // Add outline of most contrasting colour
+                // Get the rgb value from html colour name or hex value
+                var d = document.createElement("div");
+                d.style.color = scope.penColour;
+                document.body.appendChild(d);
+                var rgb = window.getComputedStyle(d).color.replace(/[^\d,]/g, '').split(',');
+                document.body.removeChild(d);
+                var r = rgb[0];
+                var g = rgb[1];
+                var b = rgb[2];
+                var luminance = 0.2126*r + 0.7152*g + 0.0722*b;
+                // Choose the more contrasting colour (black/white) according to luminance
+                previewCtx.strokeStyle = luminance < 128 ? '#fff' : '#000';
+                previewCtx.lineWidth = 1;
+                previewCtx.stroke();
+
                 previewCtx.fillStyle = scope.penColour;
                 previewCtx.fill();
               } else if (scope.mouseMode === 'eraser') {

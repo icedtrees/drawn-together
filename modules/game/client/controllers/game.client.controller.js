@@ -5,6 +5,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
   'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils',
   function ($scope, $location, $document, $rootScope, $state, Authentication, Socket,
             CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils) {
+
+    var isIE = /*@cc_on!@*/false || !!document.documentMode;
+    $scope.isIE = isIE;
+
     // Settings objects
     $scope.CanvasSettings = CanvasSettings;
     $scope.ChatSettings = ChatSettings;
@@ -76,11 +80,31 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       Socket.emit('requestState');
     }
 
+    var scroller = document.getElementById('chat-container');
+    var ieIsEnd = function () {
+      var diff = (scroller.scrollTop - (scroller.scrollHeight - scroller.offsetHeight));
+      return (-20 < diff && diff < 20); // close enough
+    };
+    var ieScroll = function() {
+      if (isIE) {
+        console.log('ie-scroll');
+        scroller.scrollTop = scroller.scrollHeight;
+      }
+    };
+
+    $scope.toolboxUsable = function () {
+      return $scope.Game.started && $scope.Game.isDrawer($scope.username);
+    };
+
     /*
      * Set the game state based on what the server tells us it currently is
      */
     Socket.on('gameState', function (state) {
       angular.extend($scope.Game, state);
+
+      // We now know what the state of the game is, so we can resize appropriately
+      resizeColumns();
+      resizeColumns();
     });
 
     /*
@@ -96,6 +120,11 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     Socket.on('resetGame', function () {
       $scope.canvas.draw({type: 'clear'});
       $scope.Game.resetGame();
+
+      // Game layout changes, resize to get the toolbox to display properly
+      // No idea why this has to be done twice
+      resizeColumns();
+      resizeColumns();
     });
 
     /*
@@ -127,12 +156,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
      * }
      */
     Socket.on('gameMessage', function (message) {
-      // TODO remove in future release (including the extra debug field for messages)
-      // Debugging information for close guesses.
-      if (message.debug) {
-        console.log(message.debug);
+      var ieNeedsScroll = false;
+      if (isIE && (ieIsEnd() || Array.isArray(message))) {
+        ieNeedsScroll = true;
       }
-
       if (Array.isArray(message)) {
         message.forEach(function (m) {
           $scope.messages.push(m);
@@ -144,6 +171,11 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       // delete old messages if MAX_MESSAGES is exceeded
       while ($scope.messages.length > ChatSettings.MAX_MESSAGES) {
         $scope.messages.shift();
+      }
+
+      if (ieNeedsScroll) {
+        ieScroll();
+        setTimeout(ieScroll, 100); // Wait a bit for element to load
       }
     });
 
@@ -180,6 +212,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     Socket.on('startGame', function(settings) {
       angular.extend($scope.Game, settings);
       $scope.Game.startGame();
+
+      // Game layout changes, resize to get the toolbox to display properly
+      resizeColumns();
+      resizeColumns();
     });
 
     Socket.on('gameFinished', function() {
@@ -207,6 +243,11 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
 
     // Create a controller method for sending messages
     $scope.sendMessage = function () {
+      var ieNeedsScroll = false;
+      if (isIE && ieIsEnd()) {
+        ieNeedsScroll = true;
+      }
+
       // Disallow empty messages
       if (/^\s*$/.test($scope.messageText)) {
         $scope.messageText = '';
@@ -223,6 +264,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
 
       // Clear the message text
       $scope.messageText = '';
+
+      if (ieNeedsScroll) {
+        ieScroll();
+      }
     };
 
     // Send a 'finished drawing' message to the server. Must be the current drawer
@@ -246,10 +291,9 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     function resizeColumns () {
       var leftColumn = document.getElementById('left-column');
       var leftColumnStyle = window.getComputedStyle(leftColumn, null);
+      var settings = document.getElementById('settings');
       var middleColumn = document.getElementById('middle-column');
-      var middleColumnStyle = window.getComputedStyle(middleColumn, null);
       var rightColumn = document.getElementById('right-column');
-      var rightColumnWidth = rightColumn.offsetWidth;
       var canvas = document.getElementById('drawing-canvas');
 
       var gameContainer = document.getElementById('game-container');
@@ -259,10 +303,16 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       var leftMinWidth = parseInt(leftColumnStyle.getPropertyValue('min-width'), 10);
       var leftMaxWidth = parseInt(leftColumnStyle.getPropertyValue('max-width'), 10);
 
+      settings.style.display = 'none';
+      middleColumn.style.display = 'flex';
+      rightColumn.style.display = 'block';
+      var middleColumnStyle = window.getComputedStyle(middleColumn, null);
+      var rightColumnWidth = rightColumn.offsetWidth + 10;
+
       // Maximum width of middle column possible based on left and right elements
       var maxMiddleWidth = windowWidth - rightColumn.offsetWidth - leftMinWidth;
       var middlePadding = parseInt(middleColumnStyle.getPropertyValue('padding-left'), 10) +
-                          parseInt(middleColumnStyle.getPropertyValue('padding-right'), 10);
+        parseInt(middleColumnStyle.getPropertyValue('padding-right'), 10);
 
       // Maximum width of canvas based on maximum width of middle column
       var maxCanvasWidth = maxMiddleWidth - middlePadding;
@@ -273,38 +323,58 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
 
       var canvasWidth = Math.min(maxMiddleWidth - middlePadding, canvasHeight * aspectRatio);
       canvasWidth = Math.max(canvasWidth, CanvasSettings.MIN_DISPLAY_WIDTH);
-      middleColumn.style.width = canvasWidth + middlePadding + 'px';
+      var middleColumnWidth = canvasWidth + middlePadding;
+      middleColumnWidth -= 20; // Fix display on firefox
+      middleColumn.style.width = middleColumnWidth + 'px';
 
       // Left column width is everything left over
-      var leftColumnWidth = windowWidth - rightColumnWidth - middleColumn.offsetWidth;
-      var spaceLeftOver = leftColumnWidth - leftMaxWidth;
-      leftColumnWidth = Math.min(leftColumnWidth, leftMaxWidth);
-      leftColumn.style.width = leftColumnWidth + 'px';
-
-      // Left and right padding for space left over
-      if (spaceLeftOver > 0) {
-        gameContainer.style.paddingLeft = (spaceLeftOver / 2) + 'px';
-        gameContainer.style.paddingRight = (spaceLeftOver / 2) + 'px';
-      } else {
-        gameContainer.style.paddingLeft = '0px';
-        gameContainer.style.paddingRight = '0px';
-      }
+      var spaceLeftOver = windowWidth - rightColumnWidth - middleColumn.offsetWidth;
 
       // Rescale and redraw canvas contents
       if ($scope.canvas) {
         $scope.canvas.rescale();
       }
+
+      if (!$scope.Game.started) {
+        settings.style.display = 'block';
+        middleColumn.style.display = 'none';
+
+        // Settings width is same as min window width would otherwise be
+        settings.style.width = middleColumnWidth + 'px';
+      }
+      var leftColumnWidth = Math.min(spaceLeftOver, leftMaxWidth);
+      leftColumn.style.width = leftColumnWidth + 'px';
+      spaceLeftOver -= leftColumnWidth;
+
+      // Left and right padding for space left over
+      if (spaceLeftOver > 0) {
+        // Break 0.5 double rounding up
+        gameContainer.style.paddingLeft = Math.round(spaceLeftOver / 2 - 0.01) + 'px';
+        gameContainer.style.paddingRight = Math.round(spaceLeftOver / 2 + 0.01) + 'px';
+      } else {
+        gameContainer.style.paddingLeft = '0px';
+        gameContainer.style.paddingRight = '0px';
+      }
+
+      $scope.loaded = true; // We can display things now
     }
     window.addEventListener('resize', function (e) {
       resizeColumns();
+      resizeColumns();
     });
-    resizeColumns();
 
     // Remove the event listener when the controller instance is destroyed
     $scope.$on('$destroy', function () {
+      Socket.removeListener('gameState');
+      Socket.removeListener('advanceRound');
+      Socket.removeListener('resetGame');
+      Socket.removeListener('markCorrectGuess');
+      Socket.removeListener('userConnect');
+      Socket.removeListener('userDisconnect');
       Socket.removeListener('gameMessage');
       Socket.removeListener('canvasMessage');
-      Socket.removeListener('userUpdate');
+      Socket.removeListener('topic');
+      Socket.removeListener('startGame');
       Socket.removeListener('updateDrawHistory');
     });
 
@@ -313,7 +383,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       var doPrevent = false;
 
       // Check that we are on the game page and that the backspace key was pressed
-      if ($location.path() === $state.get('home').url && event.keyCode === 8) {
+      if ($location.path() === $state.get('game').url && event.keyCode === 8) {
         var d = event.srcElement || event.target;
         // Check if an input field is selected
         if ((d.tagName.toLowerCase() === 'input' &&
@@ -332,5 +402,6 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
         event.preventDefault();
       }
     });
+
   }
 ]);

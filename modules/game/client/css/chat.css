@@ -2,6 +2,7 @@
   /* Make the chat container take up the rest of the space after the player list */
   -webkit-flex:1;
   flex: 1;
+  -ms-flex: 1;
   overflow-y: scroll;
   border: 1px solid #d3d3d3;
 }
