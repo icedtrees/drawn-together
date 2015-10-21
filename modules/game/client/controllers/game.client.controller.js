@@ -18,7 +18,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     $scope.chosenSettings = {
       numRounds : GameSettings.numRounds.default,
       roundTime : GameSettings.roundTime.default,
-      timeToEnd : GameSettings.timeToEnd.default
+      timeAfterGuess : GameSettings.timeAfterGuess.default
     };
 
     // Create a messages array to store chat messages
@@ -61,6 +61,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     $scope.Utils = Utils;
 
     $scope.messageText = '';
+    $scope.timeLeft = 0;
 
     // If user is not signed in then redirect to signin page
     if (!Authentication.user) {
@@ -117,7 +118,6 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
      * The game has finished and is ready to be restarted
      */
     Socket.on('resetGame', function () {
-      $scope.messages = [];
       $scope.canvas.draw({type: 'clear'});
       $scope.Game.resetGame();
 
@@ -204,6 +204,11 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       $scope.topic = topic;
     });
 
+    Socket.on('updateTime', function (timeLeft) {
+      console.log(timeLeft);
+      $scope.timeLeft = timeLeft;
+    });
+
     // Server tells client the game has started with the given settings
     Socket.on('startGame', function(settings) {
       angular.extend($scope.Game, settings);
@@ -212,6 +217,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       // Game layout changes, resize to get the toolbox to display properly
       resizeColumns();
       resizeColumns();
+    });
+
+    Socket.on('gameFinished', function() {
+      $scope.Game.finished = true;
     });
 
     // Server tells client a setting has been updated
