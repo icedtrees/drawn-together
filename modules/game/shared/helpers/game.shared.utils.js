@@ -21,8 +21,17 @@
   };
 
   exports.Timer = function () {
-    var timeLeft;
-    var paused = true;
+    this.timeLeft = 0;
+    this.paused = true;
+  };
+
+  exports.Timer.tick = function(timer) {
+    if (timer.paused) {
+      return;
+    }
+
+    timer.timeLeft -= timer.timeLeft === 0 ? 0 : 1;
+    return timer.timeLeft;
   };
 
 })((typeof process === 'undefined' || !process.versions) ? // Not a node.js environment

@@ -205,6 +205,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     });
 
     Socket.on('updateTime', function (timeLeft) {
+      console.log(timeLeft);
       $scope.timeLeft = timeLeft;
     });
 

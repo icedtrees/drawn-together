@@ -120,7 +120,7 @@ module.exports = function (io, socket) {
   if (!timerSet) {
     timer = new Utils.Timer();
     timerSet = true;
-    timerInterval = setInterval(tick, 1000);
+    timerInterval = setInterval(tick, 1000); // call tick every second
   }
 
   function broadcastMessage(message) {
@@ -219,8 +219,7 @@ module.exports = function (io, socket) {
       return;
     }
 
-    timer.timeLeft--;
-    var timeLeft = timer.timeLeft;
+    var timeLeft = Utils.Timer.tick(timer);
     io.emit('updateTime', timeLeft);
 
     if (timeLeft === 20) {

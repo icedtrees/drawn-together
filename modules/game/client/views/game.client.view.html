@@ -56,7 +56,7 @@
     </div>
   </div>
 
-   <!--The pregame settings panel -->
+  <!--The pregame settings panel -->
   <div id="settings" class="col" style="display: none; height: 100%; text-align: center">
     <h3 class="drawing-header unselectable">
       <span ng-bind="username === Game.getHost() ? 'You are' : Game.getHost() + ' is'"></span> choosing the game settings...
@@ -71,10 +71,10 @@
           <div ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" class="btn btn-success" btn-radio="option" ng-click="changeSetting(setting, option)"><span ng-bind="option"></span></div>
         </div>
       </div>
+    </li>-->
+    <div class="start-game-div">
+      <button class="btn" ng-hide="Game.getHost() !== username" ng-click="startGame()">Start Game</button>
     </div>
-  </li>-->
-  <div class="start-game-div" ng-hide="Game.started">
-    <button class="btn" ng-hide="Game.getHost() !== username" ng-click="startGame()">Start Game</button>
   </div>
 
   <!-- The middle column -->
