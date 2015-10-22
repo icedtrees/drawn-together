@@ -197,7 +197,6 @@ module.exports = function (io, socket) {
   }
 
   function timesUp() {
-    console.log('timesup');
     broadcastMessage({
       class: 'status',
       text: Game.correctGuesses === 0 ? "Time's up! No one guessed " + username + "'s drawing" : 'Round over!'

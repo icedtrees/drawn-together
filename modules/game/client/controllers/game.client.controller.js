@@ -90,7 +90,6 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     };
     var ieScroll = function() {
       if (isIE) {
-        console.log('ie-scroll');
         scroller.scrollTop = scroller.scrollHeight;
       }
     };
