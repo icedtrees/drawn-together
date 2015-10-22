@@ -7,11 +7,9 @@
 (function (exports) {
   exports.TopicLists = function () {
     this.topicLists = {};
-    console.log('initialised empty topicLists dict');
   };
 
-
-  // TODO: might have to check if the topicListName already exists
+  // For custom word lists, we would have to check if the topicListName already exists
   exports.TopicLists.prototype.addTopicList = function (topicListName, easyWordNames, mediumWordNames, hardWordNames) {
     var newTopicList = [];
     for (var i = 0; i < easyWordNames.length; i++) {
@@ -35,8 +33,6 @@
     this.topicLists[topicListName] = newTopicList;
   };
 
-
-
 // Get all the words with specified difficulty from the topicList called topicListName
   exports.TopicLists.prototype.getTopicListWordNames = function (topicListName, difficulty) {
     var words = [];
@@ -49,6 +45,26 @@
     }
     return words;
   };
+
+  exports.TopicLists.prototype.getAllTopicListNames = function () {
+    var topicListNames = [];
+    for (var topicListName in this.topicLists) {
+      topicListNames.push(topicListName);
+    }
+    return topicListNames;
+  };
+
+  // Shuffle the topic list in-place using Knuth shuffle
+  exports.TopicLists.prototype.shuffleWords = function (topicListWords) {
+    for (var i = topicListWords.length - 2; i > 0; i--) {
+      var j = Math.floor(Math.random() * i);
+      var temp = topicListWords[j];
+      topicListWords[j] = topicListWords[i];
+      topicListWords[i] = temp;
+    }
+    return topicListWords;
+  };
+
 
   exports.TopicLists.prototype.loadTopicLists = function () {
     // Add all of our word lists
@@ -69,16 +85,6 @@
       ['Asparagus', ' Beet greens', 'Bok choy', ' Brussels sprouts', 'Celery', ' Collard greens', 'Fennel', 'Kale', 'Mustard greens', 'Squash', 'Sweet potatoes', 'Turnip greens', 'Apricots', 'Cantaloupe', 'Cranberries', ' Figs', ' Papaya', ' Prunes', 'Raspberries', '  Cod', ' Salmon', ' Sardines', ' Scallops', ' Shrimp', 'Cilantro', ' Coriander seeds', ' Cinnamon', ' Cloves', ' Cumin seeds', ' Dill', ' Ginger', ' Pumpkin seeds', ' Sunflower seeds', ' Chickpeas', ' Kidney beans', ' Lentils', ' Cashews', 'Flaxseeds', 'Leeks'],
       ['Romaine lettuce', ' Sea vegetables', 'Swiss chard', ' Lima beans', ' Miso', ' Navy beans', ' Pinto beans', 'Quinoa', ' Rye', ' Whole wheat', 'Parsley', ' Peppermint', ' Rosemary', 'Mustard seeds', ' Oregano', '  Sage', ' Thyme', ' Turmeric', ' Sesame seeds', 'Tempeh']
     );
-    console.log('finished loading topiclists: default, agile, food');
-  };
-
-  exports.TopicLists.prototype.getAllTopicListNames = function () {
-    var topicListNames = [];
-    for (var topicListName in this.topicLists) {
-      topicListNames.push(topicListName);
-      console.log('topic list name: ' + topicListName);
-    }
-    return topicListNames;
   };
 
 })((typeof process === 'undefined' || !process.versions) ? // Not a node.js environment

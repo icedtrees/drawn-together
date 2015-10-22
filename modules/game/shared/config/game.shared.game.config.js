@@ -1,6 +1,10 @@
 'use strict';
 
 (function(exports) {
+    //var TopicList = require('../helpers/game.shared.topiclist.js');
+    //var topicLists = new TopicList.TopicLists();
+    //topicLists.loadTopicLists();
+
     exports.numRounds = {
         settingName : "Number of rounds",
         default : 5,
@@ -19,9 +23,9 @@
     exports.topicListName = {
         settingName : "Topic list name",
         default: 'default',
-        options: []
+        options: [] //set in game/server/sockets/game.server.socket.config.js
     };
-    exports.difficulty = {
+    exports.topicListDifficulty = {
         settingName : "Difficulty",
         default: 'all',
         options : ['easy', 'medium', 'hard', 'all']

@@ -13,6 +13,9 @@
       this.numDrawers = initialState.numDrawers;
       this.roundTime = initialState.roundTime;
       this.timeToEnd = initialState.timeToEnd;
+      this.topicListName = initialState.topicListName;
+      this.topicListDifficulty = initialState.topicListDifficulty;
+      this.topicListWords = initialState.topicListWords;
     }
   };
 
@@ -26,7 +29,7 @@
   };
 
   exports.Game.prototype.getTopic = function () {
-    return "random things";
+    return this.topicListName;
   };
 
   exports.Game.prototype.addUser = function (username, profileImageURL) {

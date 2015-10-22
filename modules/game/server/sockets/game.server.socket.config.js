@@ -15,13 +15,21 @@ var levenshtein = clj_fuzzy.metrics.levenshtein;
 
 // A timeout created to end the round seconds when someone guesses the prompt
 var roundTimeout;
+
+var topicLists = new TopicList.TopicLists();
+topicLists.loadTopicLists();
+GameSettings.topicListName.options = topicLists.getAllTopicListNames();
+
 // Game object encapsulating game logic
 var Game = new GameLogic.Game({
   numRounds: 5,
   numDrawers: 1,
   roundTime: 90,
-  timeToEnd: 20
-}); // parameters: numRounds, numDrawers, timeToEnd
+  timeToEnd: 20,
+  topicListName: 'default',
+  topicListDifficulty: 'all',
+  topicListWords: topicLists.getTopicListWordNames('default', 'all')
+}); // parameters: numRounds, numDrawers, timeToEnd, topicListName, topicListDifficulty, topicListWords
 
 // Dictionary counting number of connects made by each user
 var userConnects = {};
@@ -54,9 +62,6 @@ var drawHistory = [];
 
 // Every chat message sent
 var gameMessages = [];
-
-var topicLists = new TopicList.TopicLists();
-topicLists.loadTopicLists();
 
 function checkGuess(guess, topic) {
   // STAGE 1 - basic JW distance
@@ -117,21 +122,14 @@ module.exports = function (io, socket) {
     io.emit('gameMessage', message);
   }
 
-  // Get the default topic list
-  var topicList = topicLists.getTopicListWordNames('default', 'all');
-  // Shuffle the topic list in-place using Knuth shuffle
-  for (var i = topicList.length - 2; i > 0; i--) {
-    var j = Math.floor(Math.random() * i);
-    var temp = topicList[j];
-    topicList[j] = topicList[i];
-    topicList[i] = temp;
-  }
+  topicLists.shuffleWords(Game.topicListWords);
 
   function sendTopic() {
+    console.log("server: i think i'm sending topic from " + Game.topicListName + "," + Game.topicListDifficulty + ". words are: " + Game.topicListWords);
     // Select a new topic and send it to the new drawer
-    topicList.push(topicList.shift());
+    Game.topicListWords.push(Game.topicListWords.shift());
     Game.getDrawers().forEach(function (drawer) {
-      io.to(drawer).emit('topic', topicList[0]);
+      io.to(drawer).emit('topic', Game.topicListWords[0]);
     });
 
     // Announce the new drawers
@@ -154,7 +152,7 @@ module.exports = function (io, socket) {
     // Explain what the word was
     broadcastMessage({
       class: 'status',
-      text: 'Round over! The topic was "' + topicList[0] + '"'
+      text: 'Round over! The topic was "' + Game.topicListWords[0] + '"'
     });
 
     if (gameFinished) {
@@ -233,6 +231,9 @@ module.exports = function (io, socket) {
 
       // apply settings selected by host
       Game[change.setting] = change.option;
+      // Get the topic list for the new topic list settings
+      Game.topicListWords = topicLists.getTopicListWordNames(Game.topicListName, Game.topicListDifficulty);
+      topicLists.shuffleWords(Game.topicListWords);
 
       // tell all clients about the new setting
       io.emit('updateSetting', change);
@@ -253,7 +254,7 @@ module.exports = function (io, socket) {
 
     // Send current topic if they are the drawer
     if (Game.isDrawer(username)) {
-      socket.emit('topic', topicList[0]);
+      socket.emit('topic', Game.topicListWords[0]);
     }
 
   });
@@ -285,7 +286,7 @@ module.exports = function (io, socket) {
 
     // Compare the lower-cased versions
     var guess = message.text.toLowerCase();
-    var topic = topicList[0].toLowerCase();
+    var topic = Game.topicListWords[0].toLowerCase();
     var filteredGuess = guess.replace(/[\W_]/g, ''); // only keep letters and numbers
     var filteredTopic = topic.replace(/[\W_]/g, '');
     if (filteredGuess === filteredTopic) {
