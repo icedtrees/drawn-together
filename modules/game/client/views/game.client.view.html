@@ -90,14 +90,16 @@
         </h3>
       </div>
     </div>
-    <div class="drawing-timer-wrapper">
+
+    <div ng-class="{'drawing-timer-wrapper': true, 'game-over': Game.currentRound >= Game.numRounds}">
       <div class="drawing-timer" ng-style="{'background-color': 'lightgreen', 'width': timerTopLeft / 10 / Game.roundTime + '%'}"></div>
       <span ng-bind="Math.round(timerTopLeft / 1000)"></span>
     </div>
-    <div class="drawing-timer-wrapper">
+    <div ng-class="{'drawing-timer-wrapper': true, 'game-over': Game.currentRound >= Game.numRounds}">
       <div class="drawing-timer" ng-style="{'background-color': 'pink', 'width': timerBotLeft / 10 / Game.timeAfterGuess + '%'}"></div>
       <span ng-bind="Math.round(timerBotLeft / 1000)"></span>
     </div>
+
     <div id="drawing-canvas" class="dt-drawing" ng-style="{cursor: Game.isDrawer(username) ? 'none' : 'default'}"></div>
   </div>
 
