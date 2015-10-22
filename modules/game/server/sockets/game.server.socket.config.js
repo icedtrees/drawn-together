@@ -282,7 +282,7 @@ module.exports = function (io, socket) {
     }
   });
 
-  // Start the game
+  // Change a setting as the host
   socket.on('changeSetting', function (change) {
     if (!Game.started && username === Game.getHost()) {
       // make sure change uses one of the options given
