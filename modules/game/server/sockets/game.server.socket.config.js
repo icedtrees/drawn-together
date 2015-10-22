@@ -163,6 +163,30 @@ module.exports = function (io, socket) {
               'in ' + GameSettings.TIME_BETWEEN_GAMES + ' seconds'
       });
       io.emit('gameFinished');
+
+      // Draw winners on canvas
+      var message = {
+        type: 'text',
+        text: 'The winners of this game are:',
+        x: 50,
+        y: 50
+      };
+      io.emit('canvasMessage', message);
+      message.x += 50;
+      message.y += 50;
+      for (var i = 0; i < winners.length; i++) {
+        message.text = winners[i];
+        io.emit('canvasMessage', message);
+        message.y += 50;
+      }
+      message.x -= 50;
+      message.y = 500;
+      message.text = 'Please respect the other contestants';
+      io.emit('canvasMessage', message);
+      message.y += 35;
+      message.text = 'and do not deface this message';
+      io.emit('canvasMessage', message);
+
       setTimeout(function () {
         timerTop.pause();
         timerBot.pause();
@@ -408,6 +432,12 @@ module.exports = function (io, socket) {
       }
 
       // Emit the 'canvasMessage' event
+      socket.broadcast.emit('canvasMessage', message);
+    }
+
+    // At the end of the game everyone can draw but not clear
+    if (Game.finished) {
+      drawHistory.push(message);
       socket.broadcast.emit('canvasMessage', message);
     }
   });

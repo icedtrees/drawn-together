@@ -95,7 +95,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     };
 
     $scope.toolboxUsable = function () {
-      return $scope.Game.started && $scope.Game.isDrawer($scope.username);
+      return $scope.Game.started && $scope.Game.isDrawer($scope.username) || $scope.Game.finished;
     };
 
     /*
