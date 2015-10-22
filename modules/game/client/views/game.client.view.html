@@ -87,10 +87,16 @@
         <h3 class="text-center unselectable">
           <span ng-if="Game.currentRound !== undefined && Game.numRounds !== undefined" ng-bind="Game.currentRound < Game.numRounds ? 'Round ' + (Game.currentRound + 1) + ':' : 'Game over!'"></span>
           <span ng-if="Game.getDrawers().length" ng-bind="Game.isDrawer(username) ? 'Draw &quot;' + topic + '&quot;' : Utils.toCommaListIs(Game.getDrawers()) + ' drawing'"></span>
-          <span ng-bind="'Top ' + timerTopLeft / 1000"></span>
-          <span ng-bind="'Bot ' + timerBotLeft / 1000"></span>
         </h3>
       </div>
+    </div>
+    <div class="drawing-timer-wrapper">
+      <div class="drawing-timer" ng-style="{'background-color': 'lightgreen', 'width': timerTopLeft / 10 / Game.roundTime + '%'}"></div>
+      <span ng-bind="Math.round(timerTopLeft / 1000)"></span>
+    </div>
+    <div class="drawing-timer-wrapper">
+      <div class="drawing-timer" ng-style="{'background-color': 'pink', 'width': timerBotLeft / 10 / Game.timeAfterGuess + '%'}"></div>
+      <span ng-bind="Math.round(timerBotLeft / 1000)"></span>
     </div>
     <div id="drawing-canvas" class="dt-drawing" ng-style="{cursor: Game.isDrawer(username) ? 'none' : 'default'}"></div>
   </div>

@@ -9,6 +9,9 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     var isIE = /*@cc_on!@*/false || !!document.documentMode;
     $scope.isIE = isIE;
 
+    // Useful libraries
+    $scope.Math = window.Math;
+
     // Settings objects
     $scope.CanvasSettings = CanvasSettings;
     $scope.ChatSettings = ChatSettings;
