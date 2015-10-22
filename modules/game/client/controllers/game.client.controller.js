@@ -113,7 +113,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     Socket.on('advanceRound', function () {
       $scope.Game.advanceRound();
       $scope.timerTop.restart(undefined, $scope.Game.roundTime * 1000);
-      console.log('restarted');
+      $scope.timerBot.pause();
       $scope.timerBot.delay = $scope.Game.timeAfterGuess * 1000;
     });
 
