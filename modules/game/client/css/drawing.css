@@ -23,11 +23,11 @@
 
 .drawing-timer-wrapper {
   position: relative;
-  height: 20px;
+  height: 15px;
   width: 100%;
   text-align: center;
-  font-size: 15px;
-  outline: 1px solid grey;
+  font-size: 10px;
+  box-shadow: -1px 3px 4px rgba(0, 0, 0, 0.1) inset;
 }
 
 .drawing-timer-wrapper.game-over {

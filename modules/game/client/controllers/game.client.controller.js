@@ -340,6 +340,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       var leftMaxWidth = parseInt(leftColumnStyle.getPropertyValue('max-width'), 10);
 
       settings.style.display = 'none';
+      leftColumn.style.display = 'flex';
       middleColumn.style.display = 'flex';
       rightColumn.style.display = 'block';
       var middleColumnStyle = window.getComputedStyle(middleColumn, null);

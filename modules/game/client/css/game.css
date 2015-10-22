@@ -4,7 +4,7 @@
   /* leave 50 for top bar and 20 for above padding*/
   height: calc(100vh - 50px - 20px);
   min-width: 800px;
-  min-height: 600px;
+  min-height: 500px;
 }
 
 .left-sidebar {

@@ -168,24 +168,31 @@ module.exports = function (io, socket) {
       // Draw winners on canvas
       var message = {
         type: 'text',
-        text: 'The winners of this game are:',
-        x: 50,
+        text: 'The ' + (winners.length === 1 ? 'winner is' : 'winners are') + ':',
+        align: 'center',
+        colour: 'black',
+        x: 300,
         y: 50
       };
+      drawHistory.push(message);
       io.emit('canvasMessage', message);
-      message.x += 50;
+
       message.y += 50;
       for (var i = 0; i < winners.length; i++) {
         message.text = winners[i];
+        drawHistory.push(message);
         io.emit('canvasMessage', message);
         message.y += 50;
       }
-      message.x -= 50;
+
+      message.align = 'center';
       message.y = 500;
       message.text = 'Please respect the other contestants';
+      drawHistory.push(message);
       io.emit('canvasMessage', message);
       message.y += 35;
       message.text = 'and do not deface this message';
+      drawHistory.push(message);
       io.emit('canvasMessage', message);
 
       setTimeout(function () {
@@ -212,9 +219,9 @@ module.exports = function (io, socket) {
     timerRemind.restart(function () {
       broadcastMessage({
         class: 'status',
-        text: '20 seconds left!'
+        text: '10 seconds left!'
       });
-    }, (Game.roundTime - 20) * 1000);
+    }, (Game.roundTime - 10) * 1000);
     timerBot.delay = Game.timeAfterGuess * 1000;
   }
 
@@ -233,7 +240,7 @@ module.exports = function (io, socket) {
   function timesUp() {
     broadcastMessage({
       class: 'status',
-      text: Game.correctGuesses === 0 ? "Time's up! No one guessed " + username + "'s drawing" : 'Round over!'
+      text: Game.correctGuesses === 0 ? "Time's up! No one guessed " + Game.getDrawers()[0] + "'s drawing" : 'Round over!'
     });
 
     advanceRound();

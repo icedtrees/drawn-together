@@ -1,7 +1,7 @@
 <!-- The game view -->
 <section id="game-container" class="row game-container" ng-controller="GameController" ng-style="{'visible': loaded}">
   <!-- Left column -->
-  <div id="left-column" class="col left-sidebar">
+  <div id="left-column" class="col left-sidebar" style="display: none;">
     <!-- Lobby Information -->
     <div class="lobby-info ui-panel unselectable bg-primary">
       <h4><span ng-bind="Game.getHost()"></span>'s lobby</h4>
@@ -34,7 +34,7 @@
         <ul class="list-unstyled">
           <!-- List all messages -->
           <li class="col-xs-12 col-md-12 game-message wordwrap" ng-class="message.class" ng-repeat="message in messages">
-            <span ng-bind="message.username" class="username"></span>
+            <span ng-if="message.class !== 'status'" ng-bind="message.username + ':'" class="username"></span>
 
             <span class="message-text" ng-if="message.class !== 'status'" ng-bind="message.text"></span>
             <span class="message-text" ng-if="message.class === 'status'" ng-bind-html="message.text"></span>
