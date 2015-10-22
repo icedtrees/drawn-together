@@ -1,9 +1,9 @@
 'use strict';
 
 // Create the 'game' controller
-angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', '$state',
+angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', '$state', '$interval',
   'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils',
-  function ($scope, $location, $document, $rootScope, $state, Authentication, Socket,
+  function ($scope, $location, $document, $rootScope, $state, $interval, Authentication, Socket,
             CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils) {
 
     var isIE = /*@cc_on!@*/false || !!document.documentMode;
@@ -112,6 +112,9 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
      */
     Socket.on('advanceRound', function () {
       $scope.Game.advanceRound();
+      $scope.timerTop.restart(undefined, $scope.Game.roundTime * 1000);
+      console.log('restarted');
+      $scope.timerBot.delay = $scope.Game.timeAfterGuess * 1000;
     });
 
     /*
@@ -204,15 +207,45 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       $scope.topic = topic;
     });
 
-    Socket.on('updateTime', function (timeLeft) {
-      console.log(timeLeft);
-      $scope.timeLeft = timeLeft;
+    Socket.on('updateTime', function (timers) {
+      $scope.timerTop = new Utils.Timer();
+      $scope.timerBot = new Utils.Timer();
+      if (timers.timerTop.paused) {
+        $scope.timerTop.delay = timers.timerTop.delay;
+      } else {
+        $scope.timerTop.restart(undefined, timers.timerTop.delay);
+      }
+      if (timers.timerBot.paused) {
+        $scope.timerBot.delay = timers.timerBot.delay;
+      } else {
+        $scope.timerBot.restart(undefined, timers.timerBot.delay);
+      }
     });
+
+    Socket.on('switchTimer', function () {
+      $scope.timerTop.pause();
+      $scope.timerBot.start();
+    });
+
+    $interval(function () {
+      if ($scope.timerTop) {
+        $scope.timerTopLeft = $scope.timerTop.timeLeft();
+      } else {
+        $scope.timerTopLeft = 0;
+      }
+      if ($scope.timerBot) {
+        $scope.timerBotLeft = $scope.timerBot.timeLeft();
+      } else {
+        $scope.timerBotLeft = 0;
+      }
+    }, 50);
 
     // Server tells client the game has started with the given settings
     Socket.on('startGame', function(settings) {
       angular.extend($scope.Game, settings);
       $scope.Game.startGame();
+      $scope.timerTop.restart(undefined, $scope.Game.roundTime * 1000);
+      $scope.timerBot.delay = $scope.Game.timeAfterGuess * 1000;
 
       // Game layout changes, resize to get the toolbox to display properly
       resizeColumns();

@@ -87,6 +87,8 @@
         <h3 class="text-center unselectable">
           <span ng-if="Game.currentRound !== undefined && Game.numRounds !== undefined" ng-bind="Game.currentRound < Game.numRounds ? 'Round ' + (Game.currentRound + 1) + ':' : 'Game over!'"></span>
           <span ng-if="Game.getDrawers().length" ng-bind="Game.isDrawer(username) ? 'Draw &quot;' + topic + '&quot;' : Utils.toCommaListIs(Game.getDrawers()) + ' drawing'"></span>
+          <span ng-bind="'Top ' + timerTopLeft / 1000"></span>
+          <span ng-bind="'Bot ' + timerBotLeft / 1000"></span>
         </h3>
       </div>
     </div>

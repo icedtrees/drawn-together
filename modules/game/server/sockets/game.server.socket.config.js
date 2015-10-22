@@ -13,9 +13,8 @@ var porter = clj_fuzzy.stemmers.porter;
 var levenshtein = clj_fuzzy.metrics.levenshtein;
 
 // Server timer
-var timer;
-var timerInterval;
-var timerSet = false; // only set server timer once
+var timerTop = new Utils.Timer();
+var timerBot = new Utils.Timer();
 
 // Game object encapsulating game logic
 var Game =  new GameLogic.Game({
@@ -117,12 +116,6 @@ function matchingWords(guess, topic) {
 
 // Create the game configuration
 module.exports = function (io, socket) {
-  if (!timerSet) {
-    timer = new Utils.Timer();
-    timerSet = true;
-    timerInterval = setInterval(tick, 1000); // call tick every second
-  }
-
   function broadcastMessage(message) {
     message.created = Date.now();
     gameMessages.push(message);
@@ -147,7 +140,6 @@ module.exports = function (io, socket) {
   }
 
   function advanceRound() {
-    timer.paused = true;
     var gameFinished = Game.advanceRound();
 
     // Send user list with updated drawers
@@ -188,9 +180,8 @@ module.exports = function (io, socket) {
       text: Game.roundTime + " seconds to draw."
     });
 
-    // start round timer
-    setTimer(Game.roundTime);
-    timer.paused = false;
+    timerTop.restart(timesUp, Game.roundTime * 1000);
+    timerBot.delay = Game.timeAfterGuess * 1000;
   }
 
   function giveUp() {
@@ -206,46 +197,13 @@ module.exports = function (io, socket) {
   }
 
   function timesUp() {
+    console.log('timesup');
     broadcastMessage({
       class: 'status',
       text: Game.correctGuesses === 0 ? "Time's up! No one guessed " + username + "'s drawing" : 'Round over!'
     });
 
     advanceRound();
-  }
-
-  function tick() {
-    if (timer.paused) {
-      return;
-    }
-
-    var timeLeft = Utils.Timer.tick(timer);
-    io.emit('updateTime', timeLeft);
-
-    if (timeLeft === 20) {
-      broadcastMessage({
-        class: 'status',
-        text: '20 seconds left.'
-      });
-    }
-
-    if (timeLeft === 10) {
-      broadcastMessage({
-        class: 'status',
-        text: '10 seconds left.'
-      });
-    }
-
-    if (timeLeft <= 0)  {
-      timesUp();
-    }
-  }
-
-  function setTimer(time) {
-    clearInterval(timerInterval);
-    timerInterval = setInterval(tick, 1000);
-    timer.timeLeft = time;
-    io.emit('updateTime', time);
   }
 
   var username = socket.request.user.username;
@@ -311,7 +269,7 @@ module.exports = function (io, socket) {
     socket.emit('canvasMessage', drawHistory);
 
     // Send time left to the user
-    socket.emit('updateTime', timer.timeLeft);
+    socket.emit('updateTime', {timerTop: {delay: timerTop.timeLeft(), paused: timerTop.paused}, timerBot: {delay: timerBot.timeLeft(), paused: timerBot.paused}});
 
     // Send current topic if they are the drawer
     if (Game.isDrawer(username)) {
@@ -386,6 +344,8 @@ module.exports = function (io, socket) {
           class: 'status',
           text: 'Round over! Everyone has guessed correctly!'
         });
+        timerTop.pause();
+        timerBot.pause();
         advanceRound();
       } else if (Game.correctGuesses === 1) {
         // Start timer to end round if this is the first correct guess
@@ -393,7 +353,9 @@ module.exports = function (io, socket) {
           class: 'status',
           text: "The round will end in " + Game.timeAfterGuess + " seconds."
         });
-        setTimer(Game.timeAfterGuess);
+        io.emit('switchTimer');
+        timerTop.pause();
+        timerBot.restart(timesUp, Game.timeAfterGuess * 1000);
       }
 
     } else {
