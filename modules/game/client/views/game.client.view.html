@@ -62,9 +62,9 @@
       <span ng-bind="username === Game.getHost() ? 'You are' : Game.getHost() + ' is'"></span> choosing the game settings...
     </h3>
     <div class="col-md-12">
-      <div ng-repeat="(setting, value) in GameSettings">
+      <div class="pregame-group" ng-repeat="(setting, value) in GameSettings">
           <h4><span ng-bind="value.settingName"></span></h4>
-          <div class="btn-group pregame-group" ng-repeat="option in value.options">
+          <div class="btn-group" ng-repeat="option in value.options">
             <div ng-if="Game.getHost() !== username" ng-bind="option"
                  ng-class="{'active': chosenSettings[setting] === option}"
                  class="btn btn-success pregame-display"></div>

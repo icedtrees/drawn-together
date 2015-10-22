@@ -4,6 +4,7 @@
 }
 
 .pregame-group {
+    /* Doesn't fix cursor flashing into a pointer. */
     cursor: default;
 }
 
