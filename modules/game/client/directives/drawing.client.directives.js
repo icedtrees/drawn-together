@@ -250,7 +250,7 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
               }
               break;
             case 'text':
-              ctx.font = message.font || "30px Source Sans Pro";
+              ctx.font = message.font || "300 30px Source Sans Pro";
               ctx.fillText(message.text, message.x, message.y);
               break;
             case 'rect':
