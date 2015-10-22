@@ -8,11 +8,12 @@
     this.users = {};
     this.correctGuesses = 0;
     this.started = false;
+    this.finished = false;
     if (initialState) {
       this.numRounds = initialState.numRounds;
       this.numDrawers = initialState.numDrawers;
+      this.timeAfterGuess = initialState.timeAfterGuess;
       this.roundTime = initialState.roundTime;
-      this.timeToEnd = initialState.timeToEnd;
       this.topicListName = initialState.topicListName;
       this.topicListDifficulty = initialState.topicListDifficulty;
       this.topicListWords = initialState.topicListWords;
@@ -138,6 +139,7 @@
 
     this.currentRound++;
     if (this.currentRound >= this.numRounds) {
+      this.finished = true;
       return true;
     }
     return false;
@@ -163,6 +165,7 @@
     this.currentRound = 0;
     this.correctGuesses = 0;
     this.started = false;
+    this.finished = false;
     for (var i = 0; i < this.userList.length; i++) {
       this.users[this.userList[i]].score = 0;
       this.users[this.userList[i]].guessedCorrect = false;

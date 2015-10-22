@@ -1,21 +1,19 @@
 'use strict';
 
 (function(exports) {
-    //var TopicList = require('../helpers/game.shared.topiclist.js');
-    //var topicLists = new TopicList.TopicLists();
-    //topicLists.loadTopicLists();
+    exports.TIME_BETWEEN_GAMES = 10;
 
     exports.numRounds = {
         settingName : "Number of rounds",
-        default : 5,
-        options : [5, 10, 15]
+        default : 10,
+        options : [5, 10, 20]
     };
     exports.roundTime = {
         settingName : "Round time",
         default: 90,
         options: [45, 60, 90, 120]
     };
-    exports.timeToEnd = {
+    exports.timeAfterGuess = {
         settingName: "Time after first correct guess",
         default: 20,
         options: [10, 20, 30]
