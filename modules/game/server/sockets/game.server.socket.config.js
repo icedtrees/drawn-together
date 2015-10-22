@@ -15,6 +15,7 @@ var levenshtein = clj_fuzzy.metrics.levenshtein;
 // Server timer
 var timerTop = new Utils.Timer();
 var timerBot = new Utils.Timer();
+var timerRemind = new Utils.Timer();
 
 // Game object encapsulating game logic
 var Game =  new GameLogic.Game({
@@ -190,6 +191,7 @@ module.exports = function (io, socket) {
       setTimeout(function () {
         timerTop.pause();
         timerBot.pause();
+        timerRemind.pause();
         drawHistory = [];
         Game.resetGame();
         io.emit('resetGame');
@@ -207,6 +209,12 @@ module.exports = function (io, socket) {
     });
 
     timerTop.restart(timesUp, Game.roundTime * 1000);
+    timerRemind.restart(function () {
+      broadcastMessage({
+        class: 'status',
+        text: '20 seconds left!'
+      });
+    }, (Game.roundTime - 20) * 1000);
     timerBot.delay = Game.timeAfterGuess * 1000;
   }
 
@@ -371,6 +379,7 @@ module.exports = function (io, socket) {
         });
         timerTop.pause();
         timerBot.pause();
+        timerRemind.pause();
         advanceRound();
       } else if (Game.correctGuesses === 1) {
         // Start timer to end round if this is the first correct guess
@@ -380,6 +389,7 @@ module.exports = function (io, socket) {
         });
         io.emit('switchTimer');
         timerTop.pause();
+        timerRemind.pause();
         timerBot.restart(timesUp, Game.timeAfterGuess * 1000);
       }
 
