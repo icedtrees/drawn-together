@@ -164,6 +164,8 @@ module.exports = function (io, socket) {
       });
       io.emit('gameFinished');
       setTimeout(function () {
+        timerTop.pause();
+        timerBot.pause();
         drawHistory = [];
         Game.resetGame();
         io.emit('resetGame');
