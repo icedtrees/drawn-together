@@ -92,11 +92,11 @@
     </div>
 
     <div ng-class="{'drawing-timer-wrapper': true, 'game-over': Game.finished}">
-      <div class="drawing-timer" ng-style="{'background-color': 'lightgreen', 'width': timerTopLeft / 10 / Game.roundTime + '%'}"></div>
+      <div class="drawing-timer" ng-style="{'background-color': timerTop.paused ? 'grey' : 'lightgreen', 'width': timerTopLeft / 10 / Game.roundTime + '%'}"></div>
       <!--<span ng-bind="Math.round(timerTopLeft / 1000)"></span>-->
     </div>
     <div ng-class="{'drawing-timer-wrapper': true, 'game-over': Game.finished}">
-      <div class="drawing-timer" ng-style="{'background-color': 'pink', 'width': timerBotLeft / 10 / Game.timeAfterGuess + '%'}"></div>
+      <div class="drawing-timer" ng-style="{'background-color': timerBot.paused ? 'grey' : 'pink', 'width': timerBotLeft / 10 / Game.timeAfterGuess + '%'}"></div>
       <!--<span ng-bind="Math.round(timerBotLeft / 1000)"></span>-->
     </div>
 

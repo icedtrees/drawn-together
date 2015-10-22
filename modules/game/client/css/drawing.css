@@ -27,7 +27,7 @@
   width: 100%;
   text-align: center;
   font-size: 15px;
-  margin-bottom: 5px;
+  outline: 1px solid grey;
 }
 
 .drawing-timer-wrapper.game-over {
