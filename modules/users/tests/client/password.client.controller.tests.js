@@ -118,7 +118,7 @@
         });
 
         describe('POST success', function() {
-          var successMessage = 'An email has been sent to the provided email with further instructions.';
+          var successMessage = 'We have sent you an email with further instructions to reset your password.';
           beforeEach(function() {
             $httpBackend.when('POST', '/api/auth/forgot', credentials).respond({
               'message': successMessage
