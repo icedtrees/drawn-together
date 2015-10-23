@@ -64,7 +64,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       [{title: 'dark blue', value: 'darkblue'}, {title: 'blue', value: 'blue'}, {title: 'light blue', value: 'lightblue'}]
     ];
 
-    $scope.Game = new GameLogic.Game();
+    $scope.Game = new GameLogic.Game($scope.chosenSettings);
     $scope.Utils = Utils;
 
     $scope.messageText = '';
@@ -413,6 +413,5 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
         event.preventDefault();
       }
     });
-
   }
 ]);
