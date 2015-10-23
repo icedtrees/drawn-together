@@ -205,10 +205,12 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       }
     });
 
+    // Server tells us what the current topic is (should only happen if we are the drawer now)
     Socket.on('topic', function (topic) {
       $scope.topic = topic;
     });
 
+    // After the requestState, we get the time left and pausedness of both timers
     Socket.on('updateTime', function (timers) {
       $scope.timerTop = new Utils.Timer();
       $scope.timerBot = new Utils.Timer();
@@ -224,11 +226,14 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       }
     });
 
+    // First guess has been made, so switch timer to countdown the second one
     Socket.on('switchTimer', function () {
       $scope.timerTop.pause();
       $scope.timerBot.start();
     });
 
+    // Update timer values within the angular digest cycle so that the changes
+    // are visible to the client view
     $interval(function () {
       if ($scope.timerTop) {
         $scope.timerTopLeft = $scope.timerTop.timeLeft();
