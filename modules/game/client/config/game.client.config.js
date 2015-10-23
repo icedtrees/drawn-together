@@ -45,3 +45,7 @@ angular.module('game').factory('Utils', function () {
 angular.module('game').factory('TopicList', function () {
   return window.topicList;
 });
+
+angular.module('game').factory('TopicSettings', function () {
+  return window.topicSettings;
+});

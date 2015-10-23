@@ -2,9 +2,9 @@
 
 // Create the 'game' controller
 angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', '$state',
-  'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils', 'TopicList',
+  'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils', 'TopicList', 'TopicSettings',
   function ($scope, $location, $document, $rootScope, $state, Authentication, Socket,
-            CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils, TopicList) {
+            CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils, TopicList, TopicSettings) {
 
     var isIE = /*@cc_on!@*/false || !!document.documentMode;
     $scope.isIE = isIE;
@@ -13,18 +13,19 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     $scope.CanvasSettings = CanvasSettings;
     $scope.ChatSettings = ChatSettings;
     $scope.GameSettings = GameSettings;
+    $scope.TopicSettings = TopicSettings;
 
     $scope.TopicLists = new TopicList.TopicLists();
     $scope.TopicLists.loadTopicLists();
-    GameSettings.topicListName.options = $scope.TopicLists.getAllTopicListNames();
+    TopicSettings.topicListName.options = $scope.TopicLists.getAllTopicListNames();
 
     // Pregame settings for host to change
     $scope.chosenSettings = {
       numRounds : GameSettings.numRounds.default,
       roundTime : GameSettings.roundTime.default,
       timeAfterGuess : GameSettings.timeAfterGuess.default,
-      topicListName: GameSettings.topicListName.default,
-      topicListDifficulty: GameSettings.topicListDifficulty.default,
+      topicListName: TopicSettings.topicListName.default,
+      topicListDifficulty: TopicSettings.topicListDifficulty.default,
     };
 
     // Create a messages array to store chat messages

@@ -18,16 +18,6 @@
         default: 20,
         options: [10, 20, 30]
     };
-    exports.topicListName = {
-        settingName : "Topic list name",
-        default: 'default',
-        options: [] //set in game/server/sockets/game.server.socket.config.js
-    };
-    exports.topicListDifficulty = {
-        settingName : "Difficulty",
-        default: 'all',
-        options : ['easy', 'medium', 'hard', 'all']
-    };
 })((typeof process === 'undefined' || !process.versions) ? // Not a node.js environment
     (window.gameSettings = window.gameSettings || {})
     : exports);

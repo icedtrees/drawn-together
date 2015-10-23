@@ -4,6 +4,7 @@ var ChatSettings = require('../../shared/config/game.shared.chat.config.js');
 var GameLogic = require('../../shared/helpers/game.shared.gamelogic.js');
 var GameSettings = require('../../shared/config/game.shared.game.config.js');
 var TopicList = require('../../shared/helpers/game.shared.topiclist.js');
+var TopicSettings = require('../../shared/config/game.shared.topic.config.js');
 var Utils = require('../../shared/helpers/game.shared.utils.js');
 var ServerUtils = require('../helpers/game.server.utils.js');
 
@@ -20,7 +21,7 @@ var timerSet = false; // only set server timer once
 
 var topicLists = new TopicList.TopicLists();
 topicLists.loadTopicLists();
-GameSettings.topicListName.options = topicLists.getAllTopicListNames();
+TopicSettings.topicListName.options = topicLists.getAllTopicListNames();
 
 // Game object encapsulating game logic
 var Game = new GameLogic.Game({
@@ -28,8 +29,8 @@ var Game = new GameLogic.Game({
   numDrawers: 1,
   roundTime: GameSettings.roundTime.default,
   timeAfterGuess: GameSettings.timeAfterGuess.default,
-  topicListName: GameSettings.topicListName.default,
-  topicListDifficulty: GameSettings.topicListDifficulty.default,
+  topicListName: TopicSettings.topicListName.default,
+  topicListDifficulty: TopicSettings.topicListDifficulty.default,
   topicListWords: topicLists.getTopicListWordNames('default', 'all')
 }); // parameters: numRounds, numDrawers, timeToEnd, topicListName,
 
