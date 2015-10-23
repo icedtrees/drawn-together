@@ -138,7 +138,7 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
           // Redraw the preview layer to match the new position
           clearLayer(previewCtx);
           if (inCanvas(mouse)) {
-            if (scope.Game.isDrawer(scope.username)) {
+            if (scope.Game.isDrawer(scope.username) || scope.Game.finished) {
               if (scope.mouseMode === 'pen') {
                 // Solid circle with the matching pen colour
                 previewCtx.beginPath();
@@ -191,7 +191,7 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
          * this element and perform the draw (as well as notifying the server)
          */
         var drawAndEmit = function(e) {
-          if (!scope.Game.isDrawer(scope.username)) {
+          if (!scope.Game.isDrawer(scope.username) && !scope.Game.finished) {
             return;
           }
 
@@ -248,6 +248,12 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
                 draw();
                 ctx.globalCompositeOperation = temp;
               }
+              break;
+            case 'text':
+              ctx.font = message.font || "300 30px Source Sans Pro";
+              ctx.fillStyle = message.colour || 'black';
+              ctx.textAlign = message.align || 'left';
+              ctx.fillText(message.text, message.x, message.y);
               break;
             case 'rect':
               ctx.fillStyle = message.fillStyle;
