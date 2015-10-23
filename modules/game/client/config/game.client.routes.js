@@ -4,7 +4,7 @@
 angular.module('game').config(['$stateProvider',
   function ($stateProvider) {
     $stateProvider
-      .state('game', {
+      .state('home', {
         url: '/',
         templateUrl: 'modules/game/client/views/game.client.view.html',
         data: {
