@@ -21,6 +21,25 @@
   margin: 10px auto;
 }
 
+.drawing-timer-wrapper {
+  position: relative;
+  height: 15px;
+  width: 100%;
+  text-align: center;
+  font-size: 10px;
+  box-shadow: -1px 3px 4px rgba(0, 0, 0, 0.1) inset;
+}
+
+.drawing-timer-wrapper.game-over {
+  visibility: hidden;
+}
+
+.drawing-timer {
+  position: absolute;
+  height: 100%;
+  z-index: -1;
+}
+
 .dt-drawing {
   position: relative;
   width: 100%;

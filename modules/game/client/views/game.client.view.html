@@ -1,7 +1,7 @@
 <!-- The game view -->
 <section id="game-container" class="row game-container" ng-controller="GameController" ng-style="{'visible': loaded}">
   <!-- Left column -->
-  <div id="left-column" class="col left-sidebar">
+  <div id="left-column" class="col left-sidebar" style="display: none;">
     <!-- Lobby Information -->
     <div class="lobby-info ui-panel unselectable bg-primary">
       <h4><span ng-bind="Game.getHost()"></span>'s lobby</h4>
@@ -34,7 +34,7 @@
         <ul class="list-unstyled">
           <!-- List all messages -->
           <li class="col-xs-12 col-md-12 game-message wordwrap" ng-class="message.class" ng-repeat="message in messages">
-            <span ng-bind="message.username" class="username"></span>
+            <span ng-if="message.class !== 'status'" ng-bind="message.username + ':'" class="username"></span>
 
             <span class="message-text" ng-if="message.class !== 'status'" ng-bind="message.text"></span>
             <span class="message-text" ng-if="message.class === 'status'" ng-bind-html="message.text"></span>
@@ -56,24 +56,26 @@
     </div>
   </div>
 
-   <!--The pregame settings panel -->
+  <!--The pregame settings panel -->
   <div id="settings" class="col" style="display: none; height: 100%; text-align: center">
     <h3 class="drawing-header unselectable">
       <span ng-bind="username === Game.getHost() ? 'You are' : Game.getHost() + ' is'"></span> choosing the game settings...
     </h3>
-<!--    <li ng-repeat="(setting, value) in GameSettings">
-      <div class="col-md-12">
-        <div class="col-md-3">
-          <span ng-bind="value.settingName"></span>
-        </div>
-        <div class="btn-group" ng-repeat="option in value.options">
-          <div ng-if="Game.getHost() !== username" ng-bind="option" ng-hide="option !== chosenSettings[setting]" class="btn btn-success"></div> &lt;!&ndash; to do: the current setting is highlighted, rather than the rest of the settings ng-hidden &ndash;&gt;
-          <div ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" class="btn btn-success" btn-radio="option" ng-click="changeSetting(setting, option)"><span ng-bind="option"></span></div>
-        </div>
+    <div class="col-md-12">
+      <div class="pregame-group" ng-repeat="(setting, value) in GameSettings">
+          <h4><span ng-bind="value.settingName"></span></h4>
+          <div class="btn-group" ng-repeat="option in value.options">
+            <div ng-if="Game.getHost() !== username" ng-bind="option"
+                 ng-class="{'active': chosenSettings[setting] === option}"
+                 class="btn btn-success pregame-display"></div>
+            <label ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" ng-bind="option"
+                 class="btn btn-success" ng-click="changeSetting(setting, option)" btn-radio="option">
+            </label>
+          </div>
       </div>
-    </li>-->
-    <div class="start-game-div">
-      <button class="btn" ng-hide="Game.getHost() !== username" ng-click="startGame()">Start Game</button>
+    </div>
+    <div class="col-md-12 start-game-div">
+        <button class="btn btn-primary" ng-hide="Game.getHost() !== username" ng-click="startGame()">Start Game</button>
     </div>
   </div>
 
@@ -85,12 +87,20 @@
       </div>
       <div class="drawing-header-text">
         <h3 class="text-center unselectable">
-          <span ng-if="Game.currentRound !== undefined && Game.numRounds !== undefined" ng-bind="Game.currentRound < Game.numRounds ? 'Round ' + (Game.currentRound + 1) + ':' : 'Game over!'"></span>
+          <span ng-if="Game.currentRound !== undefined && Game.numRounds !== undefined" ng-bind="Game.finished ? 'Game over!' : 'Round ' + (Game.currentRound + 1) + ':'"></span>
           <span ng-if="Game.getDrawers().length" ng-bind="Game.isDrawer(username) ? 'Draw &quot;' + topic + '&quot;' : Utils.toCommaListIs(Game.getDrawers()) + ' drawing'"></span>
         </h3>
       </div>
     </div>
-    <div id="drawing-canvas" class="dt-drawing" ng-style="{cursor: Game.isDrawer(username) ? 'none' : 'default'}"></div>
+
+    <div ng-class="{'drawing-timer-wrapper': true, 'game-over': Game.finished}">
+      <div class="drawing-timer" ng-style="{'background-color': timerTop.paused ? 'grey' : 'lightgreen', 'width': timerTopLeft / 10 / Game.roundTime + '%'}"></div>
+    </div>
+    <div ng-class="{'drawing-timer-wrapper': true, 'game-over': Game.finished}">
+      <div class="drawing-timer" ng-style="{'background-color': timerBot.paused ? 'grey' : 'pink', 'width': timerBotLeft / 10 / Game.timeAfterGuess + '%'}"></div>
+    </div>
+
+    <div id="drawing-canvas" class="dt-drawing" ng-style="{cursor: Game.isDrawer(username) || Game.finished ? 'none' : 'default'}"></div>
   </div>
 
   <!-- Right column -->
@@ -161,7 +171,7 @@
     <!--</div>-->
     <!-- Clear canvas -->
     <div style="margin-bottom: 0; margin-top: 12px">
-      <button class="btn btn-primary clear-canvas" style="cursor: default" ng-disabled="!toolboxUsable()" ng-click="clearDrawing()">Clear Canvas</button>
+      <button class="btn btn-primary clear-canvas" style="cursor: default" ng-disabled="!toolboxUsable() || Game.finished" ng-click="clearDrawing()">Clear Canvas</button>
     </div>
   </div>
 </section>

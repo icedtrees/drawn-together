@@ -1,9 +1,8 @@
 .toolbox > div {
   margin: 13px auto;
   text-align: center;
-  font-size: 18px;
 }
-.toolbox[disabled] .grid-cell, .toolbox[disabled] .size-triangle , toolbox[disabled] .clear-canvas {
+.toolbox[disabled] .grid-cell, .toolbox[disabled] .size-triangle, .toolbox[disabled] p {
   color: gray;
   cursor: default;
   opacity: 0.65;
