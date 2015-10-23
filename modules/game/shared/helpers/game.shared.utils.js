@@ -20,6 +20,20 @@
     });
   };
 
+  exports.Timer = function () {
+    this.timeLeft = 0;
+    this.paused = true;
+  };
+
+  exports.Timer.tick = function(timer) {
+    if (timer.paused) {
+      return;
+    }
+
+    timer.timeLeft -= timer.timeLeft === 0 ? 0 : 1;
+    return timer.timeLeft;
+  };
+
 })((typeof process === 'undefined' || !process.versions) ? // Not a node.js environment
   (window.utils = window.utils || {})
   : exports);
