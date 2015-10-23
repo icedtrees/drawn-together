@@ -34,6 +34,13 @@
     return timer.timeLeft;
   };
 
+  exports.notSorted = function(obj) {
+    if (!obj) {
+      return [];
+    }
+    return Object.keys(obj);
+  };
+
 })((typeof process === 'undefined' || !process.versions) ? // Not a node.js environment
   (window.utils = window.utils || {})
   : exports);

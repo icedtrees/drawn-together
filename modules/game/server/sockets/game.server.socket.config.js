@@ -284,11 +284,12 @@ module.exports = function (io, socket) {
     }
   });
 
-  // Change a setting as the host
+  // Change a game setting as the host
   socket.on('changeSetting', function (change) {
     if (!Game.started && username === Game.getHost()) {
       // make sure change uses one of the options given
-      if (GameSettings[change.setting].options.indexOf(change.option) === -1) {
+      if ((GameSettings[change.setting] && GameSettings[change.setting].options.indexOf(change.option) === -1) ||
+          (TopicSettings[change.setting] && TopicSettings[change.setting].options.indexOf(change.option) === -1)) {
         return;
       }
 
