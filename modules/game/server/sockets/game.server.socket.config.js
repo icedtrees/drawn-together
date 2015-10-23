@@ -295,6 +295,7 @@ module.exports = function (io, socket) {
 
       // apply settings selected by host
       Game[change.setting] = change.option;
+
       // Get the topic list for the new topic list settings
       Game.topicListWords = topicLists.getTopicListWordNames(Game.topicListName, Game.topicListDifficulty);
       topicLists.shuffleWords(Game.topicListWords);

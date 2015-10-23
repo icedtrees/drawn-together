@@ -109,6 +109,13 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     Socket.on('gameState', function (state) {
       angular.extend($scope.Game, state);
 
+      // sync current pregame settings with server
+      if (!$scope.Game.started) {
+        for (var setting in $scope.chosenSettings) {
+          $scope.chosenSettings[setting] = $scope.Game[setting];
+        }
+      }
+
       // We now know what the state of the game is, so we can resize appropriately
       resizeColumns();
       resizeColumns();
