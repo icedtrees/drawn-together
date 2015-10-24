@@ -17,8 +17,6 @@ var levenshtein = clj_fuzzy.metrics.levenshtein;
 // Map of room names to game objects
 var games = {};
 
-var prompts = [];
-
 // Socket id to room name
 var socketToRoom = {};
 
@@ -95,9 +93,9 @@ module.exports = function (io, socket) {
     room = room || socketToRoom[socket.id];
 
     // Select a new topic and send it to the new drawer
-    prompts.push(prompts.shift());
+    GameObj.prompts.push(GameObj.prompts.shift());
     Game.getDrawers().forEach(function (drawer) {
-      io.to(room+'/'+drawer).emit('topic', prompts[0]);
+      io.to(room+'/'+drawer).emit('topic', GameObj.prompts[0]);
     });
 
     // Announce the new drawers
@@ -123,7 +121,7 @@ module.exports = function (io, socket) {
     // Explain what the word was
     broadcastMessage({
       class: 'status',
-      text: 'The prompt was "' + prompts[0] + '"'
+      text: 'The prompt was "' + GameObj.prompts[0] + '"'
     }, room);
 
     if (gameFinished) {
@@ -382,8 +380,8 @@ module.exports = function (io, socket) {
   // Start the game
   socket.on('startGame', function () {
     if (!getGame().Game.started && username === getGame().Game.getHost()) {
-      prompts = TopicList.getTopicWords(getGame().Game.topicListName, getGame().Game.topicListDifficulty);
-      ServerUtils.shuffleWords(prompts);
+      getGame().prompts = TopicList.getTopicWords(getGame().Game.topicListName, getGame().Game.topicListDifficulty);
+      ServerUtils.shuffleWords(getGame().prompts);
       getGame().Game.startGame();
       io.to(socketToRoom[socket.id]).emit('startGame');
       startRound();
@@ -438,7 +436,7 @@ module.exports = function (io, socket) {
 
     // Send current topic if they are the drawer
     if (getGame().Game.isDrawer(username)) {
-      socket.emit('topic', prompts[0]);
+      socket.emit('topic', getGame().prompts[0]);
     }
   });
 
@@ -469,7 +467,7 @@ module.exports = function (io, socket) {
 
     // Compare the lower-cased versions
     var guess = message.text.toLowerCase();
-    var topic = prompts[0].toLowerCase();
+    var topic = getGame().prompts[0].toLowerCase();
     var filteredGuess = guess.replace(/[\W_]/g, ''); // only keep letters and numbers
     var filteredTopic = topic.replace(/[\W_]/g, '');
     if (filteredGuess === filteredTopic) {
