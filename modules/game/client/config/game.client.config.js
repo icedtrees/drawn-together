@@ -42,10 +42,6 @@ angular.module('game').factory('Utils', function () {
   return window.utils;
 });
 
-angular.module('game').factory('TopicList', function () {
-  return window.topicList;
-});
-
 angular.module('game').factory('TopicSettings', function () {
   return window.topicSettings;
 });

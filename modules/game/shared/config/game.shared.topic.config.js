@@ -4,12 +4,12 @@
     exports.topicListName = {
         settingName : "Topic",
         default: 'default',
-        options: [] //set in game/server/sockets/game.server.socket.config.js
+        options: ['default', 'agile'] // hard-coded
     };
     exports.topicListDifficulty = {
         settingName : "Difficulty",
-        default: 'all',
-        options : ['easy', 'medium', 'hard', 'all']
+        default: 'random',
+        options : ['easy', 'medium', 'hard', 'random']
     };
 })((typeof process === 'undefined' || !process.versions) ? // Not a node.js environment
     (window.topicSettings = window.topicSettings || {})

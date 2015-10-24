@@ -62,7 +62,7 @@
       <span ng-bind="username === Game.getHost() ? 'You are' : Game.getHost() + ' is'"></span> choosing the game settings...
     </h3>
     <div class="col-md-12">
-      <div class="pregame-group" ng-repeat="setting in Utils.notSorted(TopicSettings)" ng-init="value = TopicSettings[setting]">
+      <div class="pregame-group" ng-repeat="setting in Utils.keys(TopicSettings)" ng-init="value = TopicSettings[setting]">
         <h4><span ng-bind="value.settingName"></span></h4>
         <div class="btn-group" ng-repeat="option in value.options">
           <div ng-if="Game.getHost() !== username" ng-bind="option"
@@ -75,7 +75,7 @@
         </div>
       </div>
       <br />
-      <div class="pregame-group" ng-repeat="setting in Utils.notSorted(GameSettings)" ng-init="value = GameSettings[setting]">
+      <div class="pregame-group" ng-repeat="setting in Utils.keys(GameSettings)" ng-init="value = GameSettings[setting]">
         <h4><span ng-bind="value.settingName"></span></h4>
         <div class="btn-group" ng-repeat="option in value.options">
           <div ng-if="Game.getHost() !== username" ng-bind="option"

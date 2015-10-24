@@ -2,9 +2,9 @@
 
 // Create the 'game' controller
 angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', '$state', '$interval',
-  'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils', 'TopicList', 'TopicSettings',
+  'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils', 'TopicSettings',
   function ($scope, $location, $document, $rootScope, $state, $interval, Authentication, Socket,
-            CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils, TopicList, TopicSettings) {
+            CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils, TopicSettings) {
 
     var isIE = /*@cc_on!@*/false || !!document.documentMode;
     $scope.isIE = isIE;
@@ -17,9 +17,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     $scope.ChatSettings = ChatSettings;
     $scope.GameSettings = GameSettings;
     $scope.TopicSettings = TopicSettings;
-
-    $scope.TopicLists = new TopicList.TopicLists();
-    $scope.TopicSettings.topicListName.options = $scope.TopicLists.getAllTopicListNames();
+    $scope.Object = Object;
 
     // Pregame settings for host to change
     $scope.chosenSettings = {

@@ -3,10 +3,10 @@
 var ChatSettings = require('../../shared/config/game.shared.chat.config.js');
 var GameLogic = require('../../shared/helpers/game.shared.gamelogic.js');
 var GameSettings = require('../../shared/config/game.shared.game.config.js');
-var TopicList = require('../../shared/helpers/game.shared.topiclist.js');
 var TopicSettings = require('../../shared/config/game.shared.topic.config.js');
 var Utils = require('../../shared/helpers/game.shared.utils.js');
 var ServerUtils = require('../helpers/game.server.utils.js');
+var TopicList = require('../helpers/game.server.topiclist.js');
 
 // cln_fuzzy library (for calculating distance between words)
 var clj_fuzzy = require('clj-fuzzy');
@@ -19,8 +19,6 @@ var timerTop = new Utils.Timer();
 var timerBot = new Utils.Timer();
 var timerRemind = new Utils.Timer();
 
-var topicLists = new TopicList.TopicLists();
-TopicSettings.topicListName.options = topicLists.getAllTopicListNames();
 var prompts = [];
 
 // Game object encapsulating game logic
@@ -273,7 +271,7 @@ module.exports = function (io, socket) {
   // Start the game
   socket.on('startGame', function () {
     if (!Game.started && username === Game.getHost()) {
-      prompts = topicLists.getTopicListWordNames(Game.topicListName, Game.topicListDifficulty);
+      prompts = TopicList.getTopicWords(Game.topicListName, Game.topicListDifficulty);
       ServerUtils.shuffleWords(prompts);
       Game.startGame();
       io.emit('startGame');

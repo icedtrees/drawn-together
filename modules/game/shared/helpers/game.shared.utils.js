@@ -66,7 +66,7 @@
     return Math.max(this.delay - (Date.now() - this.timeStarted), 0);
   };
 
-  exports.notSorted = function(obj) {
+  exports.keys = function(obj) {
     if (!obj) {
       return [];
     }
