@@ -2,9 +2,9 @@
 
 // Create the 'game' controller
 angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', '$state', '$interval',
-  'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils',
+  'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils', 'TopicSettings',
   function ($scope, $location, $document, $rootScope, $state, $interval, Authentication, Socket,
-            CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils) {
+            CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils, TopicSettings) {
 
     var isIE = /*@cc_on!@*/false || !!document.documentMode;
     $scope.isIE = isIE;
@@ -16,12 +16,16 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     $scope.CanvasSettings = CanvasSettings;
     $scope.ChatSettings = ChatSettings;
     $scope.GameSettings = GameSettings;
+    $scope.TopicSettings = TopicSettings;
+    $scope.Object = Object;
 
     // Pregame settings for host to change
     $scope.chosenSettings = {
       numRounds : GameSettings.numRounds.default,
       roundTime : GameSettings.roundTime.default,
-      timeAfterGuess : GameSettings.timeAfterGuess.default
+      timeAfterGuess : GameSettings.timeAfterGuess.default,
+      topicListName: TopicSettings.topicListName.default,
+      topicListDifficulty: TopicSettings.topicListDifficulty.default
     };
 
     // Create a messages array to store chat messages
@@ -60,7 +64,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       [{title: 'dark blue', value: 'darkblue'}, {title: 'blue', value: 'blue'}, {title: 'light blue', value: 'lightblue'}]
     ];
 
-    $scope.Game = new GameLogic.Game();
+    $scope.Game = new GameLogic.Game($scope.chosenSettings);
     $scope.Utils = Utils;
 
     $scope.messageText = '';
@@ -103,6 +107,11 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
      */
     Socket.on('gameState', function (state) {
       angular.extend($scope.Game, state);
+
+      // sync current pregame settings with server
+      for (var setting in $scope.chosenSettings) {
+        $scope.chosenSettings[setting] = $scope.Game[setting];
+      }
 
       // We now know what the state of the game is, so we can resize appropriately
       resizeColumns();
@@ -444,6 +453,5 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
         event.preventDefault();
       }
     });
-
   }
 ]);
