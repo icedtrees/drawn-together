@@ -278,10 +278,16 @@ module.exports = function (io, socket) {
       }
 
       // Emit the status event when a new socket client is connected
-      broadcastMessage({
+      var message = {
+        created: Date.now(),
         class: 'status',
         text: '<b>'+username+'</b>' + ' is now connected'
-      });
+      };
+      getGame().messageHistory.push(message);
+      if (getGame().messageHistory.length > ChatSettings.MAX_MESSAGES) {
+        getGame().messageHistory.shift();
+      }
+      socket.broadcast.to(roomName).emit('gameMessage', message);
 
       // Notify everyone about the new joined user (not the sender though)
       socket.broadcast.to(roomName).emit('userConnect', {
