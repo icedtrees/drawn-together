@@ -5,7 +5,7 @@
       <form class="input-group" ng-submit="createRoom(roomName)">
         <input autocomplete="off" type="text" name="roomName" class="form-control" ng-model="roomName" ng-trim="false" ng-change="error = ''" placeholder="Room Name">
         <span class="input-group-btn">
-            <input type="submit" class="btn btn-primary">Create Room</input>
+            <input type="submit" value="Create Room" class="btn btn-primary"></input>
         </span>
       </form>
       <span class="error-message" ng-bind="error"></span>
