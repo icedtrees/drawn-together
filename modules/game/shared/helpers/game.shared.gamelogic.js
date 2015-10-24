@@ -14,6 +14,8 @@
       this.numDrawers = initialState.numDrawers;
       this.timeAfterGuess = initialState.timeAfterGuess;
       this.roundTime = initialState.roundTime;
+      this.topicListName = initialState.topicListName;
+      this.topicListDifficulty = initialState.topicListDifficulty;
     }
   };
 
@@ -24,10 +26,6 @@
 
   exports.Game.prototype.getHost = function () {
     return this.userList[0];
-  };
-
-  exports.Game.prototype.getTopic = function () {
-    return "random things";
   };
 
   exports.Game.prototype.addUser = function (username, profileImageURL) {
