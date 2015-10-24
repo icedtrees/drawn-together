@@ -54,13 +54,8 @@ angular.module('lobby').controller('LobbyController', ['$scope', '$location', '$
     ];
 
     $scope.joinRoom = function (roomName) {
-      // Request to join room
-      Socket.emit('joinRoom', roomName);
-    };
-
-    Socket.on('joinRoom', function (roomName) {
       // Go to room view
       $state.go('game', {roomName: roomName});
-    });
+    };
   }
 ]);

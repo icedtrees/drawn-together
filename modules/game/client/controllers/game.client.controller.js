@@ -402,10 +402,11 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
 
       $scope.loaded = true; // We can display things now
     }
-    window.addEventListener('resize', function (e) {
+    function windowResize (e) {
       resizeColumns();
       resizeColumns();
-    });
+    }
+    window.addEventListener('resize', windowResize);
 
     // Remove the event listener when the controller instance is destroyed
     $scope.$on('$destroy', function () {
@@ -423,6 +424,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       Socket.removeListener('startGame');
       Socket.removeListener('gameFinished');
       Socket.removeListener('changeSetting');
+      window.removeEventListener('resize', windowResize);
       Socket.emit('leaveRoom');
     });
 

@@ -118,12 +118,12 @@ module.exports = function (io, socket) {
   function sendTopic() {
     // Select a new topic and send it to the new drawer
     topicList.push(topicList.shift());
-    getGame().getDrawers().forEach(function (drawer) {
+    getGame().Game.getDrawers().forEach(function (drawer) {
       io.to(socketToRoom[socket.id]+'/'+drawer).emit('topic', topicList[0]);
     });
 
     // Announce the new drawers
-    var newDrawersAre = Utils.toCommaListIs(Utils.boldList(getGame().getDrawers()));
+    var newDrawersAre = Utils.toCommaListIs(Utils.boldList(getGame().Game.getDrawers()));
     broadcastMessage({
       class: 'status',
       text: newDrawersAre + ' now drawing'
@@ -131,7 +131,7 @@ module.exports = function (io, socket) {
   }
 
   function advanceRound() {
-    var gameFinished = getGame().advanceRound();
+    var gameFinished = getGame().Game.advanceRound();
 
     // Send user list with updated drawers
     io.to(socketToRoom[socket.id]).emit('advanceRound');
@@ -146,11 +146,11 @@ module.exports = function (io, socket) {
     });
 
     if (gameFinished) {
-      var winners = getGame().getWinners();
+      var winners = getGame().Game.getWinners();
       broadcastMessage({
         class: 'status',
         text: Utils.toCommaList(Utils.boldList(winners)) + ' won the game on ' +
-              getGame().users[winners[0]].score + ' points! A new game will start ' +
+              getGame().Game.users[winners[0]].score + ' points! A new game will start ' +
               'in ' + GameSettings.TIME_BETWEEN_GAMES + ' seconds'
       });
       io.to(socketToRoom[socket.id]).emit('gameFinished');
@@ -190,7 +190,7 @@ module.exports = function (io, socket) {
         getGame().timerBot.pause();
         getGame().timerRemind.pause();
         getGame().drawHistory = [];
-        getGame().resetGame();
+        getGame().Game.resetGame();
         io.to(socketToRoom[socket.id]).emit('resetGame');
       }, GameSettings.TIME_BETWEEN_GAMES * 1000);
     } else {
@@ -202,21 +202,21 @@ module.exports = function (io, socket) {
     sendTopic();
     broadcastMessage({
       class: 'status',
-      text: getGame().roundTime + " seconds to draw."
+      text: getGame().Game.roundTime + " seconds to draw."
     });
 
-    getGame().timerTop.restart(timesUp, getGame().roundTime * 1000);
+    getGame().timerTop.restart(timesUp, getGame().Game.roundTime * 1000);
     getGame().timerRemind.restart(function () {
       broadcastMessage({
         class: 'status',
         text: '10 seconds left!'
       });
-    }, (getGame().roundTime - 10) * 1000);
-    getGame().timerBot.delay = getGame().timeAfterGuess * 1000;
+    }, (getGame().Game.roundTime - 10) * 1000);
+    getGame().timerBot.delay = getGame().Game.timeAfterGuess * 1000;
   }
 
   function giveUp() {
-    if (!getGame().started) {
+    if (!getGame().Game.started) {
       return;
     }
 
@@ -230,7 +230,7 @@ module.exports = function (io, socket) {
   function timesUp() {
     broadcastMessage({
       class: 'status',
-      text: getGame().correctGuesses === 0 ? "Time's up! No one guessed " + getGame().getDrawers()[0] + "'s drawing" : 'Round over!'
+      text: getGame().Game.correctGuesses === 0 ? "Time's up! No one guessed " + getGame().Game.getDrawers()[0] + "'s drawing" : 'Round over!'
     });
 
     advanceRound();
@@ -241,14 +241,19 @@ module.exports = function (io, socket) {
 
   // Join a room
   function joinRoom (roomName) {
-    // Let them join TODO check things and whatnot
+    if (socketToRoom[socket.id] === roomName) {
+      return;
+    }
+
+    // Join the room as well as the room specific username grouping
     socket.join(roomName);
     socket.join(roomName+'/'+username);
     socketToRoom[socket.id] = roomName;
 
-    // TODO remove this
+    // Create the room and the game if it doesn't exist
     if (!games[roomName]) {
-      games[roomName] = new GameLogic.Game({
+      games[roomName] = {};
+      games[roomName].Game = new GameLogic.Game({
         numRounds: GameSettings.numRounds.default,
         numDrawers: 1,
         roundTime: GameSettings.roundTime.default,
@@ -261,15 +266,15 @@ module.exports = function (io, socket) {
       games[roomName].timerTop = new Utils.Timer();
       games[roomName].timerBot = new Utils.Timer();
       games[roomName].timerRemind = new Utils.Timer();
-
     }
+
     // Add user to in-memory store if necessary, or simply increment counter
     // to account for multiple windows open
-    if (username in getGame().users) {
-      getGame().users[username].connects++;
+    if (username in getGame().Game.users) {
+      getGame().Game.users[username].connects++;
     } else {
-      getGame().addUser(username, profileImageURL);
-      getGame().users[username].connects = 1;
+      getGame().Game.addUser(username, profileImageURL);
+      getGame().Game.users[username].connects = 1;
 
       // Emit the status event when a new socket client is connected
       broadcastMessage({
@@ -286,14 +291,19 @@ module.exports = function (io, socket) {
 
     socket.emit('joinRoom', roomName);
   }
-  socket.on('joinRoom', joinRoom);
+  // socket.on('joinRoom', joinRoom);
 
   function leaveRoom () {
+    var roomName = socketToRoom[socket.id];
+    if (!roomName) {
+      return;
+    }
     if (!getGame()) {
       return;
     }
-    getGame().users[username].connects--;
-    if (getGame().users[username].connects === 0) {
+
+    getGame().Game.users[username].connects--;
+    if (getGame().Game.users[username].connects === 0) {
       // Emit the status event when a socket client is disconnected
       broadcastMessage({
         class: 'status',
@@ -302,13 +312,22 @@ module.exports = function (io, socket) {
 
       // If the disconnecting user is a drawer, this is equivalent to
       // 'giving up' or passing
-      if (getGame().started && getGame().isDrawer(username)) {
+      if (getGame().Game.started && getGame().Game.isDrawer(username)) {
         giveUp();
       }
-      getGame().removeUser(username);
+      getGame().Game.removeUser(username);
 
       // Notify all users that this user has disconnected
       io.to(socketToRoom[socket.id]).emit('userDisconnect', username);
+
+      // If there are no users left, destroy this game instance
+      if (getGame().Game.userList.length === 0) {
+        getGame().timerTop.pause();
+        getGame().timerBot.pause();
+        getGame().timerRemind.pause();
+
+        delete games[roomName];
+      }
     }
 
     socket.leave(socketToRoom[socket.id]);
@@ -318,8 +337,8 @@ module.exports = function (io, socket) {
 
   // Start the game
   socket.on('startGame', function () {
-    if (!getGame().started && username === getGame().getHost()) {
-      getGame().startGame();
+    if (!getGame().Game.started && username === getGame().Game.getHost()) {
+      getGame().Game.startGame();
       io.to(socketToRoom[socket.id]).emit('startGame');
       startRound();
     }
@@ -327,14 +346,14 @@ module.exports = function (io, socket) {
 
   // Change a setting as the host
   socket.on('changeSetting', function (change) {
-    if (!getGame().started && username === getGame().getHost()) {
+    if (!getGame().Game.started && username === getGame().Game.getHost()) {
       // make sure change uses one of the options given
       if (GameSettings[change.setting].options.indexOf(change.option) === -1) {
         return;
       }
 
       // apply settings selected by host
-      getGame()[change.setting] = change.option;
+      getGame().Game[change.setting] = change.option;
 
       // tell all clients about the new setting
       io.to(socketToRoom[socket.id]).emit('updateSetting', change);
@@ -348,7 +367,7 @@ module.exports = function (io, socket) {
       joinRoom(roomName);
     }
     // Send current game state
-    socket.emit('gameState', getGame());
+    socket.emit('gameState', getGame().Game);
 
     // Send the chat message history to the user
     socket.emit('gameMessage', getGame().messageHistory);
@@ -360,10 +379,9 @@ module.exports = function (io, socket) {
     socket.emit('updateTime', {timerTop: {delay: getGame().timerTop.timeLeft(), paused: getGame().timerTop.paused}, timerBot: {delay: getGame().timerBot.timeLeft(), paused: getGame().timerBot.paused}});
 
     // Send current topic if they are the drawer
-    if (getGame().isDrawer(username)) {
+    if (getGame().Game.isDrawer(username)) {
       socket.emit('topic', topicList[0]);
     }
-
   });
   
   // Handle chat messages
@@ -381,13 +399,13 @@ module.exports = function (io, socket) {
     }
 
     // If game hasn't started, or ended, don't check any guesses
-    if (!getGame().started || getGame().currentRound >= getGame().numRounds) {
+    if (!getGame().Game.started || getGame().Game.currentRound >= getGame().Game.numRounds) {
       broadcastMessage(message);
       return;
     }
 
     // The current drawer cannot chat
-    if (getGame().isDrawer(username)) {
+    if (getGame().Game.isDrawer(username)) {
       return;
     }
 
@@ -403,7 +421,7 @@ module.exports = function (io, socket) {
 
       // Send user's guess to the drawer/s
       message.addon = 'This guess is correct!';
-      getGame().getDrawers().forEach(function (drawer) {
+      getGame().Game.getDrawers().forEach(function (drawer) {
         io.to(socketToRoom[socket.id]+'/'+drawer).emit('gameMessage', message);
       });
 
@@ -412,12 +430,12 @@ module.exports = function (io, socket) {
       socket.emit('gameMessage', message);
 
       // Don't update game state if user has already guessed the prompt
-      if (getGame().userHasGuessed(username)) {
+      if (getGame().Game.userHasGuessed(username)) {
         return;
       }
 
       // Mark user as correct and increase their score
-      getGame().markCorrectGuess(username);
+      getGame().Game.markCorrectGuess(username);
       io.to(socketToRoom[socket.id]).emit('markCorrectGuess', username); // tell clients to update the score too
 
       // Alert everyone in the room that the guesser was correct
@@ -427,7 +445,7 @@ module.exports = function (io, socket) {
       });
 
       // End round if everyone has guessed
-      if (getGame().allGuessed()) {
+      if (getGame().Game.allGuessed()) {
         broadcastMessage({
           class: 'status',
           text: 'Round over! Everyone has guessed correctly!'
@@ -436,16 +454,16 @@ module.exports = function (io, socket) {
         getGame().timerBot.pause();
         getGame().timerRemind.pause();
         advanceRound();
-      } else if (getGame().correctGuesses === 1) {
+      } else if (getGame().Game.correctGuesses === 1) {
         // Start timer to end round if this is the first correct guess
         broadcastMessage({
           class: 'status',
-          text: "The round will end in " + getGame().timeAfterGuess + " seconds."
+          text: "The round will end in " + getGame().Game.timeAfterGuess + " seconds."
         });
         io.to(socketToRoom[socket.id]).emit('switchTimer');
         getGame().timerTop.pause();
         getGame().timerRemind.pause();
-        getGame().timerBot.restart(timesUp, getGame().timeAfterGuess * 1000);
+        getGame().timerBot.restart(timesUp, getGame().Game.timeAfterGuess * 1000);
       }
 
     } else {
@@ -469,7 +487,7 @@ module.exports = function (io, socket) {
         }
 
         // Send message to drawers
-        getGame().getDrawers().forEach(function (drawer) {
+        getGame().Game.getDrawers().forEach(function (drawer) {
           io.to(socketToRoom[socket.id]+'/'+drawer).emit('gameMessage', message);
         });
 
@@ -485,11 +503,11 @@ module.exports = function (io, socket) {
 
   // Send a canvas drawing command to all connected sockets when a message is received
   socket.on('canvasMessage', function (message) {
-    if (!getGame().started) {
+    if (!getGame().Game.started) {
       return;
     }
 
-    if (getGame().isDrawer(username)) {
+    if (getGame().Game.isDrawer(username)) {
       if (message.type === 'clear') {
         getGame().drawHistory = [];
       } else {
@@ -501,7 +519,7 @@ module.exports = function (io, socket) {
     }
 
     // At the end of the game everyone can draw but not clear
-    if (getGame().finished) {
+    if (getGame().Game.finished) {
       getGame().drawHistory.push(message);
       socket.broadcast.to(socketToRoom[socket.id]).emit('canvasMessage', message);
     }
@@ -509,13 +527,13 @@ module.exports = function (io, socket) {
 
   // Current drawer has finished drawing
   socket.on('finishDrawing', function () {
-    if (!getGame().started) {
+    if (!getGame().Game.started) {
       return;
     }
 
     // If the user who submitted this message actually is a drawer
     // And prevent round ending prematurely when prompt has been guessed
-    if (getGame().isDrawer(username) && getGame().correctGuesses === 0) {
+    if (getGame().Game.isDrawer(username) && getGame().Game.correctGuesses === 0) {
       giveUp();
     }
   });
