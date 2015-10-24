@@ -23,9 +23,12 @@
               <span ng-bind="user"></span>
             </div>
           </div>
-          <div class="col-xs-1">
+          <div class="col-xs-3 player-scores">
             <div ng-if="Game.isDrawer(user)"><strong ng-bind="Game.users[user].score.toString()"></strong></div>
-            <div ng-if="!Game.isDrawer(user)"><span ng-bind="Game.users[user].score.toString()"></span></div>
+            <div ng-if="!Game.isDrawer(user)">
+              <span ng-bind="Game.users[user].score.toString()"></span>
+              <i ng-if="Game.userHasGuessed(user)" class="fa fa-check user-guessed"></i>
+            </div>
           </div>
         </li>
       </ul>
