@@ -4,7 +4,7 @@
   <div id="left-column" class="col left-sidebar" style="display: none;">
     <!-- Lobby Information -->
     <div class="lobby-info ui-panel unselectable bg-primary">
-      <h4><span ng-bind="Game.getHost()"></span>'s lobby</h4>
+      <h4><span ng-bind="roomName"></span></h4>
       <h5>Topic: <span ng-bind="Game.topicListName"></span><span ng-if="Game.topicListDifficulty !== 'all'" ng-bind="' (' + Game.topicListDifficulty + ')'"></span></h5>
       <!--<button class="leave-lobby" ng-click="">Leave Lobby</button>-->
     </div>
@@ -18,7 +18,10 @@
             <img ng-src="{{Game.getUserProfileImage(user)}}" title="{{user}}" class="game-profile-image"/>
           </div>
           <div class="col-xs-4 player-names">
-            <div ng-class="{'game-drawer': Game.isDrawer(user)}"><span ng-bind="user"></span></div>
+            <div ng-class="{'game-drawer': Game.isDrawer(user)}">
+              <i ng-if="Game.getHost() === user" title="Host" class="fa fa-star"></i>
+              <span ng-bind="user"></span>
+            </div>
           </div>
           <div class="col-xs-1">
             <div ng-if="Game.isDrawer(user)"><strong ng-bind="Game.users[user].score.toString()"></strong></div>
