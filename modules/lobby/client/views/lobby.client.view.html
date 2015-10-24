@@ -1,15 +1,6 @@
 <section class="container" ng-controller="LobbyController">
-  <h2>Lobby</h2>
-  <div class="col-xs-12 col-sm-12 col-md-12">
-    <div class="col-md-4">
-      <form class="input-group" ng-submit="createRoom(roomName)">
-        <input autocomplete="off" type="text" name="roomName" class="form-control" ng-model="roomName" ng-trim="false" ng-change="error = ''" placeholder="Room Name">
-        <span class="input-group-btn">
-            <input type="submit" value="Create Room" class="btn btn-primary"></input>
-        </span>
-      </form>
-      <span class="error-message" ng-bind="error"></span>
-    </div>
+  <div class="col-xs-12 col-sm-12 col-md-8">
+    <h2>Lobby</h2>
     <table class="table table-striped table-responsive">
       <thead>
         <tr>
@@ -21,6 +12,13 @@
         </tr>
       </thead>
       <tbody>
+        <tr class="room-listing" ng-if="true">
+          <td>There aren't any rooms open. <a href="#create-room">Create your own!</a></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
         <tr class="room-listing" ng-repeat="room in rooms">
           <td><span ng-bind="room.name"></span></td>
           <td><span ng-bind="room.host"></span></td>
@@ -30,5 +28,30 @@
         </tr>
       </tbody>
     </table>
+  </div>
+  <div class="col-xs-12 col-sm-12 col-md-4">
+    <h2 id="create-room">Create Room</h2>
+    <form ng-submit="createRoom(roomName)">
+      <!-- Room Name -->
+      <div class="form-group">
+        <label for="roomName">Room Name</label>
+        <input autocomplete="off" type="text" id="roomName" name="roomName" class="form-control" ng-model="roomName" ng-trim="false" ng-change="error = ''" placeholder="Room Name">
+      </div>
+      <!-- Room Password -->
+      <!--<div class="form-group">-->
+        <!--<label for="roomPassword">Room Password</label>-->
+        <!--<input type="text" id="roomPassword" name="roomPassword" class="form-control"-->
+               <!--autocomplete="off" placeholder="Room Password" />-->
+      <!--</div>-->
+      <!-- Hidden Room -->
+      <!--<div class="form-group checkbox">-->
+        <!--<label>-->
+          <!--<input type="checkbox" value="">-->
+          <!--Hidden Room-->
+        <!--</label>-->
+      <!--</div>-->
+      <button type="submit" value="Create Room" class="btn btn-primary">Create Room</button>
+    </form>
+    <span class="error-message" ng-bind="error"></span>
   </div>
 </section>
