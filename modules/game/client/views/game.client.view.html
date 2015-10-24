@@ -63,11 +63,11 @@
     </h3>
     <div class="col-md-12">
       <div class="pregame-group" ng-repeat="setting in Utils.keys(TopicSettings)" ng-init="value = TopicSettings[setting]">
-        <h4><span ng-bind="value.settingName"></span></h4>
+        <h4><span ng-bind="value.settingName" class="unselectable"></span></h4>
         <div class="btn-group" ng-repeat="option in value.options">
           <div ng-if="Game.getHost() !== username" ng-bind="option"
             ng-class="{'active': chosenSettings[setting] === option}"
-            class="btn btn-warning pregame-display-topic">
+            class="btn btn-warning pregame-display-topic unselectable">
           </div>
           <label ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" ng-bind="option"
             class="btn btn-warning" ng-click="changeSetting(setting, option)" btn-radio="option">
@@ -76,11 +76,11 @@
       </div>
       <br />
       <div class="pregame-group" ng-repeat="setting in Utils.keys(GameSettings)" ng-init="value = GameSettings[setting]">
-        <h4><span ng-bind="value.settingName"></span></h4>
+        <h4><span ng-bind="value.settingName" class="unselectable"></span></h4>
         <div class="btn-group" ng-repeat="option in value.options">
           <div ng-if="Game.getHost() !== username" ng-bind="option"
             ng-class="{'active': chosenSettings[setting] === option}"
-            class="btn btn-success pregame-display-game">
+            class="btn btn-success pregame-display-game unselectable">
           </div>
           <label ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" ng-bind="option"
             class="btn btn-success" ng-click="changeSetting(setting, option)" btn-radio="option">
@@ -150,14 +150,14 @@
              ng-click="toolboxUsable() && (($parent.$parent.mouseMode = 'pen') && ($parent.$parent.penColour = paletteColour.value))">
         </div>
       </div>
-      <div class="custom-palette-colour-wrapper"
+      <div class="custom-palette-colour-wrapper unselectable"
            ng-click="toolboxUsable() && ((mouseMode = 'pen') && (penColour = penColourCustom))">
         <div ng-if="toolboxUsable()"
              ng-model="selectCustomColour" ng-model-options="{getterSetter: true}"
              colorpicker colorpicker-position="left" colorpicker-parent="true"
              ng-class="{'grid-cell': true, 'palette-colour': true, 'custom-palette-colour': true, 'selected': penColour === penColourCustom}"
              ng-style="{'background-color': penColourCustom}"
-             ng-attr-title="{{penColourCustom}}">
+             ng-attr-title="{{penColourCustom}}" style="cursor: pointer">
         </div>
         <div ng-if="!toolboxUsable()"
              ng-class="{'grid-cell': true, 'palette-colour': true, 'custom-palette-colour': true, 'selected': penColour === penColourCustom}"
