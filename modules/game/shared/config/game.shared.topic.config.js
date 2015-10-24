@@ -2,7 +2,7 @@
 
 (function(exports) {
     exports.topicListName = {
-        settingName : "Topic list name",
+        settingName : "Topic",
         default: 'default',
         options: [] //set in game/server/sockets/game.server.socket.config.js
     };
