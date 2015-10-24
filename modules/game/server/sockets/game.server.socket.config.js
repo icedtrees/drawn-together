@@ -15,9 +15,9 @@ var porter = clj_fuzzy.stemmers.porter;
 var levenshtein = clj_fuzzy.metrics.levenshtein;
 
 // Server timer
-var timer;
-var timerInterval;
-var timerSet = false; // only set server timer once
+var timerTop = new Utils.Timer();
+var timerBot = new Utils.Timer();
+var timerRemind = new Utils.Timer();
 
 var topicLists = new TopicList.TopicLists();
 topicLists.loadTopicLists();
@@ -116,12 +116,6 @@ function matchingWords(guess, topic) {
 
 // Create the game configuration
 module.exports = function (io, socket) {
-  if (!timerSet) {
-    timer = new Utils.Timer();
-    timerSet = true;
-    timerInterval = setInterval(tick, 1000); // call tick every second
-  }
-
   function broadcastMessage(message) {
     message.created = Date.now();
     gameMessages.push(message);
@@ -149,7 +143,6 @@ module.exports = function (io, socket) {
   }
 
   function advanceRound() {
-    timer.paused = true;
     var gameFinished = Game.advanceRound();
 
     // Send user list with updated drawers
@@ -173,7 +166,41 @@ module.exports = function (io, socket) {
               'in ' + GameSettings.TIME_BETWEEN_GAMES + ' seconds'
       });
       io.emit('gameFinished');
+
+      // Draw winners on canvas
+      var message = {
+        type: 'text',
+        text: 'The ' + (winners.length === 1 ? 'winner is' : 'winners are') + ':',
+        align: 'center',
+        colour: 'black',
+        x: 300,
+        y: 50
+      };
+      drawHistory.push(message);
+      io.emit('canvasMessage', message);
+
+      message.y += 50;
+      for (var i = 0; i < winners.length; i++) {
+        message.text = winners[i];
+        drawHistory.push(message);
+        io.emit('canvasMessage', message);
+        message.y += 50;
+      }
+
+      message.align = 'center';
+      message.y = 500;
+      message.text = 'Please respect the other contestants';
+      drawHistory.push(message);
+      io.emit('canvasMessage', message);
+      message.y += 35;
+      message.text = 'and do not deface this message';
+      drawHistory.push(message);
+      io.emit('canvasMessage', message);
+
       setTimeout(function () {
+        timerTop.pause();
+        timerBot.pause();
+        timerRemind.pause();
         drawHistory = [];
         Game.resetGame();
         io.emit('resetGame');
@@ -190,9 +217,14 @@ module.exports = function (io, socket) {
       text: Game.roundTime + " seconds to draw."
     });
 
-    // start round timer
-    setTimer(Game.roundTime);
-    timer.paused = false;
+    timerTop.restart(timesUp, Game.roundTime * 1000);
+    timerRemind.restart(function () {
+      broadcastMessage({
+        class: 'status',
+        text: '10 seconds left!'
+      });
+    }, (Game.roundTime - 10) * 1000);
+    timerBot.delay = Game.timeAfterGuess * 1000;
   }
 
   function giveUp() {
@@ -210,44 +242,10 @@ module.exports = function (io, socket) {
   function timesUp() {
     broadcastMessage({
       class: 'status',
-      text: Game.correctGuesses === 0 ? "Time's up! No one guessed " + username + "'s drawing" : 'Round over!'
+      text: Game.correctGuesses === 0 ? "Time's up! No one guessed " + Game.getDrawers()[0] + "'s drawing" : 'Round over!'
     });
 
     advanceRound();
-  }
-
-  function tick() {
-    if (timer.paused) {
-      return;
-    }
-
-    var timeLeft = Utils.Timer.tick(timer);
-    io.emit('updateTime', timeLeft);
-
-    if (timeLeft === 20) {
-      broadcastMessage({
-        class: 'status',
-        text: '20 seconds left.'
-      });
-    }
-
-    if (timeLeft === 10) {
-      broadcastMessage({
-        class: 'status',
-        text: '10 seconds left.'
-      });
-    }
-
-    if (timeLeft <= 0)  {
-      timesUp();
-    }
-  }
-
-  function setTimer(time) {
-    clearInterval(timerInterval);
-    timerInterval = setInterval(tick, 1000);
-    timer.timeLeft = time;
-    io.emit('updateTime', time);
   }
 
   var username = socket.request.user.username;
@@ -318,7 +316,7 @@ module.exports = function (io, socket) {
     socket.emit('canvasMessage', drawHistory);
 
     // Send time left to the user
-    socket.emit('updateTime', timer.timeLeft);
+    socket.emit('updateTime', {timerTop: {delay: timerTop.timeLeft(), paused: timerTop.paused}, timerBot: {delay: timerBot.timeLeft(), paused: timerBot.paused}});
 
     // Send current topic if they are the drawer
     if (Game.isDrawer(username)) {
@@ -393,6 +391,9 @@ module.exports = function (io, socket) {
           class: 'status',
           text: 'Round over! Everyone has guessed correctly!'
         });
+        timerTop.pause();
+        timerBot.pause();
+        timerRemind.pause();
         advanceRound();
       } else if (Game.correctGuesses === 1) {
         // Start timer to end round if this is the first correct guess
@@ -400,7 +401,10 @@ module.exports = function (io, socket) {
           class: 'status',
           text: "The round will end in " + Game.timeAfterGuess + " seconds."
         });
-        setTimer(Game.timeAfterGuess);
+        io.emit('switchTimer');
+        timerTop.pause();
+        timerRemind.pause();
+        timerBot.restart(timesUp, Game.timeAfterGuess * 1000);
       }
 
     } else {
@@ -452,6 +456,12 @@ module.exports = function (io, socket) {
       }
 
       // Emit the 'canvasMessage' event
+      socket.broadcast.emit('canvasMessage', message);
+    }
+
+    // At the end of the game everyone can draw but not clear
+    if (Game.finished) {
+      drawHistory.push(message);
       socket.broadcast.emit('canvasMessage', message);
     }
   });

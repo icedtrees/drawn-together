@@ -1,7 +1,7 @@
 <!-- The game view -->
 <section id="game-container" class="row game-container" ng-controller="GameController" ng-style="{'visible': loaded}">
   <!-- Left column -->
-  <div id="left-column" class="col left-sidebar">
+  <div id="left-column" class="col left-sidebar" style="display: none;">
     <!-- Lobby Information -->
     <div class="lobby-info ui-panel unselectable bg-primary">
       <h4><span ng-bind="Game.getHost()"></span>'s lobby</h4>
@@ -34,7 +34,7 @@
         <ul class="list-unstyled">
           <!-- List all messages -->
           <li class="col-xs-12 col-md-12 game-message wordwrap" ng-class="message.class" ng-repeat="message in messages">
-            <span ng-bind="message.username" class="username"></span>
+            <span ng-if="message.class !== 'status'" ng-bind="message.username + ':'" class="username"></span>
 
             <span class="message-text" ng-if="message.class !== 'status'" ng-bind="message.text"></span>
             <span class="message-text" ng-if="message.class === 'status'" ng-bind-html="message.text"></span>
@@ -100,12 +100,20 @@
       </div>
       <div class="drawing-header-text">
         <h3 class="text-center unselectable">
-          <span ng-if="Game.currentRound !== undefined && Game.numRounds !== undefined" ng-bind="Game.currentRound < Game.numRounds ? 'Round ' + (Game.currentRound + 1) + ':' : 'Game over!'"></span>
+          <span ng-if="Game.currentRound !== undefined && Game.numRounds !== undefined" ng-bind="Game.finished ? 'Game over!' : 'Round ' + (Game.currentRound + 1) + '/' + Game.numRounds+ ':'"></span>
           <span ng-if="Game.getDrawers().length" ng-bind="Game.isDrawer(username) ? 'Draw &quot;' + topic + '&quot;' : Utils.toCommaListIs(Game.getDrawers()) + ' drawing'"></span>
         </h3>
       </div>
     </div>
-    <div id="drawing-canvas" class="dt-drawing" ng-style="{cursor: Game.isDrawer(username) ? 'none' : 'default'}"></div>
+
+    <div ng-class="{'drawing-timer-wrapper': true, 'game-over': Game.finished}">
+      <div class="drawing-timer" ng-style="{'background-color': timerTop.paused ? 'grey' : 'lightgreen', 'width': timerTopLeft / 10 / Game.roundTime + '%'}"></div>
+    </div>
+    <div ng-class="{'drawing-timer-wrapper': true, 'game-over': Game.finished}">
+      <div class="drawing-timer" ng-style="{'background-color': timerBot.paused ? 'grey' : 'pink', 'width': timerBotLeft / 10 / Game.timeAfterGuess + '%'}"></div>
+    </div>
+
+    <div id="drawing-canvas" class="dt-drawing" ng-style="{cursor: Game.isDrawer(username) || Game.finished ? 'none' : 'default'}"></div>
   </div>
 
   <!-- Right column -->
@@ -176,7 +184,7 @@
     <!--</div>-->
     <!-- Clear canvas -->
     <div style="margin-bottom: 0; margin-top: 12px">
-      <button class="btn btn-primary clear-canvas" style="cursor: default" ng-disabled="!toolboxUsable()" ng-click="clearDrawing()">Clear Canvas</button>
+      <button class="btn btn-primary clear-canvas" style="cursor: default" ng-disabled="!toolboxUsable() || Game.finished" ng-click="clearDrawing()">Clear Canvas</button>
     </div>
   </div>
 </section>

@@ -21,17 +21,49 @@
   };
 
   exports.Timer = function () {
-    this.timeLeft = 0;
+    this.timeStarted = undefined;
+    this.callback = undefined;
+    this.delay = undefined;
     this.paused = true;
   };
 
-  exports.Timer.tick = function(timer) {
-    if (timer.paused) {
-      return;
-    }
+  exports.Timer.prototype.restart = function (callback, delay) {
+    this.pause();
+    this.callback = callback || function () {};
+    this.delay = delay;
+    this.start();
+  };
 
-    timer.timeLeft -= timer.timeLeft === 0 ? 0 : 1;
-    return timer.timeLeft;
+  exports.Timer.prototype.start = function () {
+    if (this.paused) {
+      this.timeStarted = Date.now();
+      this.paused = false;
+
+      var cb = function () {
+        this.paused = true;
+        this.delay = 0;
+
+        this.callback();
+      };
+
+      this.id = setTimeout(cb.bind(this), this.delay);
+    }
+  };
+
+  exports.Timer.prototype.pause = function () {
+    if (!this.paused) {
+      this.delay = this.timeLeft();
+      this.paused = true;
+
+      clearTimeout(this.id);
+    }
+  };
+
+  exports.Timer.prototype.timeLeft = function() {
+    if (this.paused) {
+      return this.delay;
+    }
+    return Math.max(this.delay - (Date.now() - this.timeStarted), 0);
   };
 
   exports.notSorted = function(obj) {

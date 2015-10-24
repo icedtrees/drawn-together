@@ -1,13 +1,16 @@
 'use strict';
 
 // Create the 'game' controller
-angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', '$state',
+angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', '$state', '$interval',
   'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils', 'TopicList', 'TopicSettings',
-  function ($scope, $location, $document, $rootScope, $state, Authentication, Socket,
+  function ($scope, $location, $document, $rootScope, $state, $interval, Authentication, Socket,
             CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils, TopicList, TopicSettings) {
 
     var isIE = /*@cc_on!@*/false || !!document.documentMode;
     $scope.isIE = isIE;
+
+    // Useful libraries
+    $scope.Math = window.Math;
 
     // Settings objects
     $scope.CanvasSettings = CanvasSettings;
@@ -94,13 +97,12 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     };
     var ieScroll = function() {
       if (isIE) {
-        console.log('ie-scroll');
         scroller.scrollTop = scroller.scrollHeight;
       }
     };
 
     $scope.toolboxUsable = function () {
-      return $scope.Game.started && $scope.Game.isDrawer($scope.username);
+      return $scope.Game.started && $scope.Game.isDrawer($scope.username) || $scope.Game.finished;
     };
 
     /*
@@ -126,6 +128,9 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
      */
     Socket.on('advanceRound', function () {
       $scope.Game.advanceRound();
+      $scope.timerTop.restart(undefined, $scope.Game.roundTime * 1000);
+      $scope.timerBot.pause();
+      $scope.timerBot.delay = $scope.Game.timeAfterGuess * 1000;
     });
 
     /*
@@ -214,19 +219,54 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       }
     });
 
+    // Server tells us what the current topic is (should only happen if we are the drawer now)
     Socket.on('topic', function (topic) {
       $scope.topic = topic;
     });
 
-    Socket.on('updateTime', function (timeLeft) {
-      console.log(timeLeft);
-      $scope.timeLeft = timeLeft;
+    // After the requestState, we get the time left and pausedness of both timers
+    Socket.on('updateTime', function (timers) {
+      $scope.timerTop = new Utils.Timer();
+      $scope.timerBot = new Utils.Timer();
+      if (timers.timerTop.paused) {
+        $scope.timerTop.delay = timers.timerTop.delay;
+      } else {
+        $scope.timerTop.restart(undefined, timers.timerTop.delay);
+      }
+      if (timers.timerBot.paused) {
+        $scope.timerBot.delay = timers.timerBot.delay;
+      } else {
+        $scope.timerBot.restart(undefined, timers.timerBot.delay);
+      }
     });
+
+    // First guess has been made, so switch timer to countdown the second one
+    Socket.on('switchTimer', function () {
+      $scope.timerTop.pause();
+      $scope.timerBot.start();
+    });
+
+    // Update timer values within the angular digest cycle so that the changes
+    // are visible to the client view
+    $interval(function () {
+      if ($scope.timerTop) {
+        $scope.timerTopLeft = $scope.timerTop.timeLeft();
+      } else {
+        $scope.timerTopLeft = 0;
+      }
+      if ($scope.timerBot) {
+        $scope.timerBotLeft = $scope.timerBot.timeLeft();
+      } else {
+        $scope.timerBotLeft = 0;
+      }
+    }, 50);
 
     // Server tells client the game has started with the given settings
     Socket.on('startGame', function(settings) {
       angular.extend($scope.Game, settings);
       $scope.Game.startGame();
+      $scope.timerTop.restart(undefined, $scope.Game.roundTime * 1000);
+      $scope.timerBot.delay = $scope.Game.timeAfterGuess * 1000;
 
       // Game layout changes, resize to get the toolbox to display properly
       resizeColumns();
@@ -322,6 +362,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       var leftMaxWidth = parseInt(leftColumnStyle.getPropertyValue('max-width'), 10);
 
       settings.style.display = 'none';
+      leftColumn.style.display = 'flex';
       middleColumn.style.display = 'flex';
       rightColumn.style.display = 'block';
       var middleColumnStyle = window.getComputedStyle(middleColumn, null);
