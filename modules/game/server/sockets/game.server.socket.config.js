@@ -125,9 +125,21 @@ module.exports = function (io, socket) {
     }
     io.emit('gameMessage', message);
   }
-  function sendTopic() {
-    // Select a new topic and send it to the new drawer
+  function sendTopic() { // Select a new topic and send it to the new drawer
+    // Cycle the current topic to the end
     topicList.push(topicList.shift());
+
+    // Cycle through topics until we get a topic less than the message limit
+    var seen = 0;
+    while (topicList[0].length > GameSettings.MAX_TOPIC_LENGTH) {
+      topicList.push(topicList.shift());
+      seen++;
+      if (seen === topicList.length) { // we're so done
+        topicList = ['All prompts too long!'];
+        break;
+      }
+    }
+
     Game.getDrawers().forEach(function (drawer) {
       io.to(drawer).emit('topic', topicList[0]);
     });
