@@ -1,16 +1,18 @@
 'use strict';
 
 // Create the 'game' controller
-angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', '$state', '$interval',
+angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', '$state', '$interval', '$stateParams',
   'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils',
-  function ($scope, $location, $document, $rootScope, $state, $interval, Authentication, Socket,
+  function ($scope, $location, $document, $rootScope, $state, $interval, $stateParams, Authentication, Socket,
             CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils) {
-
-    var isIE = /*@cc_on!@*/false || !!document.documentMode;
+    var isIE = /*@cc_on!@*/!!document.documentMode;
     $scope.isIE = isIE;
 
     // Useful libraries
     $scope.Math = window.Math;
+
+    // Room
+    $scope.roomName = $stateParams.roomName;
 
     // Settings objects
     $scope.CanvasSettings = CanvasSettings;
@@ -76,11 +78,11 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     // Make sure the Socket is connected
     if (!Socket.socket) {
       Socket.connect(function () {
-        Socket.emit('requestState');
+        Socket.emit('requestState', $scope.roomName);
       });
     } else {
       // We are already connected but in a new window - request to be brought up to scratch
-      Socket.emit('requestState');
+      Socket.emit('requestState', $scope.roomName);
     }
 
     var scroller = document.getElementById('chat-container');
@@ -416,8 +418,12 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       Socket.removeListener('gameMessage');
       Socket.removeListener('canvasMessage');
       Socket.removeListener('topic');
+      Socket.removeListener('updateTime');
+      Socket.removeListener('switchTimer');
       Socket.removeListener('startGame');
-      Socket.removeListener('updateDrawHistory');
+      Socket.removeListener('gameFinished');
+      Socket.removeListener('changeSetting');
+      Socket.emit('leaveRoom');
     });
 
     // Prevent backspace from leaving game page
