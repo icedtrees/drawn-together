@@ -249,7 +249,7 @@ module.exports = function (io, socket) {
       var room = {
         name: roomName,
         host: username,
-        topic: 'TODO',
+        topic: games[roomName].Game.topicListName + ' (' + games[roomName].Game.topicListDifficulty + ')',
         numPlayers: 0,
         maxNumPlayers: GameSettings.MAX_NUM_PLAYERS
       };
@@ -388,6 +388,17 @@ module.exports = function (io, socket) {
 
       // apply settings selected by host
       getGame().Game[change.setting] = change.option;
+
+      // If its a topic change, update room list
+      if (change.setting === 'topicListName' || change.setting === 'topicListDifficulty') {
+        for (var i = 0; i < rooms.length; i++) {
+          if (rooms[i].name === socketToRoom[socket.id]) {
+            rooms[i].topic = getGame().Game.topicListName + ' (' + getGame().Game.topicListDifficulty + ')';
+            io.emit('changeRoom', rooms[i]);
+            break;
+          }
+        }
+      }
 
       // tell all clients about the new setting
       io.to(socketToRoom[socket.id]).emit('updateSetting', change);
