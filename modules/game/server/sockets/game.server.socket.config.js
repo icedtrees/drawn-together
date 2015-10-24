@@ -206,6 +206,9 @@ module.exports = function (io, socket) {
   }
 
   function timesUp() {
+    if (!rooms[socket.id] || !getGame()) {
+      return;
+    }
     broadcastMessage({
       class: 'status',
       text: getGame().Game.correctGuesses === 0 ? "Time's up! No one guessed " + getGame().Game.getDrawers()[0] + "'s drawing" : 'Round over!'
