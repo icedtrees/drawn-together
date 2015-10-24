@@ -18,7 +18,8 @@
     box-shadow: none;
 }
 
-.pregame-display.active:hover {
+.pregame-display.active:hover, .pregame-display.active
+{
     color: #ffffff;
     background-color: #2f8912;
     border-color: #2c8011;
