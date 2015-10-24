@@ -2,6 +2,7 @@
 
 (function(exports) {
     exports.TIME_BETWEEN_GAMES = 30;
+    exports.MAX_NUM_PLAYERS = 16;
 
     exports.numRounds = {
         settingName : "Number of rounds",

@@ -12,46 +12,34 @@ angular.module('lobby').controller('LobbyController', ['$scope', '$location', '$
 
     // Make sure the Socket is connected
     if (!Socket.socket) {
-      Socket.connect();
+      Socket.connect(function () {
+        Socket.emit('requestRooms');
+      });
+    } else {
+      Socket.emit('requestRooms');
     }
 
-    $scope.rooms = [
-      {
-        'name': 'my room',
-        'host': 'alice',
-        'topic': 'fruit',
-        'numplayers': 4,
-        'maxnumplayers': PlayerConstants.MAX_NUM_PLAYERS
-      },
-      {
-        'name': 'my room',
-        'host': 'bob',
-        'topic': 'fruit',
-        'numplayers': 4,
-        'maxnumplayers': PlayerConstants.MAX_NUM_PLAYERS
-      },
-      {
-        'name': 'my room',
-        'host': 'carol',
-        'topic': 'fruit',
-        'numplayers': 4,
-        'maxnumplayers': PlayerConstants.MAX_NUM_PLAYERS
-      },
-      {
-        'name': 'my room',
-        'host': 'daniel',
-        'topic': 'fruit',
-        'numplayers': 4,
-        'maxnumplayers': PlayerConstants.MAX_NUM_PLAYERS
-      },
-      {
-        'name': 'retards unite',
-        'host': 'claudia',
-        'topic': 'something',
-        'numplayers': 1,
-        'maxnumplayers': PlayerConstants.MAX_NUM_PLAYERS
+    $scope.rooms = [];
+
+    Socket.on('requestRooms', function (rooms) {
+      $scope.rooms = rooms;
+    });
+
+    Socket.on('changeRoom', function (room) {
+      for (var i = 0; i < $scope.rooms.length; i++) {
+        if ($scope.rooms[i].name === room.name) {
+          if (room.numPlayers > 0) {
+            $scope.rooms[i] = room;
+          } else {
+            $scope.rooms.splice(i, 1);
+          }
+          return;
+        }
       }
-    ];
+      if (room.numPlayers > 0) {
+        $scope.rooms.push(room);
+      }
+    });
 
     $scope.joinRoom = function (roomName) {
       // Go to room view
