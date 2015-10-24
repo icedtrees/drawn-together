@@ -9,9 +9,9 @@ var topicLists = {
   },
 
   agile : {
-      easy: ['waterfall', 'test', 'sprint', 'stand-up', 'story', 'cross', 'delivery', 'integration', 'improvement', 'time-box', 'user', 'product', 'review', 'spike', 'acceptance', 'block', 'chart', 'burn-down'],
-      medium: ['manager', 'scope', 'organise', 'continuous', 'manifesto', 'management', 'planning poker', 'refactor', 'criteria', 'backlog', 'showcase'],
-      hard: ['agile', 'pair programming', 'extreme', 'epic', 'functional', 'retrospective', 'Kanban', 'lean', 'scrum', 'adapt', 'iteration', 'prototype']
+      easy: ['waterfall', 'test', 'sprint', 'stand-up', 'story', 'cross', 'delivery', 'integration', 'time-box', 'product', 'review', 'spike', 'block', 'chart', 'burn-down'],
+      medium: ['manager', 'scope', 'organise', 'continuous', 'manifesto', 'management', 'planning poker', 'refactor', 'criteria', 'backlog', 'showcase', 'improvement', 'user'],
+      hard: ['agile', 'pair programming', 'extreme', 'epic', 'functional', 'retrospective', 'Kanban', 'lean', 'scrum', 'adapt', 'iteration', 'prototype', 'acceptance']
   }
 
   // NOTE: if adding new preset topic, add it as an option in game.shared.topic.config.js as well
