@@ -352,6 +352,14 @@ module.exports = function (io, socket) {
     socket.emit('requestRooms', rooms);
   });
 
+  socket.on('checkRoomName', function (roomName) {
+    if (roomName === '' || games[roomName]) {
+      socket.emit('invalidRoomName', roomName);
+    } else {
+      socket.emit('validRoomName', roomName);
+    }
+  });
+
   // Start the game
   socket.on('startGame', function () {
     if (!getGame().Game.started && username === getGame().Game.getHost()) {

@@ -20,6 +20,7 @@ angular.module('lobby').controller('LobbyController', ['$scope', '$location', '$
     }
 
     $scope.rooms = [];
+    $scope.roomName = '';
 
     Socket.on('requestRooms', function (rooms) {
       $scope.rooms = rooms;
@@ -45,5 +46,18 @@ angular.module('lobby').controller('LobbyController', ['$scope', '$location', '$
       // Go to room view
       $state.go('game', {roomName: roomName});
     };
+    $scope.createRoom = function (roomName) {
+      if (roomName === '') {
+        $scope.error = 'Room name cannot be empty';
+      } else {
+        Socket.emit('checkRoomName', roomName);
+      }
+    };
+    Socket.on('validRoomName', function (roomName) {
+      $state.go('game', {roomName: roomName});
+    });
+    Socket.on('invalidRoomName', function (roomName) {
+      $scope.error = '"'+roomName+'"' + ' is already taken, sorry';
+    });
   }
 ]);

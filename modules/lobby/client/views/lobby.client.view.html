@@ -1,6 +1,15 @@
 <section class="container" ng-controller="LobbyController">
   <h2>Lobby</h2>
   <div class="col-xs-12 col-sm-12 col-md-12">
+    <div class="col-md-4">
+      <form class="input-group" ng-submit="createRoom(roomName)">
+        <input autocomplete="off" type="text" name="roomName" class="form-control" ng-model="roomName" ng-trim="false" ng-change="error = ''" placeholder="Room Name">
+        <span class="input-group-btn">
+            <input type="submit" class="btn btn-primary">Create Room</input>
+        </span>
+      </form>
+      <span class="error-message" ng-bind="error"></span>
+    </div>
     <table class="table table-striped table-responsive">
       <thead>
         <tr>
