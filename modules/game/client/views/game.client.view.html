@@ -87,7 +87,7 @@
       </div>
       <div class="drawing-header-text">
         <h3 class="text-center unselectable">
-          <span ng-if="Game.currentRound !== undefined && Game.numRounds !== undefined" ng-bind="Game.finished ? 'Game over!' : 'Round ' + (Game.currentRound + 1) + ':'"></span>
+          <span ng-if="Game.currentRound !== undefined && Game.numRounds !== undefined" ng-bind="Game.finished ? 'Game over!' : 'Round ' + (Game.currentRound + 1) + '/' + Game.numRounds+ ':'"></span>
           <span ng-if="Game.getDrawers().length" ng-bind="Game.isDrawer(username) ? 'Draw &quot;' + topic + '&quot;' : Utils.toCommaListIs(Game.getDrawers()) + ' drawing'"></span>
         </h3>
       </div>
