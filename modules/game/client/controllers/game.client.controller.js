@@ -410,6 +410,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
 
     // Remove the event listener when the controller instance is destroyed
     $scope.$on('$destroy', function () {
+      Socket.emit('leaveRoom');
       Socket.removeListener('gameState');
       Socket.removeListener('advanceRound');
       Socket.removeListener('resetGame');
@@ -425,7 +426,6 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       Socket.removeListener('gameFinished');
       Socket.removeListener('changeSetting');
       window.removeEventListener('resize', windowResize);
-      Socket.emit('leaveRoom');
     });
 
     // Prevent backspace from leaving game page

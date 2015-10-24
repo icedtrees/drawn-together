@@ -10,13 +10,6 @@ angular.module('game').config(['$stateProvider',
         data: {
           roles: ['user', 'admin']
         }
-      })
-      .state('lobby', {
-        url: '/lobby',
-        templateUrl: 'modules/lobby/client/views/lobby.client.view.html',
-        date: {
-          roles: ['user', 'admin']
-        }
       });
   }
 ]);

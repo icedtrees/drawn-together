@@ -288,10 +288,7 @@ module.exports = function (io, socket) {
         image: profileImageURL
       });
     }
-
-    socket.emit('joinRoom', roomName);
   }
-  // socket.on('joinRoom', joinRoom);
 
   function leaveRoom () {
     var roomName = socketToRoom[socket.id];
