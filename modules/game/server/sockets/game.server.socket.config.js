@@ -77,12 +77,14 @@ module.exports = function (io, socket) {
     return games[socketToRoom[socket.id]];
   }
 
-  function broadcastMessage(message, room) {
+  function broadcastMessage(message, GameObj, room) {
+    GameObj = GameObj || getGame();
     room = room || socketToRoom[socket.id];
+
     message.created = Date.now();
-    getGame().messageHistory.push(message);
-    if (getGame().messageHistory.length > ChatSettings.MAX_MESSAGES) {
-      getGame().messageHistory.shift();
+    GameObj.messageHistory.push(message);
+    if (GameObj.messageHistory.length > ChatSettings.MAX_MESSAGES) {
+      GameObj.messageHistory.shift();
     }
     io.to(room).emit('gameMessage', message);
   }
@@ -103,7 +105,7 @@ module.exports = function (io, socket) {
     broadcastMessage({
       class: 'status',
       text: newDrawersAre + ' now drawing'
-    }, room);
+    }, GameObj, room);
   }
 
   function advanceRound(GameObj, room) {
@@ -122,7 +124,7 @@ module.exports = function (io, socket) {
     broadcastMessage({
       class: 'status',
       text: 'The prompt was "' + GameObj.prompts[0] + '"'
-    }, room);
+    }, GameObj, room);
 
     if (gameFinished) {
       var winners = Game.getWinners();
@@ -131,7 +133,7 @@ module.exports = function (io, socket) {
         text: Utils.toCommaList(Utils.boldList(winners)) + ' won the game on ' +
               Game.users[winners[0]].score + ' points! A new game will start ' +
               'in ' + GameSettings.TIME_BETWEEN_GAMES + ' seconds'
-      }, room);
+      }, GameObj, room);
       io.to(room).emit('gameFinished');
 
       // Draw winners on canvas
@@ -186,14 +188,14 @@ module.exports = function (io, socket) {
     broadcastMessage({
       class: 'status',
       text: getGame().Game.roundTime + " seconds to draw."
-    }, room);
+    }, GameObj, room);
 
     GameObj.timerTop.restart(timesUp.bind(null, GameObj, room), Game.roundTime * 1000);
     GameObj.timerRemind.restart(function () {
       broadcastMessage({
         class: 'status',
         text: '10 seconds left!'
-      }, room);
+      }, GameObj, room);
     }, (Game.roundTime - 10) * 1000);
     GameObj.timerBot.delay = Game.timeAfterGuess * 1000;
   }
@@ -218,7 +220,7 @@ module.exports = function (io, socket) {
     broadcastMessage({
       class: 'status',
       text: Game.correctGuesses === 0 ? "Time's up! No one guessed " + Game.getDrawers()[0] + "'s drawing" : 'Round over!'
-    }, room);
+    }, GameObj, room);
 
     advanceRound(GameObj, room);
   }
