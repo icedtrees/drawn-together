@@ -22,3 +22,14 @@ exports.importantWords = function(str, removePunctuation) {
 
   return wordList;
 };
+
+// Shuffle the topic list in-place using Knuth shuffle
+exports.shuffleWords = function (topicListWords) {
+  for (var i = topicListWords.length - 2; i > 0; i--) {
+    var j = Math.floor(Math.random() * i);
+    var temp = topicListWords[j];
+    topicListWords[j] = topicListWords[i];
+    topicListWords[i] = temp;
+  }
+  return topicListWords;
+};

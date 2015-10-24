@@ -16,7 +16,6 @@
       this.roundTime = initialState.roundTime;
       this.topicListName = initialState.topicListName;
       this.topicListDifficulty = initialState.topicListDifficulty;
-      this.topicListWords = initialState.topicListWords;
     }
   };
 
@@ -27,10 +26,6 @@
 
   exports.Game.prototype.getHost = function () {
     return this.userList[0];
-  };
-
-  exports.Game.prototype.getTopic = function () {
-    return this.topicListName;
   };
 
   exports.Game.prototype.addUser = function (username, profileImageURL) {

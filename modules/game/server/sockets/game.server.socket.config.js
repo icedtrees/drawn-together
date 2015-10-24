@@ -20,8 +20,8 @@ var timerBot = new Utils.Timer();
 var timerRemind = new Utils.Timer();
 
 var topicLists = new TopicList.TopicLists();
-topicLists.loadTopicLists();
 TopicSettings.topicListName.options = topicLists.getAllTopicListNames();
+var prompts = [];
 
 // Game object encapsulating game logic
 var Game = new GameLogic.Game({
@@ -30,9 +30,8 @@ var Game = new GameLogic.Game({
   roundTime: GameSettings.roundTime.default,
   timeAfterGuess: GameSettings.timeAfterGuess.default,
   topicListName: TopicSettings.topicListName.default,
-  topicListDifficulty: TopicSettings.topicListDifficulty.default,
-  topicListWords: topicLists.getTopicListWordNames('default', 'all')
-}); // parameters: numRounds, numDrawers, timeToEnd, topicListName,
+  topicListDifficulty: TopicSettings.topicListDifficulty.default
+});
 
 // Dictionary counting number of connects made by each user
 var userConnects = {};
@@ -125,13 +124,11 @@ module.exports = function (io, socket) {
     io.emit('gameMessage', message);
   }
 
-  topicLists.shuffleWords(Game.topicListWords);
-
   function sendTopic() {
     // Select a new topic and send it to the new drawer
-    Game.topicListWords.push(Game.topicListWords.shift());
+    prompts.push(prompts.shift());
     Game.getDrawers().forEach(function (drawer) {
-      io.to(drawer).emit('topic', Game.topicListWords[0]);
+      io.to(drawer).emit('topic', prompts[0]);
     });
 
     // Announce the new drawers
@@ -154,7 +151,7 @@ module.exports = function (io, socket) {
     // Explain what the word was
     broadcastMessage({
       class: 'status',
-      text: 'The prompt was "' + Game.topicListWords[0] + '"'
+      text: 'The prompt was "' + prompts[0] + '"'
     });
 
     if (gameFinished) {
@@ -276,6 +273,8 @@ module.exports = function (io, socket) {
   // Start the game
   socket.on('startGame', function () {
     if (!Game.started && username === Game.getHost()) {
+      prompts = topicLists.getTopicListWordNames(Game.topicListName, Game.topicListDifficulty);
+      ServerUtils.shuffleWords(prompts);
       Game.startGame();
       io.emit('startGame');
       startRound();
@@ -293,10 +292,6 @@ module.exports = function (io, socket) {
 
       // apply settings selected by host
       Game[change.setting] = change.option;
-
-      // Get the topic list for the new topic list settings
-      Game.topicListWords = topicLists.getTopicListWordNames(Game.topicListName, Game.topicListDifficulty);
-      topicLists.shuffleWords(Game.topicListWords);
 
       // tell all clients about the new setting
       io.emit('updateSetting', change);
@@ -320,7 +315,7 @@ module.exports = function (io, socket) {
 
     // Send current topic if they are the drawer
     if (Game.isDrawer(username)) {
-      socket.emit('topic', Game.topicListWords[0]);
+      socket.emit('topic', prompts[0]);
     }
 
   });
@@ -352,7 +347,7 @@ module.exports = function (io, socket) {
 
     // Compare the lower-cased versions
     var guess = message.text.toLowerCase();
-    var topic = Game.topicListWords[0].toLowerCase();
+    var topic = prompts[0].toLowerCase();
     var filteredGuess = guess.replace(/[\W_]/g, ''); // only keep letters and numbers
     var filteredTopic = topic.replace(/[\W_]/g, '');
     if (filteredGuess === filteredTopic) {

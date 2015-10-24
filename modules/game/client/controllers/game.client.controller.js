@@ -19,8 +19,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     $scope.TopicSettings = TopicSettings;
 
     $scope.TopicLists = new TopicList.TopicLists();
-    $scope.TopicLists.loadTopicLists();
-    TopicSettings.topicListName.options = $scope.TopicLists.getAllTopicListNames();
+    $scope.TopicSettings.topicListName.options = $scope.TopicLists.getAllTopicListNames();
 
     // Pregame settings for host to change
     $scope.chosenSettings = {
@@ -28,7 +27,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       roundTime : GameSettings.roundTime.default,
       timeAfterGuess : GameSettings.timeAfterGuess.default,
       topicListName: TopicSettings.topicListName.default,
-      topicListDifficulty: TopicSettings.topicListDifficulty.default,
+      topicListDifficulty: TopicSettings.topicListDifficulty.default
     };
 
     // Create a messages array to store chat messages
@@ -281,9 +280,6 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     Socket.on('updateSetting', function(change) {
       $scope.chosenSettings[change.setting] = change.option;
       $scope.Game[change.setting] = change.option;
-      // Get the topic list for the new topic list settings
-      $scope.Game.topicListWords = $scope.TopicLists.getTopicListWordNames($scope.Game.topicListName, $scope.Game.topicListDifficulty);
-      $scope.TopicLists.shuffleWords($scope.Game.topicListWords);
     });
 
     // Game host tells server to start game with chosen settings
