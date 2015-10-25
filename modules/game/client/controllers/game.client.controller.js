@@ -5,7 +5,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
   'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils', 'TopicSettings',
   function ($scope, $location, $document, $rootScope, $state, $interval, $stateParams, Authentication, Socket,
             CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils, TopicSettings) {
-    var isIE = /*@cc_on!@*/!!document.documentMode;
+    var isIE = /*@cc_on!@*/false || !!document.documentMode;
     $scope.isIE = isIE;
 
     // Useful libraries

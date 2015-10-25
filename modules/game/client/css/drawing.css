@@ -24,11 +24,12 @@
 .drawing-timer-wrapper {
   position: relative;
   height: 15px;
+  /* Move left by 1px and add 2px to width to match canvas below (which has 1px outline) */
   width: calc(100% + 2px);
+  left: -1px;
   text-align: center;
   font-size: 10px;
   box-shadow: -1px 3px 4px rgba(0, 0, 0, 0.1) inset;
-  left: -1px;
 }
 
 .drawing-timer-wrapper.game-over {

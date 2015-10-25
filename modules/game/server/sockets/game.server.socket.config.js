@@ -218,13 +218,9 @@ module.exports = function (io, socket) {
   }
 
   function timesUp(game, room) {
-    game = game || game;
-    var Game = game.Game;
-    room = room || socketToRoom[socket.id];
-
     broadcastMessage({
       class: 'status',
-      text: Game.correctGuesses === 0 ? "Time's up! No one guessed " + Game.getDrawers()[0] + "'s drawing" : 'Round over!'
+      text: game.Game.correctGuesses === 0 ? "Time's up! No one guessed " + game.Game.getDrawers()[0] + "'s drawing" : 'Round over!'
     }, game, room);
 
     advanceRound(game, room);
