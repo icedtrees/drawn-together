@@ -1,5 +1,6 @@
 .chat-container {
   font-size: 0.8em;
+  font-weight: normal;
   /* Make the chat container take up the rest of the space after the player list */
   -webkit-flex:1;
   flex: 1;
