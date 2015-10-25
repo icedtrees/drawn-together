@@ -61,7 +61,7 @@
     <h3 class="drawing-header unselectable">
       <span ng-bind="username === Game.getHost() ? 'You are' : Game.getHost() + ' is'"></span> choosing the game settings...
     </h3>
-    <div class="col-md-12" ng-class="{'amINonHost': Game.getHost() !== username}">
+    <div class="col-md-12" ng-class="{'non-host': Game.getHost() !== username}">
       <div class="pregame-group" ng-repeat="setting in Utils.keys(TopicSettings)" ng-init="value = TopicSettings[setting]">
         <h4><span ng-bind="value.settingName" class="unselectable"></span></h4>
         <div class="btn-group" ng-repeat="option in value.options">
