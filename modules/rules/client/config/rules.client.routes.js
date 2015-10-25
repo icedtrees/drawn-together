@@ -6,10 +6,7 @@ angular.module('rules').config(['$stateProvider',
     $stateProvider
       .state('rules', {
         url: '/rules',
-        templateUrl: 'modules/rules/client/views/rules.client.view.html',
-        data: {
-          roles: ['user', 'admin']
-        }
+        templateUrl: 'modules/rules/client/views/rules.client.view.html'
       });
   }
 ]);

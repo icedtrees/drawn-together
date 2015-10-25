@@ -1,18 +1,91 @@
 <!-- The rules view -->
 <section class="container" ng-controller="RulesController">
   <div class="row">
-    <div class="col-md-4">
-      <h1>Rules</h1>
-      <ul class="nav nav-pills nav-stacked">
-        <li><a href="#getting-started">Getting Started</a></li>
-        <li><a href="#using-the-toolbox">Using the Toolbox</a></li>
-        <!--<li><a href="#custom-settings">Custom Settings</a></li>-->
-      </ul>
+    <div class="col-xs-2">
+      <div class="rules-nav">
+        <h1>Rules</h1>
+        <ul class="nav nav-pills nav-stacked">
+          <li><a href="#lobby-and-rooms">Lobby and Rooms</a></li>
+          <li><a href="#game-settings">Game Settings</a></li>
+          <li><a href="#game-basics">Game Basics</a></li>
+          <li><a href="#drawing-basics">Drawing Basics</a></li>
+          <li><a href="#guessing-basics">Guessing Basics</a></li>
+          <li><a href="#using-the-toolbox">Using the Toolbox</a></li>
+          <!--<li><a href="#custom-settings">Custom Settings</a></li>-->
+        </ul>
+      </div>
     </div>
 
-    <div class="col-sm-12 col-md-8">
-      <div id="getting-started" class="col-md-12 rules-anchor">
-        <h1>Getting Started</h1>
+    <div class="col-xs-10">
+      <div id="lobby-and-rooms" class="col-md-12 rules-anchor">
+        <h1>Lobby and Rooms</h1>
+        <div class="thumbnail">
+          <div class="caption">
+            <blockquote><b>The lobby has a list of rooms.</b> A separate game is held in each room.</blockquote>
+          </div>
+        </div>
+      </div>
+
+      <div id="game-settings" class="col-md-12 rules-anchor">
+        <h1>Game Settings</h1>
+        <div class="thumbnail">
+          <div class="caption">
+            <blockquote><p>
+              <b>The host has 5 settings </b> to pick before the game starts.
+            </p></blockquote>
+
+            <ul class="media-list">
+              <li class="media">
+                <div class="media-left">
+                </div>
+                <div class="media-body">
+                  <h4 class="media-heading">The topic.</h4>
+                  <b>This is the theme of the prompts.</b>
+                </div>
+              </li>
+
+              <li class="media">
+                <div class="media-left">
+                </div>
+                <div class="media-body">
+                  <h4 class="media-heading">The difficulty.</h4>
+                  <b>This sets how difficult the prompts will be to draw and guess.</b> The random option will select prompts from all of the difficulties.
+                </div>
+              </li>
+
+              <li class="media">
+                <div class="media-left">
+                </div>
+                <div class="media-body">
+                  <h4 class="media-heading">The number of rounds.</h4>
+                  <b>The number of rounds before the game ends.</b>
+                </div>
+              </li>
+
+              <li class="media">
+                <div class="media-left">
+                </div>
+                <div class="media-body">
+                  <h4 class="media-heading">The drawing timer.</h4>
+                  <b>This sets how much time the drawer gets to draw. </b> If no one guesses their drawing during this time, the round will end.
+                </div>
+              </li>
+
+              <li class="media">
+                <div class="media-left">
+                </div>
+                <div class="media-body">
+                  <h4 class="media-heading">The reserve timer.</h4>
+                  <b>when the first person correctly guesses the prompt, the timer will swap to reserve time.</b> The rest of the guessers have this much time to guess before the round ends.
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div id="game-basics" class="col-md-12 rules-anchor">
+        <h1>Game Basics</h1>
         <div class="thumbnail">
           <img src="modules/rules/client/img/round.png" alt="The round number is displayed above the canvas."/>
           <div class="caption">
@@ -26,17 +99,20 @@
           <div class="caption">
             <blockquote>The player list shows the usernames and points of all the players in the room.
               <b>After the last round, the player with the most points wins!</b></blockquote>
-            In the player list, the drawer's username is bolded.<sup>1</sup> All other players in the room are guessers.<sup>2</sup>
+            In the player list, the drawer's username is bolded.<sup>1</sup> All other players in the room are guessers. If a guesser makes a correct guess a tick will show up to the left of their score.<sup>2</sup>
             The drawer changes each round according to the order in the player list. The player list also shows the number of points
             each user has to the right of their username. The current and maximum number of players is displayed at the top of the player list.
           </div>
         </div>
+      </div>
 
+      <div id="drawing-basics" class="col-md-12 rules-anchor">
+        <h1>Drawing Basics</h1>
         <div class="thumbnail">
           <img src="modules/rules/client/img/drawer.png" alt="The drawer tries to draw a drain on the canvas."/>
           <div class="caption">
             <blockquote><p>
-              <b>The drawer will be given a prompt that only they can see</b>, and have 90 seconds to draw the prompt on the canvas.
+              <b>The drawer will be given a prompt that only they can see<sup>1</sup></b>, and have a set time to draw the prompt on the canvas. If no one guesses their drawing during this time, the round will end.<sup>2</sup>
             </p></blockquote>
 
             Drawers are not allowed to write letters or numbers. In general, drawers should just draw the prompt instead of trying
@@ -44,6 +120,18 @@
             given the prompt "paper boat", one could draw paper, a plus sign, and a boat. Ultimately, the rules are enforced by the
             room host rather than the game. If players disagree with the rules of the host, they are encouraged to host their
             own room.
+          </div>
+        </div>
+      </div>
+
+      <div id="guessing-basics" class="col-md-12 rules-anchor">
+        <h1>Guessing Basics</h1>
+        <div class="thumbnail">
+          <img src="modules/rules/client/img/timer.png" alt="The second timer goes to red after the first person guesses correctly."/>
+          <div class="caption">
+            <blockquote><p>
+              <b>After the first user guesses correctly, all the other guessers must guess in a set time before the round ends.</b> The top timer will stop and the bottom one will start.
+            </p></blockquote>
           </div>
         </div>
 
