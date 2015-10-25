@@ -12,8 +12,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr class="room-listing" ng-if="true">
-          <td>There aren't any rooms open. <a href="#create-room">Create your own!</a></td>
+        <tr class="room-listing" ng-if="!rooms.length">
+          <td>There aren't any rooms open. <a href="javascript:document.getElementById('roomName').focus()">Create your own!</a></td>
           <td></td>
           <td></td>
           <td></td>
