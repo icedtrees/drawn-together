@@ -2,7 +2,7 @@
 
 (function(exports) {
     exports.TIME_BETWEEN_GAMES = 30;
-    exports.MAX_TOPIC_LENGTH = 25;
+    exports.MAX_TOPIC_LENGTH = 23;
 
     exports.numRounds = {
         settingName : "Rounds",

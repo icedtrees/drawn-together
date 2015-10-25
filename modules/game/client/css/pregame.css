@@ -2,6 +2,7 @@
     height: 32px;
     margin-top: 15px;
     margin-bottom: 0;
+    font-size: 1.1em;
 }
 
 .settings-body {
@@ -38,10 +39,11 @@
     padding: 8px 0;
     font-size: 1.2em;
     color: darkblue;
+    font-weight: normal;
 }
 
 .pregame-button {
-    padding: 7px 15px;
+    padding: 7px 12px;
     font-size: 1em;
 }
 
@@ -68,7 +70,6 @@
 .pregame-display-topic:hover, .pregame-display-topic:active, .pregame-display-topic:active:hover,
 .pregame-display-topic:active:hover:focus, .pregame-display-topic:focus, .pregame-display-topic:focus:active,
 .pregame-display-topic:focus:hover {
->>>>>>> develop
     color: #ffffff;
     background-color: #AE54EC;
     border-color: #AE54EC;

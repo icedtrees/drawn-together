@@ -397,7 +397,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       }
       var leftColumnWidth = Math.min(spaceLeftOver, leftMaxWidth);
       leftColumn.style.width = leftColumnWidth + 'px';
-      leftColumn.style.fontSize = Math.round(leftColumnWidth / 50 + 6) + 'px';
+      leftColumn.style.fontSize = Math.round(leftColumnWidth / 100 + 12) + 'px';
       spaceLeftOver -= leftColumnWidth;
 
       // Left and right padding for space left over
