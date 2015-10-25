@@ -1,8 +1,10 @@
 'use strict';
 
 // Create the 'lobby' controller
-angular.module('lobby').controller('LobbyController', ['$scope', '$location', '$state', 'Authentication', 'Socket', 'PlayerConstants',
-  function ($scope, $location, $state, Authentication, Socket, PlayerConstants) {
+angular.module('lobby').controller('LobbyController', ['$scope', '$location', '$state', 'Authentication', 'Socket', 'GameSettings',
+  function ($scope, $location, $state, Authentication, Socket, GameSettings) {
+    $scope.GameSettings = GameSettings;
+
     // If user is not signed in then redirect to signin page
     if (!Authentication.user) {
       $location.path('/authentication/signin');

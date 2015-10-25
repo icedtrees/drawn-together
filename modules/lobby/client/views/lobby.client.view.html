@@ -35,7 +35,7 @@
       <!-- Room Name -->
       <div class="form-group">
         <label for="roomName">Room Name</label>
-        <input autocomplete="off" type="text" id="roomName" name="roomName" class="form-control" ng-model="roomName" ng-trim="false" ng-change="error = ''" placeholder="Room Name">
+        <input autocomplete="off" type="text" id="roomName" name="roomName" class="form-control" ng-model="roomName" ng-trim="false" ng-change="error = ''" maxlength="{{GameSettings.MAX_ROOM_NAME_LENGTH}}" placeholder="Room Name">
       </div>
       <!-- Room Password -->
       <!--<div class="form-group">-->

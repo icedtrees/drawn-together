@@ -212,6 +212,10 @@ module.exports = function (io, socket) {
 
   // Join a room
   function joinRoom (room) {
+    if (room.length < 1 || room.length > GameSettings.MAX_ROOM_NAME_LENGTH) {
+      return false;
+    }
+
     // This socket is already part of a room
     if (socket.id in socketToRoom) {
       // Already in this room
@@ -363,7 +367,7 @@ module.exports = function (io, socket) {
   });
 
   socket.on('checkRoomName', function (room) {
-    if (room === '' || room in games) {
+    if (room === '' || room.length > GameSettings.MAX_ROOM_NAME_LENGTH || room in games) {
       socket.emit('invalidRoomName', room);
     } else {
       socket.emit('validRoomName', room);
@@ -426,8 +430,11 @@ module.exports = function (io, socket) {
   socket.on('requestState', function (requestedRoom) {
     var room = socketToRoom[socket.id];
     if (room !== requestedRoom) {
-      joinRoom(requestedRoom);
-      room = requestedRoom;
+      if (joinRoom(requestedRoom)) {
+        room = requestedRoom;
+      } else {
+        return;
+      }
     }
     var game = games[room];
 
