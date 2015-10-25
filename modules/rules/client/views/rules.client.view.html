@@ -5,7 +5,11 @@
       <div class="rules-nav">
         <h1>Rules</h1>
         <ul class="nav nav-pills nav-stacked">
-          <li><a href="#getting-started">Getting Started</a></li>
+          <li><a href="#lobby-and-rooms">Lobby and Rooms</a></li>
+          <li><a href="#game-settings">Game Settings</a></li>
+          <li><a href="#game-basics">Game Basics</a></li>
+          <li><a href="#drawing-basics">Drawing Basics</a></li>
+          <li><a href="#guessing-basics">Guessing Basics</a></li>
           <li><a href="#using-the-toolbox">Using the Toolbox</a></li>
           <!--<li><a href="#custom-settings">Custom Settings</a></li>-->
         </ul>
@@ -13,8 +17,83 @@
     </div>
 
     <div class="col-xs-10">
-      <div id="getting-started" class="col-md-12 rules-anchor">
-        <h1>Getting Started</h1>
+      <div id="lobby-and-rooms" class="col-md-12 rules-anchor">
+        <h1>Lobby and Rooms</h1>
+        <div class="thumbnail">
+          <img src="modules/rules/client/img/lobby.png" alt="The lobby displays a list of rooms."/>
+          <div class="caption">
+            <blockquote><b>The lobby has a list of rooms.</b> A separate game is held in each room.</blockquote>
+            TODO - more description text
+          </div>
+        </div>
+      </div>
+
+      <div id="game-settings" class="col-md-12 rules-anchor">
+        <h1>Game Settings</h1>
+        <div class="thumbnail">
+          <img src="modules/rules/client/img/pregame-settings.png"/>
+          <div class="caption">
+            <blockquote><p>
+              <b>The host has 5 settings </b> to pick before the game starts.
+            </p></blockquote>
+
+            <ul class="media-list">
+              <li class="media">
+                <div class="media-left">
+                  <img class="media-object" src="modules/rules/client/img/pregame-settings1.png" alt="The topic.">
+                </div>
+                <div class="media-body">
+                  <h4 class="media-heading">The topic.</h4>
+                  <b>This is the theme of the prompts.</b>
+                </div>
+              </li>
+
+              <li class="media">
+                <div class="media-left">
+                  <img class="media-object" src="modules/rules/client/img/pregame-settings2.png" alt="The difficulty.">
+                </div>
+                <div class="media-body">
+                  <h4 class="media-heading">The difficulty.</h4>
+                  <b>This sets how difficult the prompts will be to draw and guess.</b> The random option will select prompts from all of the difficulties.
+                </div>
+              </li>
+
+              <li class="media">
+                <div class="media-left">
+                  <img class="media-object" src="modules/rules/client/img/pregame-settings3.png" alt="The number of rounds.">
+                </div>
+                <div class="media-body">
+                  <h4 class="media-heading">The number of rounds.</h4>
+                  <b>The number of rounds before the game ends.</b>
+                </div>
+              </li>
+
+              <li class="media">
+                <div class="media-left">
+                  <img class="media-object" src="modules/rules/client/img/pregame-settings4.png" alt="The drawing timer.">
+                </div>
+                <div class="media-body">
+                  <h4 class="media-heading">The drawing timer.</h4>
+                  <b>This sets how much time the drawer gets to draw. </b> If no one guesses their drawing during this time, the round will end.
+                </div>
+              </li>
+
+              <li class="media">
+                <div class="media-left">
+                  <img class="media-object" src="modules/rules/client/img/pregame-settings5.png" alt="The reserve timer.">
+                </div>
+                <div class="media-body">
+                  <h4 class="media-heading">The reserve timer.</h4>
+                  <b>when the first person correctly guesses the prompt, the timer will swap to reserve time.</b> The rest of the guessers have this much time to guess before the round ends.
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div id="game-basics" class="col-md-12 rules-anchor">
+        <h1>Game Basics</h1>
         <div class="thumbnail">
           <img src="modules/rules/client/img/round.png" alt="The round number is displayed above the canvas."/>
           <div class="caption">
@@ -33,7 +112,10 @@
             each user has to the right of their username. The current and maximum number of players is displayed at the top of the player list.
           </div>
         </div>
+      </div>
 
+      <div id="drawing-basics" class="col-md-12 rules-anchor">
+        <h1>Drawing Basics</h1>
         <div class="thumbnail">
           <img src="modules/rules/client/img/drawer.png" alt="The drawer tries to draw a drain on the canvas."/>
           <div class="caption">
@@ -48,6 +130,10 @@
             own room.
           </div>
         </div>
+      </div>
+
+      <div id="guessing-basics" class="col-md-12 rules-anchor">
+        <h1>Guessing Basics</h1>
         <div class="thumbnail">
           <img src="modules/rules/client/img/timer.png" alt="The second timer goes to red after the first person guesses correctly."/>
           <div class="caption">
