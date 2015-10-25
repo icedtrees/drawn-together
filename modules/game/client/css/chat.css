@@ -38,6 +38,7 @@
 .message-input {
   padding: 7px 14px;
   height: auto;
+    font-weight: normal;
 }
 
 .username {
