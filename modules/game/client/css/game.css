@@ -4,7 +4,13 @@
   /* leave 50 for top bar and 20 for above padding*/
   height: calc(100vh - 50px - 20px);
   min-width: 800px;
-  min-height: 500px;
+  min-height: 540px;
+}
+
+@media screen and (min-width: 1200px) {
+  .game-container {
+    font-weight: 300;
+  }
 }
 
 .left-sidebar {
@@ -16,8 +22,8 @@
   -webkit-flex-direction:column;
   height: 100%;
   padding-bottom: 10px;
-  min-width: 400px;
-  max-width: 500px;
+  min-width: 370px;
+  max-width: 600px;
 }
 
 .right-sidebar {

@@ -2,10 +2,16 @@
     height: 32px;
     margin-top: 15px;
     margin-bottom: 0;
+    font-size: 1.2em;
+}
+
+.settings-body {
+  font-size: 0.8em;
+  margin-top: 20px;
 }
 
 .start-game-div {
-    padding-top: 30px;
+    padding-top: 40px;
     text-align: center;
 }
 
@@ -15,16 +21,30 @@
 }
 
 .pregame-group {
-    padding-bottom: 1px;
+    padding: 5px 0;
+}
+
+.pregame-group-left {
+    padding: 0 1.5em 0 0;
+}
+
+.pregame-group-right {
+    padding: 0.2em 0 0 0;
+    text-align: left;
+    height: 100%;
 }
 
 .pregame-setting-name {
-    margin-top: 12px;
-    margin-bottom: 8px;
+    text-align: right;
+    padding: 8px 0;
+    font-size: 1.2em;
+    color: darkblue;
+    font-weight: normal;
 }
 
 .pregame-button {
-    padding: 7px 14px;
+    padding: 7px 10px;
+    font-size: 1em;
 }
 
 .pregame-display-game:hover, .pregame-display-game:active, .pregame-display-game:active:hover,

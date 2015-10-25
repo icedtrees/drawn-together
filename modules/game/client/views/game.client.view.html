@@ -11,19 +11,19 @@
 
     <!-- Player List -->
     <div class="unselectable">
-      <h4 class="text-center">Players (<span ng-bind="Game.userList.length"></span>/16)</h4>
+      <div class="text-center players-header">Players (<span ng-bind="Game.userList.length"></span>/16)</div>
       <ul class="list-unstyled player-list">
         <li class="row" ng-repeat="user in Game.userList">
-          <div class="col-xs-1 player-image">
+          <div class="player-image col">
             <img ng-src="{{Game.getUserProfileImage(user)}}" title="{{user}}" class="game-profile-image"/>
           </div>
-          <div class="col-xs-4 player-names">
+          <div class="player-names col">
             <div ng-class="{'game-drawer': Game.isDrawer(user)}">
               <i ng-if="Game.getHost() === user" title="Host" class="fa fa-star"></i>
               <span ng-bind="user"></span>
             </div>
           </div>
-          <div class="col-xs-3 player-scores">
+          <div class="player-score">
             <div ng-if="Game.isDrawer(user)"><strong ng-bind="Game.users[user].score.toString()"></strong></div>
             <div ng-if="!Game.isDrawer(user)">
               <span ng-bind="Game.users[user].score.toString()"></span>
@@ -64,32 +64,41 @@
 
   <!--The pregame settings panel -->
   <div id="settings" class="col" style="display: none; height: 100%; text-align: center">
-    <h3 class="drawing-header-pregame unselectable">
+    <div class="drawing-header-pregame unselectable">
       <span ng-bind="username === Game.getHost() ? 'You are' : Game.getHost() + ' is'"></span> choosing the game settings...
-    </h3>
-    <div class="col-md-12" ng-class="{'non-host': Game.getHost() !== username}">
-      <div class="pregame-group" ng-repeat="setting in Utils.keys(TopicSettings)" ng-init="value = TopicSettings[setting]">
-        <h4 class="pregame-setting-name"><span ng-bind="value.settingName" class="unselectable"></span></h4>
-        <div class="btn-group" ng-repeat="option in value.options">
-          <div ng-if="Game.getHost() !== username" ng-bind="option"
-            ng-class="{'active': chosenSettings[setting] === option}"
-            class="btn btn-warning pregame-button pregame-display-topic unselectable">
+    </div>
+    <div class="settings-body" ng-class="{'non-host': Game.getHost() !== username}">
+      <div class="pregame-group row" ng-repeat="setting in Utils.keys(TopicSettings)" ng-init="value = TopicSettings[setting]" ng-if="TopicSettings[setting].settingName">
+        <div class="col-xs-4 pregame-group-left">
+          <div class="pregame-setting-name"><span ng-bind="value.settingName" class="unselectable"></span></div>
+        </div>
+        <div class="col-xs-8 pregame-group-right">
+          <div class="btn-group" ng-repeat="option in value.options">
+            <div ng-if="Game.getHost() !== username" ng-bind="option"
+                 ng-class="{'active': chosenSettings[setting] === option}"
+                 class="btn btn-warning pregame-button pregame-display-topic unselectable">
+            </div>
+            <label ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" ng-bind="option"
+                   class="btn btn-warning pregame-button" ng-click="changeSetting(setting, option)" btn-radio="option">
+            </label>
           </div>
-          <label ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" ng-bind="option"
-            class="btn btn-warning pregame-button" ng-click="changeSetting(setting, option)" btn-radio="option">
-          </label>
         </div>
       </div>
-      <div class="pregame-group" ng-repeat="setting in Utils.keys(GameSettings)" ng-init="value = GameSettings[setting]">
-        <h4 class="pregame-setting-name"><span ng-bind="value.settingName" class="unselectable"></span></h4>
-        <div class="btn-group" ng-repeat="option in value.options">
-          <div ng-if="Game.getHost() !== username" ng-bind="option"
-            ng-class="{'active': chosenSettings[setting] === option}"
-            class="btn btn-success pregame-button pregame-display-game unselectable">
+      <div style="height: 2em"></div>
+      <div class="pregame-group row" ng-repeat="setting in Utils.keys(GameSettings)" ng-init="value = GameSettings[setting]" ng-if="GameSettings[setting].settingName">
+        <div class="col-xs-4 pregame-group-left">
+          <div class="pregame-setting-name"><span ng-bind="value.settingName" class="unselectable"></span></div>
+        </div>
+        <div class="col-xs-8 pregame-group-right">
+          <div class="btn-group" ng-repeat="option in value.options">
+            <div ng-if="Game.getHost() !== username" ng-bind="option"
+                 ng-class="{'active': chosenSettings[setting] === option}"
+                 class="btn btn-success pregame-button pregame-display-game unselectable">
+            </div>
+            <label ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" ng-bind="option"
+                   class="btn btn-success pregame-button" ng-click="changeSetting(setting, option)" btn-radio="option">
+            </label>
           </div>
-          <label ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" ng-bind="option"
-            class="btn btn-success pregame-button" ng-click="changeSetting(setting, option)" btn-radio="option">
-          </label>
         </div>
       </div>
     </div>
@@ -102,13 +111,13 @@
   <div id="middle-column" class="col drawing-container" style="display: none;">
     <div class="drawing-header">
       <div class="drawing-header-buttons">
-        <button class="btn btn-primary" ng-disabled="!Game.isDrawer(username) || Game.correctGuesses !== 0" ng-click="finishDrawing()"><i class="fa fa-hourglass-end" style="padding-right: 4px;"></i> Pass</button>
+        <button class="btn btn-primary vertical-center" ng-disabled="!Game.isDrawer(username) || Game.correctGuesses !== 0" ng-click="finishDrawing()"><i class="fa fa-hourglass-end" style="padding-right: 4px;"></i> Pass</button>
       </div>
-      <div class="drawing-header-text">
-        <h3 class="text-center unselectable">
+      <div class="drawing-header-text vertical-center">
+        <div class="text-center unselectable">
           <span ng-if="Game.currentRound !== undefined && Game.numRounds !== undefined" ng-bind="Game.finished ? 'Game over!' : 'Round ' + (Game.currentRound + 1) + '/' + Game.numRounds+ ':'"></span>
           <span ng-if="Game.getDrawers().length" ng-bind="Game.isDrawer(username) ? 'Draw &quot;' + topic + '&quot;' : Utils.toCommaListIs(Game.getDrawers()) + ' drawing'"></span>
-        </h3>
+        </div>
       </div>
     </div>
 

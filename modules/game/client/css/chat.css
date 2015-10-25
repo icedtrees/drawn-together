@@ -1,4 +1,5 @@
 .chat-container {
+  font-size: 0.8em;
   /* Make the chat container take up the rest of the space after the player list */
   -webkit-flex:1;
   flex: 1;
@@ -10,7 +11,6 @@
 .game-message {
   padding-top: 5px;
   padding-bottom: 5px;
-  font-size: 13px;
   border-top: 1px solid #e7e7e7;
 }
 .game-message.status {
@@ -37,7 +37,6 @@
 .message-input {
   padding: 7px 14px;
   height: auto;
-  font-size: 13px;
 }
 
 .username {

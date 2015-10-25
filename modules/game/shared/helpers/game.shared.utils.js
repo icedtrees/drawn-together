@@ -70,7 +70,14 @@
     if (!obj) {
       return [];
     }
-    return Object.keys(obj);
+    var keys = [];
+    for (var k in obj) {
+      if (!obj.hasOwnProperty(k)) {
+        continue;
+      }
+      keys.push(k);
+    }
+    return keys;
   };
 
 })((typeof process === 'undefined' || !process.versions) ? // Not a node.js environment

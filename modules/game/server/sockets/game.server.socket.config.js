@@ -108,6 +108,16 @@ module.exports = function (io, socket) {
   function sendTopic(game, room) {
     // Select a new topic and send it to the new drawer
     game.prompts.push(game.prompts.shift());
+
+    // Cycle through topics until we get a topic less than the message limit
+    while (game.prompts[0].length > GameSettings.MAX_TOPIC_LENGTH) {
+      game.prompts.shift();
+      if (!game.prompts.length) {
+        game.prompts = ['All prompts too long!'];
+        break;
+      }
+    }
+
     game.Game.getDrawers().forEach(function (drawer) {
       io.to(room+'/'+drawer).emit('topic', game.prompts[0]);
     });
