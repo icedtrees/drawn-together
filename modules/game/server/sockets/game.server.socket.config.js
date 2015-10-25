@@ -131,13 +131,13 @@ module.exports = function (io, socket) {
         x: 300,
         y: 50
       };
-      game.drawHistory.push(message);
+      game.drawHistory.push(JSON.parse(JSON.stringify(message))); // push deep copy because we modify the message below
       io.to(room).emit('canvasMessage', message);
 
       message.y += 50;
       for (var i = 0; i < winners.length; i++) {
         message.text = winners[i];
-        game.drawHistory.push(message);
+        game.drawHistory.push(JSON.parse(JSON.stringify(message)));
         io.to(room).emit('canvasMessage', message);
         message.y += 50;
       }
@@ -145,11 +145,11 @@ module.exports = function (io, socket) {
       message.align = 'center';
       message.y = 500;
       message.text = 'Please respect the other contestants';
-      game.drawHistory.push(message);
+      game.drawHistory.push(JSON.parse(JSON.stringify(message)));
       io.to(room).emit('canvasMessage', message);
       message.y += 35;
       message.text = 'and do not deface this message';
-      game.drawHistory.push(message);
+      game.drawHistory.push(JSON.parse(JSON.stringify(message)));
       io.to(room).emit('canvasMessage', message);
 
       setTimeout(function () {
