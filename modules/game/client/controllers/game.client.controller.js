@@ -378,6 +378,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
 
       // Left column width is everything left over
       var spaceLeftOver = windowWidth - rightColumnWidth - middleColumn.offsetWidth;
+      spaceLeftOver -= 20; // magic padding for firefox (game container expands by 17px when you're not the drawer)
 
       // Rescale and redraw canvas contents
       if ($scope.canvas) {
