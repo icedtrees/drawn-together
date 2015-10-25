@@ -14,7 +14,7 @@
 .player-list > li {
   /* So padding doesn't go into 2nd column*/
   -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
-  page-break-inside: avoid;           /* Firefox */
+  page-break-inside: auto;           /* Firefox */
   break-inside: avoid;                /* IE 10+ */
   /*padding: 3px 0.3em 0 0.3em;*/
   margin: 2px 0;
