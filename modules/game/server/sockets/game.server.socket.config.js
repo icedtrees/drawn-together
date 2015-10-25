@@ -394,7 +394,7 @@ module.exports = function (io, socket) {
   socket.on('checkRoomName', function (room) {
     var result = checkRoomName(room);
     if (room in games) {
-      socket.emit('invalidRoomName', '"'+roomName+'"' + ' is already taken, sorry');
+      socket.emit('invalidRoomName', '"'+room+'"' + ' is already taken, sorry');
     } else if (!result.valid) {
       socket.emit('invalidRoomName', result.error);
     } else {
