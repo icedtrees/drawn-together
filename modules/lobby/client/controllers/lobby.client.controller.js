@@ -58,8 +58,8 @@ angular.module('lobby').controller('LobbyController', ['$scope', '$location', '$
     Socket.on('validRoomName', function (roomName) {
       $state.go('game', {roomName: roomName});
     });
-    Socket.on('invalidRoomName', function (roomName) {
-      $scope.error = '"'+roomName+'"' + ' is already taken, sorry';
+    Socket.on('invalidRoomName', function (error) {
+      $scope.error = error;
     });
   }
 ]);

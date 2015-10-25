@@ -23,6 +23,29 @@ var socketToRoom = {};
 // List of all rooms
 var rooms = [];
 
+function checkRoomName(room) {
+  var result = {
+    valid: false
+  };
+  if (typeof(room) !== 'string') {
+    result.error = 'Room name must be a string';
+    return result;
+  }
+
+  if (room.length < 1 || room.length > GameSettings.MAX_ROOM_NAME_LENGTH) {
+    result.error = 'Room name must be between 1 and ' + GameSettings.MAX_ROOM_NAME_LENGTH + ' characters';
+    return result;
+  }
+
+  if (/^\s*$/.test(room)) {
+    result.error = 'Room name must not be empty';
+    return result;
+  }
+
+  result.valid = true;
+  return result;
+}
+
 function checkGuess(guess, topic) {
   // STAGE 1 - basic JW distance
   var score = jaro_winkler(guess, topic);
@@ -212,7 +235,7 @@ module.exports = function (io, socket) {
 
   // Join a room
   function joinRoom (room) {
-    if (room.length < 1 || room.length > GameSettings.MAX_ROOM_NAME_LENGTH) {
+    if (!checkRoomName(room)) {
       return false;
     }
 
@@ -373,8 +396,11 @@ module.exports = function (io, socket) {
   });
 
   socket.on('checkRoomName', function (room) {
-    if (room === '' || room.length > GameSettings.MAX_ROOM_NAME_LENGTH || room in games) {
-      socket.emit('invalidRoomName', room);
+    var result = checkRoomName(room);
+    if (room in games) {
+      socket.emit('invalidRoomName', '"'+roomName+'"' + ' is already taken, sorry');
+    } else if (!result.valid) {
+      socket.emit('invalidRoomName', result.error);
     } else {
       socket.emit('validRoomName', room);
     }
