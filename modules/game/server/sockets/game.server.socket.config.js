@@ -127,11 +127,9 @@ module.exports = function (io, socket) {
     prompts.push(prompts.shift());
 
     // Cycle through topics until we get a topic less than the message limit
-    var seen = 0;
     while (prompts[0].length > GameSettings.MAX_TOPIC_LENGTH) {
-      prompts.push(prompts.shift());
-      seen++;
-      if (seen === prompts.length) { // we're so done
+      prompts.shift();
+      if (!prompts.length) {
         prompts = ['All prompts too long!'];
         break;
       }
