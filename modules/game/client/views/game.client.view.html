@@ -4,9 +4,9 @@
   <div id="left-column" class="col left-sidebar" style="display: none;">
     <!-- Lobby Information -->
     <div class="lobby-info ui-panel unselectable bg-primary">
-      <h4><span ng-bind="Game.getHost()"></span>'s lobby</h4>
-      <h5>Topic: <span ng-bind="Game.getTopic()"></span></h5>
-      <!--<button class="leave-lobby" ng-click="">Leave Lobby</button>-->
+      <h4><span ng-bind="roomName"></span></h4>
+      <h5>Topic: <span ng-bind="Game.topicListName"></span><span ng-if="Game.topicListDifficulty !== 'all'" ng-bind="' (' + Game.topicListDifficulty + ')'"></span></h5>
+      <button class="btn leave-lobby" ng-click="leaveRoom()"><i class="fa fa-sign-out" style="padding-right: 2px;"></i> Leave Room</button>
     </div>
 
     <!-- Player List -->
@@ -18,11 +18,17 @@
             <img ng-src="{{Game.getUserProfileImage(user)}}" title="{{user}}" class="game-profile-image"/>
           </div>
           <div class="col-xs-4 player-names">
-            <div ng-class="{'game-drawer': Game.isDrawer(user)}"><span ng-bind="user"></span></div>
+            <div ng-class="{'game-drawer': Game.isDrawer(user)}">
+              <i ng-if="Game.getHost() === user" title="Host" class="fa fa-star"></i>
+              <span ng-bind="user"></span>
+            </div>
           </div>
-          <div class="col-xs-1">
+          <div class="col-xs-3 player-scores">
             <div ng-if="Game.isDrawer(user)"><strong ng-bind="Game.users[user].score.toString()"></strong></div>
-            <div ng-if="!Game.isDrawer(user)"><span ng-bind="Game.users[user].score.toString()"></span></div>
+            <div ng-if="!Game.isDrawer(user)">
+              <span ng-bind="Game.users[user].score.toString()"></span>
+              <i ng-if="Game.userHasGuessed(user)" title="Guessed the prompt!" class="fa fa-check user-guessed"></i>
+            </div>
           </div>
         </li>
       </ul>
@@ -58,24 +64,37 @@
 
   <!--The pregame settings panel -->
   <div id="settings" class="col" style="display: none; height: 100%; text-align: center">
-    <h3 class="drawing-header unselectable">
+    <h3 class="drawing-header-pregame unselectable">
       <span ng-bind="username === Game.getHost() ? 'You are' : Game.getHost() + ' is'"></span> choosing the game settings...
     </h3>
-    <div class="col-md-12">
-      <div class="pregame-group" ng-repeat="(setting, value) in GameSettings">
-          <h4><span ng-bind="value.settingName" class="unselectable"></span></h4>
-          <div class="btn-group" ng-repeat="option in value.options">
-            <div ng-if="Game.getHost() !== username" ng-bind="option"
-                 ng-class="{'active': chosenSettings[setting] === option}"
-                 class="btn btn-success pregame-display unselectable"></div>
-            <label ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" ng-bind="option"
-                 class="btn btn-success" ng-click="changeSetting(setting, option)" btn-radio="option">
-            </label>
+    <div class="col-md-12" ng-class="{'non-host': Game.getHost() !== username}">
+      <div class="pregame-group" ng-repeat="setting in Utils.keys(TopicSettings)" ng-init="value = TopicSettings[setting]">
+        <h4 class="pregame-setting-name"><span ng-bind="value.settingName" class="unselectable"></span></h4>
+        <div class="btn-group" ng-repeat="option in value.options">
+          <div ng-if="Game.getHost() !== username" ng-bind="option"
+            ng-class="{'active': chosenSettings[setting] === option}"
+            class="btn btn-warning pregame-button pregame-display-topic unselectable">
           </div>
+          <label ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" ng-bind="option"
+            class="btn btn-warning pregame-button" ng-click="changeSetting(setting, option)" btn-radio="option">
+          </label>
+        </div>
+      </div>
+      <div class="pregame-group" ng-repeat="setting in Utils.keys(GameSettings)" ng-init="value = GameSettings[setting]">
+        <h4 class="pregame-setting-name"><span ng-bind="value.settingName" class="unselectable"></span></h4>
+        <div class="btn-group" ng-repeat="option in value.options">
+          <div ng-if="Game.getHost() !== username" ng-bind="option"
+            ng-class="{'active': chosenSettings[setting] === option}"
+            class="btn btn-success pregame-button pregame-display-game unselectable">
+          </div>
+          <label ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" ng-bind="option"
+            class="btn btn-success pregame-button" ng-click="changeSetting(setting, option)" btn-radio="option">
+          </label>
+        </div>
       </div>
     </div>
     <div class="col-md-12 start-game-div">
-        <button class="btn btn-primary" ng-hide="Game.getHost() !== username" ng-click="startGame()">Start Game</button>
+      <button class="btn btn-primary" ng-hide="Game.getHost() !== username" ng-click="startGame()">Start Game</button>
     </div>
   </div>
 
@@ -83,7 +102,7 @@
   <div id="middle-column" class="col drawing-container" style="display: none;">
     <div class="drawing-header">
       <div class="drawing-header-buttons">
-        <button class="btn btn-primary" ng-disabled="!Game.isDrawer(username) || Game.correctGuesses !== 0" ng-click="finishDrawing()">Pass</button>
+        <button class="btn btn-primary" ng-disabled="!Game.isDrawer(username) || Game.correctGuesses !== 0" ng-click="finishDrawing()"><i class="fa fa-hourglass-end" style="padding-right: 4px;"></i> Pass</button>
       </div>
       <div class="drawing-header-text">
         <h3 class="text-center unselectable">
@@ -100,7 +119,7 @@
       <div class="drawing-timer" ng-style="{'background-color': timerBot.paused ? 'grey' : 'pink', 'width': timerBotLeft / 10 / Game.timeAfterGuess + '%'}"></div>
     </div>
 
-    <div id="drawing-canvas" class="dt-drawing" ng-style="{cursor: Game.isDrawer(username) || Game.finished ? 'none' : 'default'}"></div>
+    <div id="drawing-canvas" class="dt-drawing"></div>
   </div>
 
   <!-- Right column -->
@@ -111,7 +130,7 @@
         <div ng-repeat="drawTool in drawToolRow"
              ng-class="{'grid-cell': true, 'draw-tool': true, 'selected': $parent.$parent.mouseMode === drawTool.type}"
              ng-attr-title="{{drawTool.type}}"
-             ng-click="toolboxUsable() && ($parent.$parent.mouseMode = drawTool.type)" >
+             ng-click="toolboxUsable() && ($parent.$parent.mouseMode = drawTool.type)">
           <div class="draw-tool-content"><i class="fa fa-{{drawTool.glyph}}"></i></div>
         </div>
       </div>
@@ -156,22 +175,22 @@
 
     <!-- Undo/redo -->
     <!--<div class="grid">-->
-      <!--<div class="grid-row">-->
-        <!--<div ng-class="{'grid-cell': true, 'draw-tool': true}"-->
-             <!--title="undo"-->
-             <!--ng-click="$parent.$parent.undo()">-->
-          <!--<div class="draw-tool-content"><i class="fa fa-undo"></i></div>-->
-        <!--</div>-->
-        <!--<div ng-class="{'grid-cell': true, 'draw-tool': true}"-->
-             <!--title="redo"-->
-             <!--ng-click="$parent.$parent.redo()">-->
-          <!--<div class="draw-tool-content"><i class="fa fa-repeat"></i></div>-->
-        <!--</div>-->
-      <!--</div>-->
+    <!--<div class="grid-row">-->
+    <!--<div ng-class="{'grid-cell': true, 'draw-tool': true}"-->
+    <!--title="undo"-->
+    <!--ng-click="$parent.$parent.undo()">-->
+    <!--<div class="draw-tool-content"><i class="fa fa-undo"></i></div>-->
+    <!--</div>-->
+    <!--<div ng-class="{'grid-cell': true, 'draw-tool': true}"-->
+    <!--title="redo"-->
+    <!--ng-click="$parent.$parent.redo()">-->
+    <!--<div class="draw-tool-content"><i class="fa fa-repeat"></i></div>-->
+    <!--</div>-->
+    <!--</div>-->
     <!--</div>-->
     <!-- Clear canvas -->
     <div style="margin-bottom: 0; margin-top: 12px">
-      <button class="btn btn-primary clear-canvas" style="cursor: default" ng-disabled="!toolboxUsable() || Game.finished" ng-click="clearDrawing()">Clear Canvas</button>
+      <button class="btn btn-primary clear-canvas" ng-disabled="!toolboxUsable() || Game.finished" ng-click="clearDrawing()">Clear Canvas</button>
     </div>
   </div>
 </section>

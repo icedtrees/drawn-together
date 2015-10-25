@@ -30,15 +30,5 @@ module.exports = {
     clientID: getCred('mean-facebook', 'id') || 'APP_ID',
     clientSecret: getCred('mean-facebook', 'secret') || 'APP_SECRET',
     callbackURL: '/api/auth/facebook/callback'
-  },
-  mailer: {
-    from: getCred('mean-mail', 'from') || 'MAILER_FROM',
-    options: {
-      service: getCred('mean-mail', 'service') || 'MAILER_SERVICE_PROVIDER',
-      auth: {
-        user: getCred('mean-mail', 'username') || 'MAILER_EMAIL_ID',
-        pass: getCred('mean-mail', 'password') || 'MAILER_PASSWORD'
-      }
-    }
   }
 };

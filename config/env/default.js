@@ -27,6 +27,17 @@ module.exports = {
   // for obsecurity reasons
   sessionKey: 'sessionId',
   sessionCollection: 'sessions',
+  // email settings
+  mailer: {
+    from: process.env.MAILER_FROM || 'Drawn Together',
+    options: {
+      service: process.env.MAILER_SERVICE_PROVIDER || 'Gmail',
+      auth: {
+        user: process.env.MAILER_EMAIL_ID || 'noreply.drawntogether@gmail.com',
+        pass: process.env.MAILER_PASSWORD || 'rollingdownmainwalkway'
+      }
+    }
+  },
   logo: 'modules/core/client/img/brand/logo.png',
   favicon: 'modules/core/client/img/brand/favicon.ico'
 };

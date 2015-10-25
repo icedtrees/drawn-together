@@ -29,8 +29,17 @@
   width: 120px;
 }
 
+.player-scores {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
 .player-image {
   width: 20px;
+}
+
+.user-guessed {
+  color: #99ff75;
 }
 
 .game-drawer {

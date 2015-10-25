@@ -3,8 +3,10 @@
 var ChatSettings = require('../../shared/config/game.shared.chat.config.js');
 var GameLogic = require('../../shared/helpers/game.shared.gamelogic.js');
 var GameSettings = require('../../shared/config/game.shared.game.config.js');
+var TopicSettings = require('../../shared/config/game.shared.topic.config.js');
 var Utils = require('../../shared/helpers/game.shared.utils.js');
 var ServerUtils = require('../helpers/game.server.utils.js');
+var TopicList = require('../helpers/game.server.topiclist.js');
 
 // cln_fuzzy library (for calculating distance between words)
 var clj_fuzzy = require('clj-fuzzy');
@@ -12,59 +14,36 @@ var jaro_winkler = clj_fuzzy.metrics.jaro_winkler;
 var porter = clj_fuzzy.stemmers.porter;
 var levenshtein = clj_fuzzy.metrics.levenshtein;
 
-// Server timer
-var timerTop = new Utils.Timer();
-var timerBot = new Utils.Timer();
-var timerRemind = new Utils.Timer();
+// Map of room names to game objects
+var games = {};
 
-// Game object encapsulating game logic
-var Game =  new GameLogic.Game({
-  numRounds: GameSettings.numRounds.default,
-  numDrawers: 1,
-  roundTime: GameSettings.roundTime.default,
-  timeAfterGuess: GameSettings.timeAfterGuess.default
-});
+// Socket id to room name
+var socketToRoom = {};
 
-// Dictionary counting number of connects made by each user
-var userConnects = {};
+// List of all rooms
+var rooms = [];
 
-/* Array of draw actions
- * drawHistory = [
- *   {
- *     type: 'line'
- *     x1: last x pos
- *     y1: last y pos
- *     x2: cur x pos
- *     y2: cur y pos
- *     strokeStyle: colour code
- *   },
- *   {
- *     type: 'rect'
- *     x: last x pos
- *     y: last y pos
- *     width: cur x pos
- *     height: cur y pos
- *     fill: colour code
- *     strokeStyle: colour code
- *   },
- *   {
- *     type: 'clear'
- *   }
- * ]
- */
-var drawHistory = [];
+function checkRoomName(room) {
+  var result = {
+    valid: false
+  };
+  if (typeof(room) !== 'string') {
+    result.error = 'Room name must be a string';
+    return result;
+  }
 
-// Every chat message sent
-var gameMessages = [];
+  if (room.length < 1 || room.length > GameSettings.MAX_ROOM_NAME_LENGTH) {
+    result.error = 'Room name must be between 1 and ' + GameSettings.MAX_ROOM_NAME_LENGTH + ' characters';
+    return result;
+  }
 
-// First one is the current topic
-var topicList = ['abba', 'acdc', 'ace', 'acorn', 'add', 'adele', 'africa', 'afro', 'airbag', 'airplane', 'airport', 'aladdin', 'alarm', 'alf', 'alien', 'align', 'alone', 'alphabet', 'amazon', 'america', 'anchor', 'android', 'angel', 'angelina', 'anger', 'animals', 'ankle', 'ant', 'antenna', 'antlers', 'ants', 'ape', 'apple', 'apron', 'aquaman', 'aquarium', 'arcade', 'archery', 'arm', 'armor', 'armpit', 'army', 'arnold', 'arrow', 'art', 'artist', 'ash', 'asia', 'assassin', 'asteroid', 'atlantis', 'attack', 'attic', 'audience', 'autobots', 'avatar', 'avengers', 'avocado', 'avril', 'awake', 'award', 'axe', 'baby', 'back', 'backache', 'backbone', 'backflip', 'backpack', 'bacon', 'badge', 'bag', 'bagpipes', 'bahamas', 'bait', 'bake', 'baking', 'balance', 'balcony', 'bald', 'ball', 'balloon', 'bamboo', 'banana', 'band', 'bandaid', 'bandana', 'bank', 'barber', 'barbie', 'barcode', 'bark', 'barn', 'barrel', 'bart', 'base', 'baseball', 'basket', 'bat', 'bathtub', 'batman', 'battery', 'bay', 'beach', 'beak', 'beans', 'bear', 'beard', 'beatles', 'beckham', 'bed', 'bee', 'beef', 'beehive', 'beer', 'bell', 'belt', 'bench', 'beyonce', 'bib', 'bicycle', 'bieber', 'bigfoot', 'bike', 'bikini', 'bill', 'bingo', 'bird', 'birdcage', 'birthday', 'black', 'blade', 'blanket', 'blender', 'blimp', 'blind', 'blonde', 'blondie', 'blood', 'blow', 'blue', 'blush', 'boat', 'bobdylan', 'bomb', 'bone', 'bones', 'bonfire', 'bonjovi', 'booger', 'book', 'bookcase', 'bookmark', 'boombox', 'boot', 'boots', 'border', 'bottle', 'bottom', 'bounce', 'bow', 'bowl', 'bowling', 'bowser', 'bowtie', 'box', 'boxing', 'bracelet', 'braces', 'bradpitt', 'brain', 'brakes', 'branches', 'brazil', 'bread', 'breath', 'brick', 'bride', 'bridge', 'briefs', 'britney', 'broccoli', 'broncos', 'broom', 'brownie', 'brush', 'bubble', 'bubbles', 'bucket', 'buckle', 'buffalo', 'bug', 'building', 'bulb', 'bull', 'bullet', 'bullseye', 'bum', 'bumper', 'bunkbed', 'bunny', 'burger', 'burn', 'burp', 'burrito', 'bus', 'butcher', 'butt', 'butter', 'button', 'cabin', 'cabinet', 'cable', 'cactus', 'caddy', 'cage', 'cake', 'calendar', 'calf', 'camel', 'camera', 'campfire', 'camping', 'can', 'canada', 'candle', 'candy', 'cane', 'cannon', 'canoe', 'cap', 'cape', 'captain', 'car', 'card', 'cards', 'carnival', 'carpet', 'carpool', 'carrot', 'carseat', 'carwash', 'cashier', 'casino', 'castle', 'cat', 'catapult', 'catfish', 'cattail', 'catwoman', 'cave', 'caveman', 'cd', 'ceiling', 'celery', 'cemetery', 'centaur', 'center', 'cereal', 'chain', 'chainsaw', 'chair', 'chalk', 'champ', 'chart', 'check', 'checkers', 'cheek', 'cheese', 'chef', 'cherry', 'chess', 'chest', 'chew', 'chicken', 'children', 'chimney', 'chin', 'china', 'chips', 'church', 'cigar', 'circle', 'circus', 'city', 'clam', 'clap', 'class', 'claw', 'clay', 'cliff', 'climb', 'clock', 'closet', 'cloud', 'clown', 'club', 'coach', 'coal', 'coat', 'coconut', 'cocoon', 'coffee', 'coffin', 'coin', 'cold', 'collar', 'college', 'comb', 'comet', 'comic', 'compass', 'computer', 'conan', 'concert', 'cone', 'cook', 'cookie', 'cookies', 'cork', 'corn', 'corndog', 'corner', 'couch', 'court', 'cover', 'cow', 'cowboy', 'cowgirl', 'crab', 'crack', 'crane', 'crash', 'crawl', 'crayon', 'crescent', 'crib', 'crossbow', 'crowbar', 'crown', 'crush', 'crust', 'crutches', 'cry', 'crystal', 'cuba', 'cuddle', 'cueball', 'cup', 'cupcake', 'cupid', 'curl', 'curtain', 'customer', 'cut', 'cute', 'cyclops', 'daftpunk', 'dallas', 'dance', 'dandruff', 'danger', 'dart', 'dead', 'deaf', 'death', 'deck', 'deep', 'deer', 'defender', 'delta', 'dentist', 'dentures', 'desert', 'desk', 'devil', 'devo', 'diamond', 'diaper', 'dice', 'die', 'dig', 'dimples', 'dinner', 'dinosaur', 'diploma', 'director', 'dirt', 'disco', 'disease', 'dishes', 'diva', 'dive', 'divorce', 'dizzy', 'dj', 'dna', 'dock', 'doctor', 'dog', 'dogfish', 'dogsled', 'doll', 'dollar', 'dolphin', 'domino', 'donkey', 'donut', 'door', 'doorbell', 'doorknob', 'doormat', 'doors', 'doorstep', 'dots', 'dove', 'down', 'dracula', 'dragon', 'drain', 'drake', 'drapes', 'draw', 'drawer', 'dream', 'dreidel', 'dress', 'dresser', 'dribble', 'drill', 'drink', 'drip', 'drive', 'drum', 'drummer', 'drums', 'drumset', 'drunk', 'dubstep', 'duck', 'duel', 'dumbbell', 'dumbo', 'dunk', 'duster', 'dustpan', 'dynamite', 'eagle', 'ear', 'earmuffs', 'earring', 'earth', 'earwax', 'east', 'easter', 'eat', 'echo', 'eclipse', 'edge', 'eel', 'egg', 'eggplant', 'eggroll', 'elbow', 'election', 'elephant', 'elevator', 'ellen', 'elmo', 'elton', 'elvis', 'emerald', 'eminem', 'empty', 'end', 'engine', 'england', 'envelope', 'eraser', 'escape', 'eskimo', 'espresso', 'europe', 'evil', 'ewok', 'explode', 'eye', 'eyeball', 'eyebrow', 'eyelash', 'eyelid', 'eyepatch', 'eyes', 'face', 'facebook', 'factory', 'fairy', 'fall', 'family', 'fan', 'fangs', 'fanmail', 'fans', 'farm', 'farmer', 'fart', 'fastfood', 'father', 'faucet', 'fear', 'feather', 'feet', 'female', 'fence', 'fencing', 'fern', 'ferry', 'festivus', 'fever', 'field', 'fight', 'fin', 'finger', 'finland', 'fire', 'fireball', 'firefly', 'firefox', 'firewall', 'firewood', 'firework', 'first', 'firstaid', 'fish', 'fishing', 'fist', 'flag', 'flame', 'flamingo', 'flash', 'flat', 'flea', 'flight', 'flood', 'floor', 'florida', 'floss', 'flour', 'flower', 'flu', 'flush', 'fly', 'fog', 'folder', 'fool', 'foot', 'football', 'force', 'forehead', 'forest', 'fork', 'forklift', 'fort', 'forward', 'foul', 'fountain', 'fox', 'fraction', 'frame', 'france', 'freezing', 'fridge', 'friend', 'frisbee', 'frodo', 'frog', 'frosting', 'frown', 'fruit', 'funeral', 'funnel', 'fur', 'furby', 'galaxy', 'gameboy', 'gandalf', 'gangster', 'garage', 'garden', 'gardener', 'garlic', 'gas', 'gasmask', 'gate', 'gears', 'gem', 'germ', 'germany', 'geronimo', 'ghost', 'giftwrap', 'giraffe', 'girl', 'glass', 'glasses', 'glee', 'globe', 'glove', 'glue', 'goal', 'goalie', 'goalpost', 'goat', 'goggles', 'gold', 'goldfish', 'golem', 'golf', 'golfcart', 'golfclub', 'goofy', 'google', 'goose', 'gorilla', 'grade', 'graduate', 'grammy', 'grandma', 'grandpa', 'grapes', 'graph', 'grass', 'grave', 'gravy', 'green', 'grenade', 'grid', 'griffin', 'grill', 'grin', 'groom', 'gross', 'guitar', 'gum', 'gun', 'gymnast', 'gza', 'hail', 'hair', 'haircut', 'hairdye', 'hairgel', 'hairtie', 'hairy', 'halo', 'ham', 'hambone', 'hammer', 'hammock', 'hamster', 'hamwich', 'hand', 'handbag', 'handball', 'handcuff', 'handgun', 'handle', 'hanger', 'hangman', 'hanukkah', 'happy', 'harbor', 'hare', 'harp', 'hat', 'hawaii', 'hawkeye', 'head', 'headache', 'headband', 'headset', 'hear', 'heart', 'heat', 'heaven', 'heel', 'heidi', 'helmet', 'hercules', 'highfive', 'hiking', 'hill', 'hiphop', 'hippo', 'hobbit', 'hobo', 'hockey', 'holiday', 'holland', 'home', 'homeless', 'homer', 'homerun', 'homework', 'honey', 'hongkong', 'hood', 'hook', 'hoop', 'hop', 'horn', 'horse', 'horton', 'hose', 'hospital', 'hot', 'hotdog', 'hotel', 'hotsauce', 'hottub', 'house', 'hug', 'hulahoop', 'hulk', 'hummer', 'hungry', 'hunt', 'hurt', 'husband', 'hustle', 'hut', 'ice', 'iceberg', 'icebox', 'icecube', 'icepop', 'iceskate', 'icicle', 'icing', 'idea', 'igloo', 'ikea', 'ink', 'inn', 'insect', 'insomnia', 'ipad', 'iphone', 'ireland', 'iron', 'ironchef', 'ironman', 'island', 'jacket', 'jaguar', 'jail', 'jam', 'jamaica', 'japan', 'jar', 'javelin', 'jaw', 'jaws', 'jayleno', 'jayz', 'jazz', 'jeans', 'jeep', 'jello', 'jelly', 'jenga', 'jersey', 'jet', 'jeter', 'jetski', 'jewelry', 'jigsaw', 'jlo', 'joker', 'jonas', 'jordan', 'journey', 'joystick', 'judge', 'jug', 'juggle', 'juice', 'jukebox', 'jump', 'jumpball', 'jumprope', 'jungle', 'junkfood', 'jupiter', 'justice', 'kangaroo', 'kansas', 'kanye', 'karate', 'katemoss', 'katniss', 'ketchup', 'key', 'keyboard', 'keychain', 'kfc', 'kick', 'kidney', 'killer', 'kilt', 'king', 'kirby', 'kiss', 'kitchen', 'kite', 'kitten', 'knee', 'kneecap', 'kneepads', 'knife', 'knitting', 'knives', 'knock', 'knot', 'knuckle', 'koala', 'kobe', 'koopa', 'korea', 'kraken', 'kwanzaa', 'lab', 'ladder', 'lady', 'ladybug', 'ladygaga', 'lake', 'lamb', 'lamp', 'lamprey', 'lap', 'laptop', 'laser', 'lasso', 'latrine', 'laugh', 'laughing', 'lava', 'lavalamp', 'lawyer', 'lead', 'leaf', 'leak', 'leash', 'leather', 'lebron', 'left', 'leg', 'lemon', 'lemonade', 'lemons', 'lens', 'leopard', 'letter', 'library', 'lick', 'lid', 'lift', 'light', 'lighter', 'lilwayne', 'limbo', 'lime', 'limo', 'lin', 'line', 'link', 'lion', 'lionking', 'lip', 'lips', 'lipstick', 'liquid', 'lisa', 'list', 'lizard', 'lobster', 'lock', 'locket', 'log', 'london', 'long', 'longjump', 'loop', 'lost', 'lotion', 'love', 'lovebird', 'low', 'ludacris', 'luge', 'luggage', 'luigi', 'luke', 'lumber', 'lunch', 'lung', 'lyrics', 'macarena', 'macaroni', 'macbook', 'magazine', 'magic', 'magician', 'magnet', 'mail', 'mailbox', 'mailman', 'makeup', 'mall', 'mammoth', 'mango', 'manicure', 'mansion', 'map', 'marble', 'marge', 'mariah', 'marine', 'mario', 'markers', 'marriage', 'marry', 'mars', 'martini', 'mask', 'massage', 'mat', 'mattress', 'maze', 'mchammer', 'meal', 'meat', 'meatball', 'meathead', 'medal', 'medicine', 'medusa', 'melt', 'melting', 'menorah', 'meow', 'mercury', 'mermaid', 'messy', 'meteor', 'meter', 'metroid', 'mexico', 'miami', 'middle', 'miley', 'milk', 'milkman', 'minivan', 'minotaur', 'mint', 'mirror', 'missile', 'mittens', 'model', 'mohawk', 'money', 'monkey', 'monopoly', 'monster', 'moo', 'moon', 'moose', 'mop', 'morning', 'mosquito', 'mother', 'motor', 'mountain', 'mouse', 'mouth', 'mud', 'muffin', 'mug', 'multiply', 'mummy', 'muscle', 'muse', 'museum', 'mushroom', 'music', 'musicbox', 'mustache', 'mustard', 'nachos', 'nail', 'nailfile', 'name', 'napkin', 'nascar', 'navy', 'neck', 'necklace', 'needle', 'neptune', 'nerd', 'nest', 'net', 'news', 'newyork', 'nickel', 'nicki', 'night', 'nike', 'ninja', 'no', 'noodle', 'noodles', 'noose', 'north', 'norway', 'nose', 'nosehair', 'nosering', 'nostril', 'notebook', 'notepad', 'novel', 'number', 'nun', 'nurse', 'nut', 'oaktree', 'oar', 'oars', 'oatmeal', 'obama', 'ocean', 'octagon', 'octopus', 'odor', 'off', 'oil', 'oilfield', 'olympics', 'omelet', 'onion', 'online', 'open', 'opera', 'oprah', 'orange', 'orbit', 'organ', 'origami', 'ornament', 'ostrich', 'outkast', 'outlet', 'oval', 'oven', 'overalls', 'overflow', 'overtime', 'owl', 'pacifier', 'pacman', 'paddle', 'padlock', 'paella', 'page', 'paint', 'paintcan', 'painter', 'painting', 'pajamas', 'palace', 'palm', 'palmtree', 'pancake', 'pancakes', 'panda', 'pants', 'paper', 'paperbag', 'papercut', 'parade', 'parents', 'paris', 'park', 'parrot', 'partyhat', 'pass', 'password', 'patch', 'path', 'patriots', 'paulyd', 'paw', 'pdiddy', 'peace', 'peach', 'peaches', 'peacock', 'peanut', 'pear', 'pearl', 'peas', 'pedal', 'pee', 'pegasus', 'pen', 'pencil', 'penguin', 'penguins', 'penny', 'pepper', 'pepsi', 'perez', 'perfume', 'person', 'pet', 'petal', 'petfood', 'petshop', 'phoenix', 'phone', 'piano', 'pickle', 'picnic', 'picture', 'pie', 'piechart', 'pig', 'pigeon', 'pikachu', 'pill', 'pillow', 'pilot', 'pimple', 'pin', 'pinecone', 'pinetree', 'pingpong', 'pink', 'pinky', 'pinwheel', 'pipe', 'pirate', 'pistol', 'pitbull', 'pitcher', 'pitfall', 'pizza', 'plane', 'planet', 'plant', 'plate', 'plug', 'plum', 'plumber', 'plunger', 'pluto', 'pocket', 'poison', 'poke', 'poker', 'polaroid', 'police', 'polkadot', 'polo', 'pong', 'pony', 'ponytail', 'poodle', 'pool', 'poop', 'poor', 'popcorn', 'popsicle', 'pork', 'porsche', 'portrait', 'poseidon', 'positive', 'postcard', 'poster', 'pot', 'potato', 'pouch', 'pounce', 'powder', 'power', 'pray', 'pregnant', 'presents', 'pretty', 'pretzel', 'pricetag', 'prince', 'princess', 'print', 'prism', 'prison', 'prius', 'puddles', 'puke', 'pull', 'pumpkin', 'punch', 'puppet', 'puppy', 'purse', 'push', 'pushup', 'puzzle', 'pyramid', 'quack', 'quarter', 'queen', 'quiet', 'quilt', 'rabbit', 'raccoon', 'race', 'racecar', 'radar', 'radio', 'raekwon', 'raft', 'rag', 'raiders', 'railroad', 'rain', 'rainbow', 'raincoat', 'raindrop', 'raisin', 'rake', 'ramp', 'rap', 'rapture', 'rat', 'rattle', 'razor', 'rebound', 'record', 'recycle', 'red', 'reddit', 'redhead', 'referee', 'reindeer', 'reptile', 'rest', 'rhino', 'ribbon', 'ribs', 'rice', 'riddler', 'ride', 'rifle', 'rihanna', 'rim', 'ring', 'ringtone', 'ripple', 'risk', 'river', 'road', 'roadkill', 'roast', 'robber', 'robe', 'robot', 'rock', 'rocket', 'rockstar', 'roll', 'roof', 'rooster', 'root', 'rope', 'rose', 'round', 'row', 'rowboat', 'ruby', 'rug', 'rugrats', 'ruler', 'runway', 'russia', 'rza', 'sack', 'sad', 'saddle', 'safari', 'sail', 'sailboat', 'sailor', 'salad', 'salami', 'salsa', 'salt', 'samba', 'sand', 'sandals', 'sandbox', 'sandwich', 'santa', 'sapphire', 'saturn', 'sausage', 'saw', 'scale', 'scar', 'scarf', 'school', 'science', 'scissors', 'scooter', 'scorpion', 'scotland', 'scrabble', 'scratch', 'scream', 'screen', 'screw', 'sea', 'seafood', 'seagull', 'seahorse', 'seal', 'seashell', 'seasick', 'seat', 'seatbelt', 'seaweed', 'seed', 'seesaw', 'selena', 'sew', 'shade', 'shadow', 'shakira', 'shampoo', 'shape', 'shaq', 'shark', 'sharp', 'shave', 'sheep', 'sheets', 'shelf', 'shell', 'sheriff', 'shield', 'shin', 'ship', 'shirt', 'shoe', 'shoebox', 'shoelace', 'shoes', 'shoot', 'shore', 'short', 'shorts', 'shot', 'shotgun', 'shoulder', 'shovel', 'shower', 'shrek', 'shrimp', 'shuttle', 'shy', 'sideburn', 'sidewalk', 'simon', 'sing', 'singer', 'sink', 'sister', 'sit', 'sith', 'sixpack', 'skate', 'skater', 'skeleton', 'ski', 'skiing', 'skin', 'skinny', 'skirt', 'skis', 'skrillex', 'skull', 'skunk', 'sky', 'skyline', 'skyrim', 'slam', 'slamdunk', 'slap', 'sled', 'sledding', 'sleep', 'sleigh', 'slide', 'slimy', 'slip', 'slippers', 'slope', 'small', 'smell', 'smile', 'smoke', 'smoking', 'smoothie', 'smores', 'snail', 'snake', 'snakepit', 'sneakers', 'sneeze', 'sniper', 'snooki', 'snoop', 'snoopy', 'snore', 'snorkel', 'snow', 'snowball', 'snowcone', 'snowman', 'soap', 'soccer', 'sock', 'socket', 'socks', 'soda', 'sofa', 'soil', 'soldier', 'sombrero', 'son', 'song', 'sonic', 'sorry', 'soup', 'south', 'soysauce', 'spain', 'sparkles', 'speak', 'speaker', 'spear', 'spider', 'spin', 'spinach', 'spine', 'spiral', 'spit', 'splinter', 'sponge', 'spoon', 'spray', 'spring', 'sprite', 'square', 'squid', 'squirrel', 'stab', 'stable', 'stadium', 'stage', 'stain', 'stairs', 'stamp', 'stapler', 'star', 'stare', 'starfish', 'startrek', 'starwars', 'statue', 'steak', 'steal', 'steam', 'steelers', 'steep', 'step', 'stereo', 'stern', 'stilts', 'sting', 'stomach', 'stone', 'stool', 'stop', 'stork', 'storm', 'stove', 'straight', 'straw', 'strawman', 'stream', 'street', 'strike', 'string', 'stripe', 'stroller', 'students', 'stump', 'subway', 'sudoku', 'sugar', 'suitcase', 'summer', 'sun', 'sunblock', 'sunburn', 'sunny', 'sunset', 'sunshine', 'superman', 'surf', 'surfing', 'surgeon', 'survivor', 'sushi', 'swan', 'sweat', 'sweater', 'sweaty', 'sweden', 'sweet', 'swim', 'swimming', 'swimsuit', 'swing', 'swings', 'swingset', 'switch', 'swoosh', 'sword', 'syrup', 'table', 'taco', 'tacos', 'tadpole', 'tag', 'tail', 'taiwan', 'takeoff', 'tall', 'tango', 'tank', 'tape', 'target', 'tattoo', 'taxi', 'tea', 'teabag', 'teacher', 'teacup', 'teapot', 'teardrop', 'tears', 'teaspoon', 'tebowing', 'techno', 'teenager', 'teepee', 'teeth', 'tempest', 'tennis', 'tent', 'tentacle', 'test', 'tetris', 'theater', 'thelorax', 'theonion', 'thief', 'thigh', 'thin', 'thorn', 'throat', 'throne', 'throw', 'thumb', 'thunder', 'ticket', 'tickle', 'tie', 'tiger', 'tiles', 'time', 'timebomb', 'timeline', 'timeout', 'timezone', 'tinafey', 'tire', 'tissue', 'titanic', 'toad', 'toast', 'toaster', 'toe', 'toenail', 'toga', 'toilet', 'tomato', 'tomb', 'tombrady', 'tomhanks', 'tongue', 'tool', 'toolbox', 'tools', 'tooth', 'torch', 'tornado', 'torpedo', 'tortoise', 'tower', 'towtruck', 'toys', 'tractor', 'traffic', 'train', 'trapdoor', 'trash', 'trashcan', 'tray', 'tree', 'triangle', 'tricycle', 'triplets', 'tripod', 'troll', 'trombone', 'trophy', 'tropical', 'trouble', 'truck', 'trump', 'trumpet', 'trunk', 'tshirt', 'tuba', 'tuesday', 'tug', 'tugboat', 'tumblr', 'tummy', 'tuna', 'tune', 'tunnel', 'tupac', 'turbo', 'turkey', 'turtle', 'tusk', 'tuxedo', 'tv', 'tweed', 'tweezers', 'twig', 'twilight', 'twinkie', 'twins', 'twist', 'twitter', 'twoface', 'tyra', 'udder', 'ufo', 'ugly', 'ukulele', 'umbrella', 'under', 'unibrow', 'unicorn', 'unicycle', 'union', 'uno', 'unzip', 'uppercut', 'upstairs', 'uranus', 'urchin', 'usa', 'usb', 'usher', 'vacation', 'vaccine', 'vacuum', 'vader', 'valley', 'vampire', 'van', 'vanish', 'vase', 'vault', 'vegas', 'veil', 'vein', 'velcro', 'venom', 'vent', 'venus', 'vertical', 'vest', 'vet', 'vice', 'victim', 'video', 'viking', 'vikings', 'village', 'vine', 'vineyard', 'viola', 'violin', 'virus', 'visine', 'vitamin', 'voice', 'volcano', 'volume', 'vomit', 'voodoo', 'vortex', 'vote', 'waffle', 'wagon', 'waist', 'waiter', 'waitress', 'wakeup', 'waldo', 'walk', 'wall', 'wallet', 'walrus', 'wand', 'war', 'warcraft', 'wardrobe', 'warhol', 'warrior', 'wart', 'wash', 'wasp', 'waste', 'watch', 'water', 'waterbed', 'watergun', 'wattle', 'wave', 'waves', 'waving', 'wax', 'weak', 'weave', 'wedding', 'wedge', 'wedgie', 'weed', 'week', 'weep', 'weezer', 'weights', 'weird', 'well', 'werewolf', 'west', 'wet', 'whale', 'wheat', 'wheel', 'whip', 'whiskers', 'whiskey', 'whisper', 'whistle', 'white', 'whopper', 'wicked', 'widget', 'widow', 'wife', 'wig', 'wiggle', 'wigwam', 'wildfire', 'willow', 'wimp', 'winch', 'wind', 'windmill', 'window', 'windows', 'wine', 'wing', 'wingman', 'wingnut', 'wink', 'winner', 'winter', 'wire', 'wireless', 'wires', 'wise', 'witch', 'witness', 'wizard', 'wolf', 'woman', 'wonder', 'wood', 'wool', 'work', 'workshop', 'worldcup', 'worm', 'wormhole', 'worry', 'worship', 'wound', 'wow', 'wreck', 'wrench', 'wrestler', 'wrinkles', 'wrist', 'writing', 'wutang', 'xerox', 'xray', 'yacht', 'yahtzee', 'yankees', 'yardsale', 'yarn', 'yawn', 'yearbook', 'yellow', 'yeti', 'yield', 'ymca', 'yoda', 'yoga', 'yogurt', 'young', 'youtube', 'yoyo', 'zebra', 'zelda', 'zeppelin', 'zeus', 'zigzag', 'zipline', 'zipper', 'zombie', 'zoo', 'zoom', 'zumba', 'zygote'];
-// Shuffle the topic list in-place using Knuth shuffle
-for (var i = topicList.length - 2; i > 0; i--) {
-  var j = Math.floor(Math.random() * i);
-  var temp = topicList[j];
-  topicList[j] = topicList[i];
-  topicList[i] = temp;
+  if (/^\s*$/.test(room)) {
+    result.error = 'Room name must not be empty';
+    return result;
+  }
+
+  result.valid = true;
+  return result;
 }
 
 function checkGuess(guess, topic) {
@@ -72,7 +51,7 @@ function checkGuess(guess, topic) {
   var score = jaro_winkler(guess, topic);
   var t = Math.max(0.90, 0.96 - guess.length / 130); // starts at 0.96 and moves towards 0.9 for longer guesses
   if (score < 0.8 || score > t) {
-    return {score : score, close : score > t, stage : 1};
+    return {score: score, close: score > t, stage: 1};
   }
 
   // STAGE 2 - JW distance on the word root
@@ -81,12 +60,12 @@ function checkGuess(guess, topic) {
   score = jaro_winkler(guessRoot, topicRoot);
   score -= levenshtein(guessRoot, topicRoot) / 60;
   if (score < 0.8 || score > t) {
-    return {score : score, close : score > t, stage : 2};
+    return {score: score, close: score > t, stage: 2};
   }
 
   // STAGE 3 - check levenshtein distance of entire words
   var lev = levenshtein(guess, topic);
-  return {score : score, close : lev <= (guess.length - 5)/3.5 + 1, stage : 3};
+  return {score: score, close: lev <= (guess.length - 5) / 3.5 + 1, stage: 3};
 }
 
 /*
@@ -117,53 +96,54 @@ function matchingWords(guess, topic) {
 
 // Create the game configuration
 module.exports = function (io, socket) {
-  function broadcastMessage(message) {
+  function broadcastMessage(message, game, room) {
     message.created = Date.now();
-    gameMessages.push(message);
-    if (gameMessages.length > ChatSettings.MAX_MESSAGES) {
-      gameMessages.shift();
+    game.messageHistory.push(message);
+    if (game.messageHistory.length > ChatSettings.MAX_MESSAGES) {
+      game.messageHistory.shift();
     }
-    io.emit('gameMessage', message);
+    io.to(room).emit('gameMessage', message);
   }
-  function sendTopic() {
+
+  function sendTopic(game, room) {
     // Select a new topic and send it to the new drawer
-    topicList.push(topicList.shift());
-    Game.getDrawers().forEach(function (drawer) {
-      io.to(drawer).emit('topic', topicList[0]);
+    game.prompts.push(game.prompts.shift());
+    game.Game.getDrawers().forEach(function (drawer) {
+      io.to(room+'/'+drawer).emit('topic', game.prompts[0]);
     });
 
     // Announce the new drawers
-    var newDrawersAre = Utils.toCommaListIs(Utils.boldList(Game.getDrawers()));
+    var newDrawersAre = Utils.toCommaListIs(Utils.boldList(game.Game.getDrawers()));
     broadcastMessage({
       class: 'status',
       text: newDrawersAre + ' now drawing'
-    });
+    }, game, room);
   }
 
-  function advanceRound() {
-    var gameFinished = Game.advanceRound();
+  function advanceRound(game, room) {
+    var gameFinished = game.Game.advanceRound();
 
     // Send user list with updated drawers
-    io.emit('advanceRound');
+    io.to(room).emit('advanceRound');
 
-    io.emit('canvasMessage', {type: 'clear'});
-    drawHistory = [];
+    io.to(room).emit('canvasMessage', {type: 'clear'});
+    game.drawHistory = [];
 
     // Explain what the word was
     broadcastMessage({
       class: 'status',
-      text: 'The prompt was "' + topicList[0] + '"'
-    });
+      text: 'The prompt was "' + game.prompts[0] + '"'
+    }, game, room);
 
     if (gameFinished) {
-      var winners = Game.getWinners();
+      var winners = game.Game.getWinners();
       broadcastMessage({
         class: 'status',
         text: Utils.toCommaList(Utils.boldList(winners)) + ' won the game on ' +
-              Game.users[winners[0]].score + ' points! A new game will start ' +
+              game.Game.users[winners[0]].score + ' points! A new game will start ' +
               'in ' + GameSettings.TIME_BETWEEN_GAMES + ' seconds'
-      });
-      io.emit('gameFinished');
+      }, game, room);
+      io.to(room).emit('gameFinished');
 
       // Draw winners on canvas
       var message = {
@@ -174,152 +154,347 @@ module.exports = function (io, socket) {
         x: 300,
         y: 50
       };
-      drawHistory.push(message);
-      io.emit('canvasMessage', message);
+      game.drawHistory.push(JSON.parse(JSON.stringify(message))); // push deep copy because we modify the message below
+      io.to(room).emit('canvasMessage', message);
 
       message.y += 50;
       for (var i = 0; i < winners.length; i++) {
         message.text = winners[i];
-        drawHistory.push(message);
-        io.emit('canvasMessage', message);
+        game.drawHistory.push(JSON.parse(JSON.stringify(message)));
+        io.to(room).emit('canvasMessage', message);
         message.y += 50;
       }
 
       message.align = 'center';
       message.y = 500;
       message.text = 'Please respect the other contestants';
-      drawHistory.push(message);
-      io.emit('canvasMessage', message);
+      game.drawHistory.push(JSON.parse(JSON.stringify(message)));
+      io.to(room).emit('canvasMessage', message);
       message.y += 35;
       message.text = 'and do not deface this message';
-      drawHistory.push(message);
-      io.emit('canvasMessage', message);
+      game.drawHistory.push(JSON.parse(JSON.stringify(message)));
+      io.to(room).emit('canvasMessage', message);
 
       setTimeout(function () {
-        timerTop.pause();
-        timerBot.pause();
-        timerRemind.pause();
-        drawHistory = [];
-        Game.resetGame();
-        io.emit('resetGame');
+        game.timerTop.pause();
+        game.timerBot.pause();
+        game.timerRemind.pause();
+        game.drawHistory = [];
+        game.Game.resetGame();
+        io.to(room).emit('resetGame');
       }, GameSettings.TIME_BETWEEN_GAMES * 1000);
     } else {
-      startRound();
+      startRound(game, room);
     }
   }
 
-  function startRound() {
-    sendTopic();
+  function startRound(game, room) {
+    sendTopic(game, room);
     broadcastMessage({
       class: 'status',
-      text: Game.roundTime + " seconds to draw."
-    });
+      text: game.Game.roundTime + " seconds to draw."
+    }, game, room);
 
-    timerTop.restart(timesUp, Game.roundTime * 1000);
-    timerRemind.restart(function () {
+    game.timerTop.restart(timesUp.bind(null, game, room), game.Game.roundTime * 1000);
+    game.timerRemind.restart(function () {
       broadcastMessage({
         class: 'status',
         text: '10 seconds left!'
-      });
-    }, (Game.roundTime - 10) * 1000);
-    timerBot.delay = Game.timeAfterGuess * 1000;
+      }, game, room);
+    }, (game.Game.roundTime - 10) * 1000);
+    game.timerBot.delay = game.Game.timeAfterGuess * 1000;
   }
 
-  function giveUp() {
-    if (!Game.started) {
+  function giveUp(game, room) {
+    if (!game.Game.started) {
       return;
     }
 
     broadcastMessage({
       class: 'status',
-      text: '<b>'+username+'</b>' + ' has given up'
-    });
-    advanceRound();
+      text: '<b>' + username + '</b>' + ' has given up'
+    }, game, room);
+    advanceRound(game, room);
   }
 
-  function timesUp() {
+  function timesUp(game, room) {
     broadcastMessage({
       class: 'status',
-      text: Game.correctGuesses === 0 ? "Time's up! No one guessed " + Game.getDrawers()[0] + "'s drawing" : 'Round over!'
-    });
+      text: game.Game.correctGuesses === 0 ? "Time's up! No one guessed " + game.Game.getDrawers()[0] + "'s drawing" : 'Round over!'
+    }, game, room);
 
-    advanceRound();
+    advanceRound(game, room);
   }
 
   var username = socket.request.user.username;
   var profileImageURL = socket.request.user.profileImageURL;
-  socket.join(username);
 
-  // Add user to in-memory store if necessary, or simply increment counter
-  // to account for multiple windows open
-  if (username in userConnects) {
-    userConnects[username]++;
-  } else {
-    userConnects[username] = 1;
-    Game.addUser(username, profileImageURL);
+  // Join a room
+  function joinRoom (room) {
+    if (!checkRoomName(room)) {
+      return false;
+    }
 
-    // Emit the status event when a new socket client is connected
-    broadcastMessage({
-      class: 'status',
-      text: '<b>'+username+'</b>' + ' is now connected'
-    });
+    // This socket is already part of a room
+    if (socket.id in socketToRoom) {
+      // Already in this room
+      if (socketToRoom[socket.id] === room) {
+        return;
+      } else {
+        // In another room at the moment - leave that room first
+        leaveRoom();
+      }
+    }
 
-    // Notify everyone about the new joined user (not the sender though)
-    socket.broadcast.emit('userConnect', {
-      username: username,
-      image: profileImageURL
-    });
+    // Create the room and the game if it doesn't exist
+    var game;
+    if (!(room in games)) {
+      games[room] = {};
+      game = games[room];
+      game.Game = new GameLogic.Game({
+        numRounds: GameSettings.numRounds.default,
+        numDrawers: 1,
+        roundTime: GameSettings.roundTime.default,
+        timeAfterGuess: GameSettings.timeAfterGuess.default,
+        topicListName: TopicSettings.topicListName.default,
+        topicListDifficulty: TopicSettings.topicListDifficulty.default
+      });
+      game.drawHistory = [];
+      game.messageHistory = [];
+
+      // Server timer
+      game.timerTop = new Utils.Timer();
+      game.timerBot = new Utils.Timer();
+      game.timerRemind = new Utils.Timer();
+
+      // Add to room list
+      var newRoom = {
+        name: room,
+        host: username,
+        topic: game.Game.topicListName + ' (' + game.Game.topicListDifficulty + ')',
+        numPlayers: 0,
+        maxNumPlayers: GameSettings.MAX_NUM_PLAYERS
+      };
+      rooms.push(newRoom);
+      io.emit('changeRoom', newRoom);
+    } else {
+      game = games[room];
+    }
+
+    // Cannot join if already full
+    if (game.numPlayers >= game.maxNumPlayers) {
+      return false;
+    }
+
+    // Join the room as well as the room specific username grouping
+    socket.join(room);
+    socket.join(room+'/'+username);
+    socketToRoom[socket.id] = room;
+
+    // Add user to in-memory store if necessary, or simply increment counter
+    // to account for multiple windows open
+    if (username in game.Game.users) {
+      game.Game.users[username].connects++;
+    } else {
+      game.Game.addUser(username, profileImageURL);
+      game.Game.users[username].connects = 1;
+
+      // Increase number of players in room
+      for (var i = 0; i < rooms.length; i++) {
+        if (rooms[i].name === room) {
+          rooms[i].numPlayers++;
+          io.emit('changeRoom', rooms[i]);
+          break;
+        }
+      }
+
+      // Emit the status event when a new socket client is connected
+      var message = {
+        created: Date.now(),
+        class: 'status',
+        text: '<b>'+username+'</b>' + ' is now connected'
+      };
+      game.messageHistory.push(message);
+      if (game.messageHistory.length > ChatSettings.MAX_MESSAGES) {
+        game.messageHistory.shift();
+      }
+      socket.broadcast.to(room).emit('gameMessage', message);
+
+      // Notify everyone about the new joined user (not the sender though)
+      socket.broadcast.to(room).emit('userConnect', {
+        username: username,
+        image: profileImageURL
+      });
+    }
+    return true;
   }
 
-  // Start the game
-  socket.on('startGame', function () {
-    if (!Game.started && username === Game.getHost()) {
-      Game.startGame();
-      io.emit('startGame');
-      startRound();
+  function leaveRoom () {
+    var room = socketToRoom[socket.id];
+    var game = games[room];
+    if (!room) {
+      return;
+    }
+
+    game.Game.users[username].connects--;
+    if (game.Game.users[username].connects === 0) {
+      // Emit the status event when a socket client is disconnected
+      broadcastMessage({
+        class: 'status',
+        text: '<b>'+username+'</b>' + ' is now disconnected'
+      }, game, room);
+
+      // Decrease number of players in room
+      var roomIndex;
+      for (var i = 0; i < rooms.length; i++) {
+        if (rooms[i].name === room) {
+          rooms[i].numPlayers--;
+          roomIndex = i;
+          break;
+        }
+      }
+
+      // If the disconnecting user is a drawer, this is equivalent to
+      // 'giving up' or passing
+      if (game.Game.started && game.Game.isDrawer(username)) {
+        giveUp(game, room);
+      }
+      var oldHost = game.Game.getHost();
+      game.Game.removeUser(username);
+      var newHost = game.Game.getHost();
+      if (newHost !== oldHost) {
+        rooms[roomIndex].host = newHost;
+      }
+      io.emit('changeRoom', rooms[roomIndex]);
+
+      // Notify all users that this user has disconnected
+      io.to(room).emit('userDisconnect', username);
+
+      // If there are no users left, destroy this game instance
+      if (game.Game.userList.length === 0) {
+        game.timerTop.pause();
+        game.timerBot.pause();
+        game.timerRemind.pause();
+
+        delete games[room];
+        rooms.splice(roomIndex, 1);
+      }
+    }
+
+    socket.leave(room);
+    socket.leave(room+'/'+username);
+    delete socketToRoom[socket.id];
+  }
+  socket.on('leaveRoom', leaveRoom);
+
+  socket.on('requestRooms', function () {
+    socket.emit('requestRooms', rooms);
+  });
+
+  socket.on('checkRoomName', function (room) {
+    var result = checkRoomName(room);
+    if (room in games) {
+      socket.emit('invalidRoomName', '"'+room+'"' + ' is already taken, sorry');
+    } else if (!result.valid) {
+      socket.emit('invalidRoomName', result.error);
+    } else {
+      socket.emit('validRoomName', room);
     }
   });
 
-  // Change a setting as the host
+  // Start the game
+  socket.on('startGame', function () {
+    var room = socketToRoom[socket.id];
+    if (!room) {
+      return;
+    }
+    var game = games[room];
+
+    if (!game.Game.started && username === game.Game.getHost()) {
+      game.prompts = TopicList.getTopicWords(game.Game.topicListName, game.Game.topicListDifficulty);
+      ServerUtils.shuffleWords(game.prompts);
+      game.Game.startGame();
+      io.to(room).emit('startGame');
+      startRound(game, room);
+    }
+  });
+
+  // Change a game setting as the host
   socket.on('changeSetting', function (change) {
-    if (!Game.started && username === Game.getHost()) {
+    var room = socketToRoom[socket.id];
+    if (!room) {
+      return;
+    }
+    var game = games[room];
+
+    if (!game.Game.started && username === game.Game.getHost()) {
       // make sure change uses one of the options given
-      if (GameSettings[change.setting].options.indexOf(change.option) === -1) {
+      if ((GameSettings[change.setting] && GameSettings[change.setting].options.indexOf(change.option) === -1) ||
+          (TopicSettings[change.setting] && TopicSettings[change.setting].options.indexOf(change.option) === -1)) {
         return;
       }
 
       // apply settings selected by host
-      Game[change.setting] = change.option;
+      game.Game[change.setting] = change.option;
+
+      // If its a topic change, update room list
+      if (change.setting === 'topicListName' || change.setting === 'topicListDifficulty') {
+        for (var i = 0; i < rooms.length; i++) {
+          if (rooms[i].name === room) {
+            rooms[i].topic = game.Game.topicListName + ' (' + game.Game.topicListDifficulty + ')';
+            io.emit('changeRoom', rooms[i]);
+            break;
+          }
+        }
+      }
 
       // tell all clients about the new setting
-      io.emit('updateSetting', change);
+      io.to(room).emit('updateSetting', change);
     }
   });
 
   // Send an updated version of the userlist whenever a user requests an update of the
   // current server state.
-  socket.on('requestState', function () {
+  socket.on('requestState', function (requestedRoom) {
+    var room = socketToRoom[socket.id];
+    if (room !== requestedRoom) {
+      if (joinRoom(requestedRoom)) {
+        room = requestedRoom;
+      } else {
+        return;
+      }
+    }
+    var game = games[room];
+
     // Send current game state
-    socket.emit('gameState', Game);
+    socket.emit('gameState', game.Game);
 
     // Send the chat message history to the user
-    socket.emit('gameMessage', gameMessages);
+    socket.emit('gameMessage', game.messageHistory);
 
     // Send the draw history to the user
-    socket.emit('canvasMessage', drawHistory);
+    socket.emit('canvasMessage', game.drawHistory);
 
     // Send time left to the user
-    socket.emit('updateTime', {timerTop: {delay: timerTop.timeLeft(), paused: timerTop.paused}, timerBot: {delay: timerBot.timeLeft(), paused: timerBot.paused}});
+    socket.emit('updateTime', {
+      timerTop: {delay: game.timerTop.timeLeft(), paused: game.timerTop.paused},
+      timerBot: {delay: game.timerBot.timeLeft(), paused: game.timerBot.paused}
+    });
 
     // Send current topic if they are the drawer
-    if (Game.isDrawer(username)) {
-      socket.emit('topic', topicList[0]);
+    if (game.Game.isDrawer(username)) {
+      socket.emit('topic', game.prompts[0]);
     }
-
   });
-  
+
   // Handle chat messages
   socket.on('gameMessage', function (message) {
+    var room = socketToRoom[socket.id];
+    if (!room) {
+      return;
+    }
+    var game = games[room];
+
     // Don't trust user data - create a new object from expected user fields
     message = {
       class: 'user-message',
@@ -333,19 +508,19 @@ module.exports = function (io, socket) {
     }
 
     // If game hasn't started, or ended, don't check any guesses
-    if (!Game.started || Game.currentRound >= Game.numRounds) {
-      broadcastMessage(message);
+    if (!game.Game.started || game.Game.currentRound >= game.Game.numRounds) {
+      broadcastMessage(message, game, room);
       return;
     }
 
     // The current drawer cannot chat
-    if (Game.isDrawer(username)) {
+    if (game.Game.isDrawer(username)) {
       return;
     }
 
     // Compare the lower-cased versions
     var guess = message.text.toLowerCase();
-    var topic = topicList[0].toLowerCase();
+    var topic = game.prompts[0].toLowerCase();
     var filteredGuess = guess.replace(/[\W_]/g, ''); // only keep letters and numbers
     var filteredTopic = topic.replace(/[\W_]/g, '');
     if (filteredGuess === filteredTopic) {
@@ -355,8 +530,8 @@ module.exports = function (io, socket) {
 
       // Send user's guess to the drawer/s
       message.addon = 'This guess is correct!';
-      Game.getDrawers().forEach(function (drawer) {
-        io.to(drawer).emit('gameMessage', message);
+      game.Game.getDrawers().forEach(function (drawer) {
+        io.to(room+'/'+drawer).emit('gameMessage', message);
       });
 
       // Send the user's guess to themselves
@@ -364,40 +539,40 @@ module.exports = function (io, socket) {
       socket.emit('gameMessage', message);
 
       // Don't update game state if user has already guessed the prompt
-      if (Game.userHasGuessed(username)) {
+      if (game.Game.userHasGuessed(username)) {
         return;
       }
 
       // Mark user as correct and increase their score
-      Game.markCorrectGuess(username);
-      io.emit('markCorrectGuess', username); // tell clients to update the score too
+      game.Game.markCorrectGuess(username);
+      io.to(room).emit('markCorrectGuess', username); // tell clients to update the score too
 
       // Alert everyone in the room that the guesser was correct
       broadcastMessage({
         class: 'status',
-        text: '<b>'+username+'</b>' + ' has guessed the prompt!'
-      });
+        text: '<b>' + username + '</b>' + ' has guessed the prompt!'
+      }, game, room);
 
       // End round if everyone has guessed
-      if (Game.allGuessed()) {
+      if (game.Game.allGuessed()) {
         broadcastMessage({
           class: 'status',
           text: 'Round over! Everyone has guessed correctly!'
-        });
-        timerTop.pause();
-        timerBot.pause();
-        timerRemind.pause();
-        advanceRound();
-      } else if (Game.correctGuesses === 1) {
+        }, game, room);
+        game.timerTop.pause();
+        game.timerBot.pause();
+        game.timerRemind.pause();
+        advanceRound(game, room);
+      } else if (game.Game.correctGuesses === 1) {
         // Start timer to end round if this is the first correct guess
         broadcastMessage({
           class: 'status',
-          text: "The round will end in " + Game.timeAfterGuess + " seconds."
-        });
-        io.emit('switchTimer');
-        timerTop.pause();
-        timerRemind.pause();
-        timerBot.restart(timesUp, Game.timeAfterGuess * 1000);
+          text: "The round will end in " + game.Game.timeAfterGuess + " seconds."
+        }, game, room);
+        io.to(room).emit('switchTimer');
+        game.timerTop.pause();
+        game.timerRemind.pause();
+        game.timerBot.restart(timesUp.bind(null, game, room), game.Game.timeAfterGuess * 1000);
       }
 
     } else {
@@ -406,7 +581,7 @@ module.exports = function (io, socket) {
 
       if (!guessResult.close && matches.length === 0) {
         // Incorrect guess: emit message to everyone
-        broadcastMessage(message);
+        broadcastMessage(message, game, room);
       } else {
         message.created = Date.now();
         message.class = 'close-guess';
@@ -421,8 +596,8 @@ module.exports = function (io, socket) {
         }
 
         // Send message to drawers
-        Game.getDrawers().forEach(function (drawer) {
-          io.to(drawer).emit('gameMessage', message);
+        game.Game.getDrawers().forEach(function (drawer) {
+          io.to(room+'/'+drawer).emit('gameMessage', message);
         });
 
         // Send message to guesser
@@ -437,61 +612,51 @@ module.exports = function (io, socket) {
 
   // Send a canvas drawing command to all connected sockets when a message is received
   socket.on('canvasMessage', function (message) {
-    if (!Game.started) {
+    var room = socketToRoom[socket.id];
+    if (!room) {
+      return;
+    }
+    var game = games[room];
+
+    if (!game.Game.started) {
       return;
     }
 
-    if (Game.isDrawer(username)) {
+    if (game.Game.isDrawer(username)) {
       if (message.type === 'clear') {
-        drawHistory = [];
+        game.drawHistory = [];
       } else {
-        drawHistory.push(message);
+        game.drawHistory.push(message);
       }
 
       // Emit the 'canvasMessage' event
-      socket.broadcast.emit('canvasMessage', message);
-    }
-
-    // At the end of the game everyone can draw but not clear
-    if (Game.finished) {
-      drawHistory.push(message);
-      socket.broadcast.emit('canvasMessage', message);
+      socket.broadcast.to(room).emit('canvasMessage', message);
+    } else if (game.Game.finished && message.type !== 'clear') {
+      // At the end of the game everyone can draw but not clear
+      game.drawHistory.push(message);
+      socket.broadcast.to(room).emit('canvasMessage', message);
     }
   });
 
   // Current drawer has finished drawing
   socket.on('finishDrawing', function () {
-    if (!Game.started) {
+    var room = socketToRoom[socket.id];
+    if (!room) {
+      return;
+    }
+    var game = games[room];
+
+    if (!game.Game.started) {
       return;
     }
 
     // If the user who submitted this message actually is a drawer
     // And prevent round ending prematurely when prompt has been guessed
-    if (Game.isDrawer(username) && Game.correctGuesses === 0) {
-      giveUp();
+    if (game.Game.isDrawer(username) && game.Game.correctGuesses === 0) {
+      giveUp(game, room);
     }
   });
 
   // Decrement user reference count, and remove from in-memory store if it hits 0
-  socket.on('disconnect', function () {
-    userConnects[username]--;
-    if (userConnects[username] === 0) {
-      // Emit the status event when a socket client is disconnected
-      broadcastMessage({
-        class: 'status',
-        text: '<b>'+username+'</b>' + ' is now disconnected',
-      });
-
-      // If the disconnecting user is a drawer, this is equivalent to
-      // 'giving up' or passing
-      if (Game.started && Game.isDrawer(username)) {
-        giveUp();
-      }
-      delete userConnects[username];
-      Game.removeUser(username);
-
-      // Notify all users that this user has disconnected
-      io.emit('userDisconnect', username);
-    }
-  });
+  socket.on('disconnect', leaveRoom);
 };

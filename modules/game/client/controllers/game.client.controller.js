@@ -1,27 +1,33 @@
 'use strict';
 
 // Create the 'game' controller
-angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', '$state', '$interval',
-  'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils',
-  function ($scope, $location, $document, $rootScope, $state, $interval, Authentication, Socket,
-            CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils) {
-
+angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', '$state', '$interval', '$stateParams',
+  'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils', 'TopicSettings',
+  function ($scope, $location, $document, $rootScope, $state, $interval, $stateParams, Authentication, Socket,
+            CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils, TopicSettings) {
     var isIE = /*@cc_on!@*/false || !!document.documentMode;
     $scope.isIE = isIE;
 
     // Useful libraries
     $scope.Math = window.Math;
 
+    // Room
+    $scope.roomName = $stateParams.roomName;
+
     // Settings objects
     $scope.CanvasSettings = CanvasSettings;
     $scope.ChatSettings = ChatSettings;
     $scope.GameSettings = GameSettings;
+    $scope.TopicSettings = TopicSettings;
+    $scope.Object = Object;
 
     // Pregame settings for host to change
     $scope.chosenSettings = {
       numRounds : GameSettings.numRounds.default,
       roundTime : GameSettings.roundTime.default,
-      timeAfterGuess : GameSettings.timeAfterGuess.default
+      timeAfterGuess : GameSettings.timeAfterGuess.default,
+      topicListName: TopicSettings.topicListName.default,
+      topicListDifficulty: TopicSettings.topicListDifficulty.default
     };
 
     // Create a messages array to store chat messages
@@ -51,16 +57,14 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       return $scope.penColourCustom;
     };
     $scope.paletteColours = [
-      // [{title: 'red', value: '#FF0000'}, {title: 'orange', value: 'orange'}, {title: 'yellow', value: 'yellow'}],
-      // [{title: 'green', value: '#00FF00'}, {title: 'blue', value: '#0000FF'}, {title: 'indigo', value: 'indigo'}],
       [{title: 'black', value: 'black'}, {title: 'grey', value: 'grey'}, {title: 'white', value: 'white'}],
-      [{title: 'dark brown', value: 'brown'}, {title: 'light brown', value: 'sandybrown'}, {title: 'pink', value: 'pink'}],
-      [{title: 'red', value: 'red'}, {title: 'orange', value: 'orange'}, {title: 'yellow', value: 'yellow'}],
-      [{title: 'dark green', value: 'darkgreen'}, {title: 'green', value: 'green'}, {title: 'light green', value: 'lightgreen'}],
-      [{title: 'dark blue', value: 'darkblue'}, {title: 'blue', value: 'blue'}, {title: 'light blue', value: 'lightblue'}]
+      [{title: 'dark brown', value: 'brown'}, {title: 'brown', value: 'chocolate'}, {title: 'pink', value: 'pink'}],
+      [{title: 'red', value: 'red'}, {title: 'orange', value: 'orange'}, {title: 'yellow', value: '#ffef00'}],
+      [{title: 'purple', value: 'blueviolet'}, {title: 'green', value: 'limegreen'}, {title: 'light green', value: 'greenyellow'}],
+      [{title: 'dark blue', value: 'mediumblue'}, {title: 'blue', value: 'dodgerblue'}, {title: 'light blue', value: 'lightskyblue'}]
     ];
 
-    $scope.Game = new GameLogic.Game();
+    $scope.Game = new GameLogic.Game($scope.chosenSettings);
     $scope.Utils = Utils;
 
     $scope.messageText = '';
@@ -76,11 +80,11 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     // Make sure the Socket is connected
     if (!Socket.socket) {
       Socket.connect(function () {
-        Socket.emit('requestState');
+        Socket.emit('requestState', $scope.roomName);
       });
     } else {
       // We are already connected but in a new window - request to be brought up to scratch
-      Socket.emit('requestState');
+      Socket.emit('requestState', $scope.roomName);
     }
 
     var scroller = document.getElementById('chat-container');
@@ -103,6 +107,11 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
      */
     Socket.on('gameState', function (state) {
       angular.extend($scope.Game, state);
+
+      // sync current pregame settings with server
+      for (var setting in $scope.chosenSettings) {
+        $scope.chosenSettings[setting] = $scope.Game[setting];
+      }
 
       // We now know what the state of the game is, so we can resize appropriately
       resizeColumns();
@@ -371,6 +380,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
 
       // Left column width is everything left over
       var spaceLeftOver = windowWidth - rightColumnWidth - middleColumn.offsetWidth;
+      spaceLeftOver -= 20; // magic padding for firefox (game container expands by 17px when you're not the drawer)
 
       // Rescale and redraw canvas contents
       if ($scope.canvas) {
@@ -400,13 +410,19 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
 
       $scope.loaded = true; // We can display things now
     }
-    window.addEventListener('resize', function (e) {
+    function windowResize (e) {
       resizeColumns();
       resizeColumns();
-    });
+    }
+    window.addEventListener('resize', windowResize);
+
+    $scope.leaveRoom = function () {
+      $state.go('home');
+    };
 
     // Remove the event listener when the controller instance is destroyed
     $scope.$on('$destroy', function () {
+      Socket.emit('leaveRoom');
       Socket.removeListener('gameState');
       Socket.removeListener('advanceRound');
       Socket.removeListener('resetGame');
@@ -416,8 +432,12 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       Socket.removeListener('gameMessage');
       Socket.removeListener('canvasMessage');
       Socket.removeListener('topic');
+      Socket.removeListener('updateTime');
+      Socket.removeListener('switchTimer');
       Socket.removeListener('startGame');
-      Socket.removeListener('updateDrawHistory');
+      Socket.removeListener('gameFinished');
+      Socket.removeListener('changeSetting');
+      window.removeEventListener('resize', windowResize);
     });
 
     // Prevent backspace from leaving game page
@@ -425,7 +445,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       var doPrevent = false;
 
       // Check that we are on the game page and that the backspace key was pressed
-      if ($location.path() === $state.get('game').url && event.keyCode === 8) {
+      if ($state.is('game') && event.keyCode === 8) {
         var d = event.srcElement || event.target;
         // Check if an input field is selected
         if ((d.tagName.toLowerCase() === 'input' &&
@@ -444,6 +464,5 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
         event.preventDefault();
       }
     });
-
   }
 ]);
