@@ -2,7 +2,7 @@
     height: 32px;
     margin-top: 15px;
     margin-bottom: 0;
-    font-size: 1.1em;
+    font-size: 1.2em;
 }
 
 .settings-body {
@@ -43,7 +43,7 @@
 }
 
 .pregame-button {
-    padding: 7px 12px;
+    padding: 7px 10px;
     font-size: 1em;
 }
 
