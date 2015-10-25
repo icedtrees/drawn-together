@@ -27,7 +27,7 @@
             <div ng-if="Game.isDrawer(user)"><strong ng-bind="Game.users[user].score.toString()"></strong></div>
             <div ng-if="!Game.isDrawer(user)">
               <span ng-bind="Game.users[user].score.toString()"></span>
-              <i ng-if="Game.userHasGuessed(user)" class="fa fa-check user-guessed"></i>
+              <i ng-if="Game.userHasGuessed(user)" title="Guessed the prompt!" class="fa fa-check user-guessed"></i>
             </div>
           </div>
         </li>
