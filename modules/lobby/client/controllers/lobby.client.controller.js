@@ -1,8 +1,10 @@
 'use strict';
 
 // Create the 'lobby' controller
-angular.module('lobby').controller('LobbyController', ['$scope', '$location', 'Authentication', 'PlayerConstants',
-  function ($scope, $location, Authentication, PlayerConstants) {
+angular.module('lobby').controller('LobbyController', ['$scope', '$location', '$state', 'Authentication', 'Socket', 'GameSettings',
+  function ($scope, $location, $state, Authentication, Socket, GameSettings) {
+    $scope.GameSettings = GameSettings;
+
     // If user is not signed in then redirect to signin page
     if (!Authentication.user) {
       $location.path('/authentication/signin');
@@ -10,42 +12,54 @@ angular.module('lobby').controller('LobbyController', ['$scope', '$location', 'A
       $scope.username = Authentication.user.username;
     }
 
-    $scope.rooms = [
-      {
-        'name': 'my room',
-        'host': 'alice',
-        'topic': 'fruit',
-        'numplayers': 4,
-        'maxnumplayers': PlayerConstants.MAX_NUM_PLAYERS
-      },
-      {
-        'name': 'my room',
-        'host': 'bob',
-        'topic': 'fruit',
-        'numplayers': 4,
-        'maxnumplayers': PlayerConstants.MAX_NUM_PLAYERS
-      },
-      {
-        'name': 'my room',
-        'host': 'carol',
-        'topic': 'fruit',
-        'numplayers': 4,
-        'maxnumplayers': PlayerConstants.MAX_NUM_PLAYERS
-      },
-      {
-        'name': 'my room',
-        'host': 'daniel',
-        'topic': 'fruit',
-        'numplayers': 4,
-        'maxnumplayers': PlayerConstants.MAX_NUM_PLAYERS
-      },
-      {
-        'name': 'retards unite',
-        'host': 'claudia',
-        'topic': 'something',
-        'numplayers': 1,
-        'maxnumplayers': PlayerConstants.MAX_NUM_PLAYERS
+    // Make sure the Socket is connected
+    if (!Socket.socket) {
+      Socket.connect(function () {
+        Socket.emit('requestRooms');
+      });
+    } else {
+      Socket.emit('requestRooms');
+    }
+
+    $scope.rooms = [];
+    $scope.roomName = '';
+
+    Socket.on('requestRooms', function (rooms) {
+      $scope.rooms = rooms;
+    });
+
+    Socket.on('changeRoom', function (room) {
+      for (var i = 0; i < $scope.rooms.length; i++) {
+        if ($scope.rooms[i].name === room.name) {
+          if (room.numPlayers > 0) {
+            $scope.rooms[i] = room;
+          } else {
+            $scope.rooms.splice(i, 1);
+          }
+          return;
+        }
       }
-    ];
+      if (room.numPlayers > 0) {
+        $scope.rooms.push(room);
+      }
+    });
+
+    $scope.joinRoom = function (roomName) {
+      // Go to room view
+      $state.go('game', {roomName: roomName});
+    };
+    $scope.createRoom = function (roomName) {
+      if (roomName === '') {
+        $scope.error = 'Room name cannot be empty';
+      } else {
+        Socket.emit('checkRoomName', roomName);
+      }
+    };
+    Socket.on('validRoomName', function (roomName) {
+      $state.go('game', {roomName: roomName});
+    });
+    Socket.on('invalidRoomName', function (error) {
+      $scope.error = error;
+    });
   }
 ]);

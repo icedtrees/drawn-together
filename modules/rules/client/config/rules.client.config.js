@@ -7,7 +7,8 @@ angular.module('rules').run(['Menus',
     Menus.addMenuItem('topbar', {
       title: 'Rules',
       state: 'rules',
-      position: 2
+      position: 2,
+      roles: ['*']
     });
   }
 ]);

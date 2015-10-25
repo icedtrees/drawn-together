@@ -11,3 +11,11 @@
   border: 1px solid #2d2b4b;
   padding: 10px;
 }
+.vertical-center {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+}

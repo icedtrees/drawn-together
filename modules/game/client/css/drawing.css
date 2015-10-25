@@ -4,29 +4,37 @@
 }
 
 .drawing-header {
-  height: 52px; /* Set the height fixed so that elements below do not jump when content is loaded */
+  margin-top: 20px;
+  height: 3em; /* Set the height fixed so that elements below do not jump when content is loaded */
   width: 100%;
   margin-bottom: 10px;
   vertical-align: middle;
 }
 
 .drawing-header-text {
-  font-size: 26px;
   vertical-align: middle;
   width: auto;
   overflow: hidden;
 }
 .drawing-header-buttons {
   float: right;
-  margin: 10px auto;
+  height: 100%;
+  margin: 0;
+}
+
+.drawing-header-buttons > button {
+  font-size: 1em;
+  padding: 5px 15px;
 }
 
 .drawing-timer-wrapper {
   position: relative;
   height: 15px;
-  width: 100%;
+  /* Move left by 1px and add 2px to width to match canvas below (which has 1px outline) */
+  width: calc(100% + 2px);
+  left: -1px;
   text-align: center;
-  font-size: 10px;
+  font-size: 0.6em;
   box-shadow: -1px 3px 4px rgba(0, 0, 0, 0.1) inset;
 }
 

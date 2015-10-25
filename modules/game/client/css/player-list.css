@@ -1,21 +1,30 @@
 .player-list {
+  font-size: 0.8em;
   list-style: none;
   -webkit-column-count: 2;    /* Chrome, Safari, Opera */
   -moz-column-count: 2;       /* Firefox */
   -ms-column-count: 2;
   column-count: 2;            /* IE 10+ */
-  -webkit-column-gap: 30px;   /* Chrome, Safari, Opera */
-  -moz-column-gap: 30px;      /* Firefox */
-  -ms-column-gap: 30px;
-  column-gap: 30px;           /* IE 10+ */
+  -webkit-column-gap: 2em;   /* Chrome, Safari, Opera */
+  -moz-column-gap: 2em;      /* Firefox */
+  -ms-column-gap: 2em;
+  column-gap: 2em;           /* IE 10+ */
 }
 
 .player-list > li {
-  padding-bottom: 4px;
   /* So padding doesn't go into 2nd column*/
   -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
   page-break-inside: avoid;           /* Firefox */
   break-inside: avoid;                /* IE 10+ */
+  /*padding: 3px 0.3em 0 0.3em;*/
+  padding: 0.1em 0.2em;
+  margin: 2px 0;
+}
+
+.players-header {
+  font-size: 1.25em;
+  margin-top: 0.5em;
+  margin-bottom: 0.1em;
 }
 
 .game-profile-image {
@@ -25,12 +34,28 @@
 }
 
 .player-names {
-  font-size: 13px;
-  width: 120px;
+  padding: 0 0 0 0.5em;
 }
 
 .player-image {
-  width: 20px;
+  height: 1.2em;
+  width: 1.2em;
+  padding: 0;
+}
+
+.player-image > img {
+  width: 100%;
+  height: 100%;
+}
+
+.player-score {
+  float: right;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.user-guessed {
+  color: #99ff75;
 }
 
 .game-drawer {

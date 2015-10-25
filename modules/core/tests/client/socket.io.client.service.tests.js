@@ -11,7 +11,9 @@
       this.cbs[msg] = cb;
     };
     this.emit = function(msg, data) {
-      this.cbs[msg](data);
+      if (this.cbs[msg]) {
+        this.cbs[msg](data);
+      }
     };
     this.removeListener = function(msg) {
       delete this.cbs[msg];
