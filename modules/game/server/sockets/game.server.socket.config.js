@@ -302,6 +302,7 @@ module.exports = function (io, socket) {
         image: profileImageURL
       });
     }
+    return true;
   }
 
   function leaveRoom () {
