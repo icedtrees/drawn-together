@@ -30,7 +30,9 @@
 .drawing-timer-wrapper {
   position: relative;
   height: 15px;
-  width: 100%;
+  /* Move left by 1px and add 2px to width to match canvas below (which has 1px outline) */
+  width: calc(100% + 2px);
+  left: -1px;
   text-align: center;
   font-size: 0.6em;
   box-shadow: -1px 3px 4px rgba(0, 0, 0, 0.1) inset;

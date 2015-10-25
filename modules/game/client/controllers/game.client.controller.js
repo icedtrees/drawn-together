@@ -1,16 +1,18 @@
 'use strict';
 
 // Create the 'game' controller
-angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', '$state', '$interval',
+angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', '$state', '$interval', '$stateParams',
   'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils', 'TopicSettings',
-  function ($scope, $location, $document, $rootScope, $state, $interval, Authentication, Socket,
+  function ($scope, $location, $document, $rootScope, $state, $interval, $stateParams, Authentication, Socket,
             CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils, TopicSettings) {
-
     var isIE = /*@cc_on!@*/false || !!document.documentMode;
     $scope.isIE = isIE;
 
     // Useful libraries
     $scope.Math = window.Math;
+
+    // Room
+    $scope.roomName = $stateParams.roomName;
 
     // Settings objects
     $scope.CanvasSettings = CanvasSettings;
@@ -78,11 +80,11 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     // Make sure the Socket is connected
     if (!Socket.socket) {
       Socket.connect(function () {
-        Socket.emit('requestState');
+        Socket.emit('requestState', $scope.roomName);
       });
     } else {
       // We are already connected but in a new window - request to be brought up to scratch
-      Socket.emit('requestState');
+      Socket.emit('requestState', $scope.roomName);
     }
 
     var scroller = document.getElementById('chat-container');
@@ -412,13 +414,19 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
 
       $scope.loaded = true; // We can display things now
     }
-    window.addEventListener('resize', function (e) {
+    function windowResize (e) {
       resizeColumns();
       resizeColumns();
-    });
+    }
+    window.addEventListener('resize', windowResize);
+
+    $scope.leaveRoom = function () {
+      $state.go('home');
+    };
 
     // Remove the event listener when the controller instance is destroyed
     $scope.$on('$destroy', function () {
+      Socket.emit('leaveRoom');
       Socket.removeListener('gameState');
       Socket.removeListener('advanceRound');
       Socket.removeListener('resetGame');
@@ -428,8 +436,12 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       Socket.removeListener('gameMessage');
       Socket.removeListener('canvasMessage');
       Socket.removeListener('topic');
+      Socket.removeListener('updateTime');
+      Socket.removeListener('switchTimer');
       Socket.removeListener('startGame');
-      Socket.removeListener('updateDrawHistory');
+      Socket.removeListener('gameFinished');
+      Socket.removeListener('changeSetting');
+      window.removeEventListener('resize', windowResize);
     });
 
     // Prevent backspace from leaving game page
@@ -437,7 +449,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       var doPrevent = false;
 
       // Check that we are on the game page and that the backspace key was pressed
-      if ($location.path() === $state.get('game').url && event.keyCode === 8) {
+      if ($state.is('game') && event.keyCode === 8) {
         var d = event.srcElement || event.target;
         // Check if an input field is selected
         if ((d.tagName.toLowerCase() === 'input' &&

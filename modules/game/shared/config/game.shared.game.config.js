@@ -3,6 +3,8 @@
 (function(exports) {
     exports.TIME_BETWEEN_GAMES = 30;
     exports.MAX_TOPIC_LENGTH = 23;
+    exports.MAX_NUM_PLAYERS = 16;
+    exports.MAX_ROOM_NAME_LENGTH = 24;
 
     exports.numRounds = {
         settingName : "Rounds",

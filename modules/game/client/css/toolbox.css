@@ -38,3 +38,70 @@
   width: 110px;
 }
 
+.grid {
+  display: table;
+  padding-top: 0;
+  margin-top: 0;
+}
+
+.grid-row {
+  display: table-row;
+}
+
+.grid-cell {
+  display: inline-block;
+  text-align: center;
+  vertical-align: top;
+}
+
+.draw-tool {
+  border: 2px solid lightgrey;
+  background-clip:content-box;
+  padding: 2px;
+  margin: 3px;
+  width: 55px;
+  height: 55px;
+}
+.draw-tool.selected {
+  border: 3px solid black;
+}
+.draw-tool-content {
+  font-size: 33px;
+  margin: auto;
+}
+
+.palette-colour {
+  border: 2px solid lightgrey;
+  background-clip:content-box;
+  padding: 1px;
+  margin: 3px;
+  width: 35px;
+  height: 35px;
+}
+.palette-colour.selected {
+  border: 3px solid black;
+}
+
+.custom-palette-colour-wrapper {
+  width: 100%;
+  /* top, right, bottom, left */
+  padding: 10px 3px 0 3px;
+}
+.custom-palette-colour {
+  margin: 0;
+  width: 100%;
+  height: 40px;
+}
+
+/* Custom color picker */
+.colorpicker {
+  margin-top: 388px;
+  margin-left: 30px;
+}
+
+.clear-canvas {
+  width: 93%;
+  text-align: center;
+  padding-left: 0;
+  padding-right: 0;
+}

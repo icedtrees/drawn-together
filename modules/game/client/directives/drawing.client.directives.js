@@ -29,8 +29,8 @@ function getMouse(e, canvas) {
   return {x: mx / canvas.scaleX, y: my / canvas.scaleY};
 }
 
-angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'CanvasSettings',
-  function (Socket, MouseConstants, CanvasSettings) {
+angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'CanvasSettings', '$compile',
+  function (Socket, MouseConstants, CanvasSettings, $compile) {
     function clearLayer(context) {
       context.clearRect(0, 0, CanvasSettings.RESOLUTION_WIDTH, CanvasSettings.RESOLUTION_HEIGHT);
     }
@@ -44,6 +44,7 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
         function createLayer(zIndex, width, height) {
           var canvas = document.createElement('canvas');
           canvas.setAttribute('class', 'dt-drawing-layer');
+          canvas.setAttribute('ng-style', "{cursor: Game.isDrawer(username) || Game.finished ? 'none' : 'default'}");
           canvas.width = width;
           canvas.height = height;
 
@@ -67,6 +68,9 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
         element[0].appendChild(previewLayer);
         var drawCtx = drawLayer.getContext('2d');
         var previewCtx = previewLayer.getContext('2d');
+
+        // Compile the ng style attributes on child layers
+        $compile(element.contents())(scope);
 
         // This is never resized and keeps track of history
         var hiddenLayer = createLayer(0, CanvasSettings.RESOLUTION_WIDTH, CanvasSettings.RESOLUTION_HEIGHT);

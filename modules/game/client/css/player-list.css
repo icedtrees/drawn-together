@@ -50,6 +50,12 @@
 
 .player-score {
   float: right;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.user-guessed {
+  color: #99ff75;
 }
 
 .game-drawer {

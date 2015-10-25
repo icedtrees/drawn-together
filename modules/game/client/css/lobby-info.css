@@ -10,6 +10,12 @@
   margin-bottom: 15px;
 }
 .leave-lobby {
-  cursor: pointer;
-  color: #000011;
+  padding: 7px 14px;
+  border: 1px solid #DDDDDD;
+  color: #EEEEEE;
+  background-color: #535089;
+}
+.leave-lobby:hover {
+  color: white;
+  background-color: #2F2D50;
 }

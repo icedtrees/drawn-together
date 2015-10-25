@@ -14,54 +14,37 @@ var jaro_winkler = clj_fuzzy.metrics.jaro_winkler;
 var porter = clj_fuzzy.stemmers.porter;
 var levenshtein = clj_fuzzy.metrics.levenshtein;
 
-// Server timer
-var timerTop = new Utils.Timer();
-var timerBot = new Utils.Timer();
-var timerRemind = new Utils.Timer();
+// Map of room names to game objects
+var games = {};
 
-var prompts = [];
+// Socket id to room name
+var socketToRoom = {};
 
-// Game object encapsulating game logic
-var Game = new GameLogic.Game({
-  numRounds: GameSettings.numRounds.default,
-  numDrawers: 1,
-  roundTime: GameSettings.roundTime.default,
-  timeAfterGuess: GameSettings.timeAfterGuess.default,
-  topicListName: TopicSettings.topicListName.default,
-  topicListDifficulty: TopicSettings.topicListDifficulty.default
-});
+// List of all rooms
+var rooms = [];
 
-// Dictionary counting number of connects made by each user
-var userConnects = {};
+function checkRoomName(room) {
+  var result = {
+    valid: false
+  };
+  if (typeof(room) !== 'string') {
+    result.error = 'Room name must be a string';
+    return result;
+  }
 
-/* Array of draw actions
- * drawHistory = [
- *   {
- *     type: 'line'
- *     x1: last x pos
- *     y1: last y pos
- *     x2: cur x pos
- *     y2: cur y pos
- *     strokeStyle: colour code
- *   },
- *   {
- *     type: 'rect'
- *     x: last x pos
- *     y: last y pos
- *     width: cur x pos
- *     height: cur y pos
- *     fill: colour code
- *     strokeStyle: colour code
- *   },
- *   {
- *     type: 'clear'
- *   }
- * ]
- */
-var drawHistory = [];
+  if (room.length < 1 || room.length > GameSettings.MAX_ROOM_NAME_LENGTH) {
+    result.error = 'Room name must be between 1 and ' + GameSettings.MAX_ROOM_NAME_LENGTH + ' characters';
+    return result;
+  }
 
-// Every chat message sent
-var gameMessages = [];
+  if (/^\s*$/.test(room)) {
+    result.error = 'Room name must not be empty';
+    return result;
+  }
+
+  result.valid = true;
+  return result;
+}
 
 function checkGuess(guess, topic) {
   // STAGE 1 - basic JW distance
@@ -113,63 +96,64 @@ function matchingWords(guess, topic) {
 
 // Create the game configuration
 module.exports = function (io, socket) {
-  function broadcastMessage(message) {
+  function broadcastMessage(message, game, room) {
     message.created = Date.now();
-    gameMessages.push(message);
-    if (gameMessages.length > ChatSettings.MAX_MESSAGES) {
-      gameMessages.shift();
+    game.messageHistory.push(message);
+    if (game.messageHistory.length > ChatSettings.MAX_MESSAGES) {
+      game.messageHistory.shift();
     }
-    io.emit('gameMessage', message);
+    io.to(room).emit('gameMessage', message);
   }
 
-  function sendTopic() { // Select a new topic and send it to the new drawer
-    // Cycle the current topic to the end
-    prompts.push(prompts.shift());
+  function sendTopic(game, room) {
+    // Select a new topic and send it to the new drawer
+    game.prompts.push(game.prompts.shift());
 
     // Cycle through topics until we get a topic less than the message limit
-    while (prompts[0].length > GameSettings.MAX_TOPIC_LENGTH) {
-      prompts.shift();
-      if (!prompts.length) {
-        prompts = ['All prompts too long!'];
+    while (game.prompts[0].length > GameSettings.MAX_TOPIC_LENGTH) {
+      game.prompts.shift();
+      if (!game.prompts.length) {
+        game.prompts = ['All prompts too long!'];
         break;
       }
     }
-    Game.getDrawers().forEach(function (drawer) {
-      io.to(drawer).emit('topic', prompts[0]);
+
+    game.Game.getDrawers().forEach(function (drawer) {
+      io.to(room+'/'+drawer).emit('topic', game.prompts[0]);
     });
 
     // Announce the new drawers
-    var newDrawersAre = Utils.toCommaListIs(Utils.boldList(Game.getDrawers()));
+    var newDrawersAre = Utils.toCommaListIs(Utils.boldList(game.Game.getDrawers()));
     broadcastMessage({
       class: 'status',
       text: newDrawersAre + ' now drawing'
-    });
+    }, game, room);
   }
 
-  function advanceRound() {
-    var gameFinished = Game.advanceRound();
+  function advanceRound(game, room) {
+    var gameFinished = game.Game.advanceRound();
 
     // Send user list with updated drawers
-    io.emit('advanceRound');
+    io.to(room).emit('advanceRound');
 
-    io.emit('canvasMessage', {type: 'clear'});
-    drawHistory = [];
+    io.to(room).emit('canvasMessage', {type: 'clear'});
+    game.drawHistory = [];
 
     // Explain what the word was
     broadcastMessage({
       class: 'status',
-      text: 'The prompt was "' + prompts[0] + '"'
-    });
+      text: 'The prompt was "' + game.prompts[0] + '"'
+    }, game, room);
 
     if (gameFinished) {
-      var winners = Game.getWinners();
+      var winners = game.Game.getWinners();
       broadcastMessage({
         class: 'status',
         text: Utils.toCommaList(Utils.boldList(winners)) + ' won the game on ' +
-              Game.users[winners[0]].score + ' points! A new game will start ' +
+              game.Game.users[winners[0]].score + ' points! A new game will start ' +
               'in ' + GameSettings.TIME_BETWEEN_GAMES + ' seconds'
-      });
-      io.emit('gameFinished');
+      }, game, room);
+      io.to(room).emit('gameFinished');
 
       // Draw winners on canvas
       var message = {
@@ -180,117 +164,280 @@ module.exports = function (io, socket) {
         x: 300,
         y: 50
       };
-      drawHistory.push(message);
-      io.emit('canvasMessage', message);
+      game.drawHistory.push(JSON.parse(JSON.stringify(message))); // push deep copy because we modify the message below
+      io.to(room).emit('canvasMessage', message);
 
       message.y += 50;
       for (var i = 0; i < winners.length; i++) {
         message.text = winners[i];
-        drawHistory.push(message);
-        io.emit('canvasMessage', message);
+        game.drawHistory.push(JSON.parse(JSON.stringify(message)));
+        io.to(room).emit('canvasMessage', message);
         message.y += 50;
       }
 
       message.align = 'center';
       message.y = 500;
       message.text = 'Please respect the other contestants';
-      drawHistory.push(message);
-      io.emit('canvasMessage', message);
+      game.drawHistory.push(JSON.parse(JSON.stringify(message)));
+      io.to(room).emit('canvasMessage', message);
       message.y += 35;
       message.text = 'and do not deface this message';
-      drawHistory.push(message);
-      io.emit('canvasMessage', message);
+      game.drawHistory.push(JSON.parse(JSON.stringify(message)));
+      io.to(room).emit('canvasMessage', message);
 
       setTimeout(function () {
-        timerTop.pause();
-        timerBot.pause();
-        timerRemind.pause();
-        drawHistory = [];
-        Game.resetGame();
-        io.emit('resetGame');
+        game.timerTop.pause();
+        game.timerBot.pause();
+        game.timerRemind.pause();
+        game.drawHistory = [];
+        game.Game.resetGame();
+        io.to(room).emit('resetGame');
       }, GameSettings.TIME_BETWEEN_GAMES * 1000);
     } else {
-      startRound();
+      startRound(game, room);
     }
   }
 
-  function startRound() {
-    sendTopic();
+  function startRound(game, room) {
+    sendTopic(game, room);
     broadcastMessage({
       class: 'status',
-      text: Game.roundTime + " seconds to draw."
-    });
+      text: game.Game.roundTime + " seconds to draw."
+    }, game, room);
 
-    timerTop.restart(timesUp, Game.roundTime * 1000);
-    timerRemind.restart(function () {
+    game.timerTop.restart(timesUp.bind(null, game, room), game.Game.roundTime * 1000);
+    game.timerRemind.restart(function () {
       broadcastMessage({
         class: 'status',
         text: '10 seconds left!'
-      });
-    }, (Game.roundTime - 10) * 1000);
-    timerBot.delay = Game.timeAfterGuess * 1000;
+      }, game, room);
+    }, (game.Game.roundTime - 10) * 1000);
+    game.timerBot.delay = game.Game.timeAfterGuess * 1000;
   }
 
-  function giveUp() {
-    if (!Game.started) {
+  function giveUp(game, room) {
+    if (!game.Game.started) {
       return;
     }
 
     broadcastMessage({
       class: 'status',
       text: '<b>' + username + '</b>' + ' has given up'
-    });
-    advanceRound();
+    }, game, room);
+    advanceRound(game, room);
   }
 
-  function timesUp() {
+  function timesUp(game, room) {
     broadcastMessage({
       class: 'status',
-      text: Game.correctGuesses === 0 ? "Time's up! No one guessed " + Game.getDrawers()[0] + "'s drawing" : 'Round over!'
-    });
+      text: game.Game.correctGuesses === 0 ? "Time's up! No one guessed " + game.Game.getDrawers()[0] + "'s drawing" : 'Round over!'
+    }, game, room);
 
-    advanceRound();
+    advanceRound(game, room);
   }
 
   var username = socket.request.user.username;
   var profileImageURL = socket.request.user.profileImageURL;
-  socket.join(username);
 
-  // Add user to in-memory store if necessary, or simply increment counter
-  // to account for multiple windows open
-  if (username in userConnects) {
-    userConnects[username]++;
-  } else {
-    userConnects[username] = 1;
-    Game.addUser(username, profileImageURL);
+  // Join a room
+  function joinRoom (room) {
+    if (!checkRoomName(room)) {
+      return false;
+    }
 
-    // Emit the status event when a new socket client is connected
-    broadcastMessage({
-      class: 'status',
-      text: '<b>' + username + '</b>' + ' is now connected'
-    });
+    // This socket is already part of a room
+    if (socket.id in socketToRoom) {
+      // Already in this room
+      if (socketToRoom[socket.id] === room) {
+        return;
+      } else {
+        // In another room at the moment - leave that room first
+        leaveRoom();
+      }
+    }
 
-    // Notify everyone about the new joined user (not the sender though)
-    socket.broadcast.emit('userConnect', {
-      username: username,
-      image: profileImageURL
-    });
+    // Create the room and the game if it doesn't exist
+    var game;
+    if (!(room in games)) {
+      games[room] = {};
+      game = games[room];
+      game.Game = new GameLogic.Game({
+        numRounds: GameSettings.numRounds.default,
+        numDrawers: 1,
+        roundTime: GameSettings.roundTime.default,
+        timeAfterGuess: GameSettings.timeAfterGuess.default,
+        topicListName: TopicSettings.topicListName.default,
+        topicListDifficulty: TopicSettings.topicListDifficulty.default
+      });
+      game.drawHistory = [];
+      game.messageHistory = [];
+
+      // Server timer
+      game.timerTop = new Utils.Timer();
+      game.timerBot = new Utils.Timer();
+      game.timerRemind = new Utils.Timer();
+
+      // Add to room list
+      var newRoom = {
+        name: room,
+        host: username,
+        topic: game.Game.topicListName + ' (' + game.Game.topicListDifficulty + ')',
+        numPlayers: 0,
+        maxNumPlayers: GameSettings.MAX_NUM_PLAYERS
+      };
+      rooms.push(newRoom);
+      io.emit('changeRoom', newRoom);
+    } else {
+      game = games[room];
+    }
+
+    // Cannot join if already full
+    if (game.numPlayers >= game.maxNumPlayers) {
+      return false;
+    }
+
+    // Join the room as well as the room specific username grouping
+    socket.join(room);
+    socket.join(room+'/'+username);
+    socketToRoom[socket.id] = room;
+
+    // Add user to in-memory store if necessary, or simply increment counter
+    // to account for multiple windows open
+    if (username in game.Game.users) {
+      game.Game.users[username].connects++;
+    } else {
+      game.Game.addUser(username, profileImageURL);
+      game.Game.users[username].connects = 1;
+
+      // Increase number of players in room
+      for (var i = 0; i < rooms.length; i++) {
+        if (rooms[i].name === room) {
+          rooms[i].numPlayers++;
+          io.emit('changeRoom', rooms[i]);
+          break;
+        }
+      }
+
+      // Emit the status event when a new socket client is connected
+      var message = {
+        created: Date.now(),
+        class: 'status',
+        text: '<b>'+username+'</b>' + ' is now connected'
+      };
+      game.messageHistory.push(message);
+      if (game.messageHistory.length > ChatSettings.MAX_MESSAGES) {
+        game.messageHistory.shift();
+      }
+      socket.broadcast.to(room).emit('gameMessage', message);
+
+      // Notify everyone about the new joined user (not the sender though)
+      socket.broadcast.to(room).emit('userConnect', {
+        username: username,
+        image: profileImageURL
+      });
+    }
+    return true;
   }
+
+  function leaveRoom () {
+    var room = socketToRoom[socket.id];
+    var game = games[room];
+    if (!room) {
+      return;
+    }
+
+    game.Game.users[username].connects--;
+    if (game.Game.users[username].connects === 0) {
+      // Emit the status event when a socket client is disconnected
+      broadcastMessage({
+        class: 'status',
+        text: '<b>'+username+'</b>' + ' is now disconnected'
+      }, game, room);
+
+      // Decrease number of players in room
+      var roomIndex;
+      for (var i = 0; i < rooms.length; i++) {
+        if (rooms[i].name === room) {
+          rooms[i].numPlayers--;
+          roomIndex = i;
+          break;
+        }
+      }
+
+      // If the disconnecting user is a drawer, this is equivalent to
+      // 'giving up' or passing
+      if (game.Game.started && game.Game.isDrawer(username)) {
+        giveUp(game, room);
+      }
+      var oldHost = game.Game.getHost();
+      game.Game.removeUser(username);
+      var newHost = game.Game.getHost();
+      if (newHost !== oldHost) {
+        rooms[roomIndex].host = newHost;
+      }
+      io.emit('changeRoom', rooms[roomIndex]);
+
+      // Notify all users that this user has disconnected
+      io.to(room).emit('userDisconnect', username);
+
+      // If there are no users left, destroy this game instance
+      if (game.Game.userList.length === 0) {
+        game.timerTop.pause();
+        game.timerBot.pause();
+        game.timerRemind.pause();
+
+        delete games[room];
+        rooms.splice(roomIndex, 1);
+      }
+    }
+
+    socket.leave(room);
+    socket.leave(room+'/'+username);
+    delete socketToRoom[socket.id];
+  }
+  socket.on('leaveRoom', leaveRoom);
+
+  socket.on('requestRooms', function () {
+    socket.emit('requestRooms', rooms);
+  });
+
+  socket.on('checkRoomName', function (room) {
+    var result = checkRoomName(room);
+    if (room in games) {
+      socket.emit('invalidRoomName', '"'+room+'"' + ' is already taken, sorry');
+    } else if (!result.valid) {
+      socket.emit('invalidRoomName', result.error);
+    } else {
+      socket.emit('validRoomName', room);
+    }
+  });
 
   // Start the game
   socket.on('startGame', function () {
-    if (!Game.started && username === Game.getHost()) {
-      prompts = TopicList.getTopicWords(Game.topicListName, Game.topicListDifficulty);
-      ServerUtils.shuffleWords(prompts);
-      Game.startGame();
-      io.emit('startGame');
-      startRound();
+    var room = socketToRoom[socket.id];
+    if (!room) {
+      return;
+    }
+    var game = games[room];
+
+    if (!game.Game.started && username === game.Game.getHost()) {
+      game.prompts = TopicList.getTopicWords(game.Game.topicListName, game.Game.topicListDifficulty);
+      ServerUtils.shuffleWords(game.prompts);
+      game.Game.startGame();
+      io.to(room).emit('startGame');
+      startRound(game, room);
     }
   });
 
   // Change a game setting as the host
   socket.on('changeSetting', function (change) {
-    if (!Game.started && username === Game.getHost()) {
+    var room = socketToRoom[socket.id];
+    if (!room) {
+      return;
+    }
+    var game = games[room];
+
+    if (!game.Game.started && username === game.Game.getHost()) {
       // make sure change uses one of the options given
       if ((GameSettings[change.setting] && GameSettings[change.setting].options.indexOf(change.option) === -1) ||
           (TopicSettings[change.setting] && TopicSettings[change.setting].options.indexOf(change.option) === -1)) {
@@ -298,37 +445,66 @@ module.exports = function (io, socket) {
       }
 
       // apply settings selected by host
-      Game[change.setting] = change.option;
+      game.Game[change.setting] = change.option;
+
+      // If its a topic change, update room list
+      if (change.setting === 'topicListName' || change.setting === 'topicListDifficulty') {
+        for (var i = 0; i < rooms.length; i++) {
+          if (rooms[i].name === room) {
+            rooms[i].topic = game.Game.topicListName + ' (' + game.Game.topicListDifficulty + ')';
+            io.emit('changeRoom', rooms[i]);
+            break;
+          }
+        }
+      }
 
       // tell all clients about the new setting
-      io.emit('updateSetting', change);
+      io.to(room).emit('updateSetting', change);
     }
   });
 
   // Send an updated version of the userlist whenever a user requests an update of the
   // current server state.
-  socket.on('requestState', function () {
+  socket.on('requestState', function (requestedRoom) {
+    var room = socketToRoom[socket.id];
+    if (room !== requestedRoom) {
+      if (joinRoom(requestedRoom)) {
+        room = requestedRoom;
+      } else {
+        return;
+      }
+    }
+    var game = games[room];
+
     // Send current game state
-    socket.emit('gameState', Game);
+    socket.emit('gameState', game.Game);
 
     // Send the chat message history to the user
-    socket.emit('gameMessage', gameMessages);
+    socket.emit('gameMessage', game.messageHistory);
 
     // Send the draw history to the user
-    socket.emit('canvasMessage', drawHistory);
+    socket.emit('canvasMessage', game.drawHistory);
 
     // Send time left to the user
-    socket.emit('updateTime', {timerTop: {delay: timerTop.timeLeft(), paused: timerTop.paused}, timerBot: {delay: timerBot.timeLeft(), paused: timerBot.paused}});
+    socket.emit('updateTime', {
+      timerTop: {delay: game.timerTop.timeLeft(), paused: game.timerTop.paused},
+      timerBot: {delay: game.timerBot.timeLeft(), paused: game.timerBot.paused}
+    });
 
     // Send current topic if they are the drawer
-    if (Game.isDrawer(username)) {
-      socket.emit('topic', prompts[0]);
+    if (game.Game.isDrawer(username)) {
+      socket.emit('topic', game.prompts[0]);
     }
-
   });
 
   // Handle chat messages
   socket.on('gameMessage', function (message) {
+    var room = socketToRoom[socket.id];
+    if (!room) {
+      return;
+    }
+    var game = games[room];
+
     // Don't trust user data - create a new object from expected user fields
     message = {
       class: 'user-message',
@@ -342,19 +518,19 @@ module.exports = function (io, socket) {
     }
 
     // If game hasn't started, or ended, don't check any guesses
-    if (!Game.started || Game.currentRound >= Game.numRounds) {
-      broadcastMessage(message);
+    if (!game.Game.started || game.Game.currentRound >= game.Game.numRounds) {
+      broadcastMessage(message, game, room);
       return;
     }
 
     // The current drawer cannot chat
-    if (Game.isDrawer(username)) {
+    if (game.Game.isDrawer(username)) {
       return;
     }
 
     // Compare the lower-cased versions
     var guess = message.text.toLowerCase();
-    var topic = prompts[0].toLowerCase();
+    var topic = game.prompts[0].toLowerCase();
     var filteredGuess = guess.replace(/[\W_]/g, ''); // only keep letters and numbers
     var filteredTopic = topic.replace(/[\W_]/g, '');
     if (filteredGuess === filteredTopic) {
@@ -364,8 +540,8 @@ module.exports = function (io, socket) {
 
       // Send user's guess to the drawer/s
       message.addon = 'This guess is correct!';
-      Game.getDrawers().forEach(function (drawer) {
-        io.to(drawer).emit('gameMessage', message);
+      game.Game.getDrawers().forEach(function (drawer) {
+        io.to(room+'/'+drawer).emit('gameMessage', message);
       });
 
       // Send the user's guess to themselves
@@ -373,40 +549,40 @@ module.exports = function (io, socket) {
       socket.emit('gameMessage', message);
 
       // Don't update game state if user has already guessed the prompt
-      if (Game.userHasGuessed(username)) {
+      if (game.Game.userHasGuessed(username)) {
         return;
       }
 
       // Mark user as correct and increase their score
-      Game.markCorrectGuess(username);
-      io.emit('markCorrectGuess', username); // tell clients to update the score too
+      game.Game.markCorrectGuess(username);
+      io.to(room).emit('markCorrectGuess', username); // tell clients to update the score too
 
       // Alert everyone in the room that the guesser was correct
       broadcastMessage({
         class: 'status',
         text: '<b>' + username + '</b>' + ' has guessed the prompt!'
-      });
+      }, game, room);
 
       // End round if everyone has guessed
-      if (Game.allGuessed()) {
+      if (game.Game.allGuessed()) {
         broadcastMessage({
           class: 'status',
           text: 'Round over! Everyone has guessed correctly!'
-        });
-        timerTop.pause();
-        timerBot.pause();
-        timerRemind.pause();
-        advanceRound();
-      } else if (Game.correctGuesses === 1) {
+        }, game, room);
+        game.timerTop.pause();
+        game.timerBot.pause();
+        game.timerRemind.pause();
+        advanceRound(game, room);
+      } else if (game.Game.correctGuesses === 1) {
         // Start timer to end round if this is the first correct guess
         broadcastMessage({
           class: 'status',
-          text: "The round will end in " + Game.timeAfterGuess + " seconds."
-        });
-        io.emit('switchTimer');
-        timerTop.pause();
-        timerRemind.pause();
-        timerBot.restart(timesUp, Game.timeAfterGuess * 1000);
+          text: "The round will end in " + game.Game.timeAfterGuess + " seconds."
+        }, game, room);
+        io.to(room).emit('switchTimer');
+        game.timerTop.pause();
+        game.timerRemind.pause();
+        game.timerBot.restart(timesUp.bind(null, game, room), game.Game.timeAfterGuess * 1000);
       }
 
     } else {
@@ -415,7 +591,7 @@ module.exports = function (io, socket) {
 
       if (!guessResult.close && matches.length === 0) {
         // Incorrect guess: emit message to everyone
-        broadcastMessage(message);
+        broadcastMessage(message, game, room);
       } else {
         message.created = Date.now();
         message.class = 'close-guess';
@@ -430,8 +606,8 @@ module.exports = function (io, socket) {
         }
 
         // Send message to drawers
-        Game.getDrawers().forEach(function (drawer) {
-          io.to(drawer).emit('gameMessage', message);
+        game.Game.getDrawers().forEach(function (drawer) {
+          io.to(room+'/'+drawer).emit('gameMessage', message);
         });
 
         // Send message to guesser
@@ -446,61 +622,51 @@ module.exports = function (io, socket) {
 
   // Send a canvas drawing command to all connected sockets when a message is received
   socket.on('canvasMessage', function (message) {
-    if (!Game.started) {
+    var room = socketToRoom[socket.id];
+    if (!room) {
+      return;
+    }
+    var game = games[room];
+
+    if (!game.Game.started) {
       return;
     }
 
-    if (Game.isDrawer(username)) {
+    if (game.Game.isDrawer(username)) {
       if (message.type === 'clear') {
-        drawHistory = [];
+        game.drawHistory = [];
       } else {
-        drawHistory.push(message);
+        game.drawHistory.push(message);
       }
 
       // Emit the 'canvasMessage' event
-      socket.broadcast.emit('canvasMessage', message);
-    }
-
-    // At the end of the game everyone can draw but not clear
-    if (Game.finished) {
-      drawHistory.push(message);
-      socket.broadcast.emit('canvasMessage', message);
+      socket.broadcast.to(room).emit('canvasMessage', message);
+    } else if (game.Game.finished && message.type !== 'clear') {
+      // At the end of the game everyone can draw but not clear
+      game.drawHistory.push(message);
+      socket.broadcast.to(room).emit('canvasMessage', message);
     }
   });
 
   // Current drawer has finished drawing
   socket.on('finishDrawing', function () {
-    if (!Game.started) {
+    var room = socketToRoom[socket.id];
+    if (!room) {
+      return;
+    }
+    var game = games[room];
+
+    if (!game.Game.started) {
       return;
     }
 
     // If the user who submitted this message actually is a drawer
     // And prevent round ending prematurely when prompt has been guessed
-    if (Game.isDrawer(username) && Game.correctGuesses === 0) {
-      giveUp();
+    if (game.Game.isDrawer(username) && game.Game.correctGuesses === 0) {
+      giveUp(game, room);
     }
   });
 
   // Decrement user reference count, and remove from in-memory store if it hits 0
-  socket.on('disconnect', function () {
-    userConnects[username]--;
-    if (userConnects[username] === 0) {
-      // Emit the status event when a socket client is disconnected
-      broadcastMessage({
-        class: 'status',
-        text: '<b>' + username + '</b>' + ' is now disconnected',
-      });
-
-      // If the disconnecting user is a drawer, this is equivalent to
-      // 'giving up' or passing
-      if (Game.started && Game.isDrawer(username)) {
-        giveUp();
-      }
-      delete userConnects[username];
-      Game.removeUser(username);
-
-      // Notify all users that this user has disconnected
-      io.emit('userDisconnect', username);
-    }
-  });
+  socket.on('disconnect', leaveRoom);
 };
