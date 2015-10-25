@@ -1,30 +1,87 @@
+.drawing-header-pregame {
+    height: 32px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+    font-size: 1.2em;
+}
+
+.settings-body {
+  font-size: 0.8em;
+  margin-top: 20px;
+}
+
 .start-game-div {
-    padding-top: 30px;
+    padding-top: 40px;
     text-align: center;
 }
 
-.pregame-group {
-    /* Doesn't fix cursor flashing into a pointer. */
-    cursor: default;
+.non-host {
+    color: gray;
+    opacity: 0.65;
 }
 
-.pregame-display:hover, .pregame-display:active, .pregame-display:active:hover,
-.pregame-display:active:hover:focus, .pregame-display:focus, .pregame-display:focus:active,
-.pregame-display:focus:hover {
+.pregame-group {
+    padding: 5px 0;
+}
+
+.pregame-group-left {
+    padding: 0 1.5em 0 0;
+}
+
+.pregame-group-right {
+    padding: 0.2em 0 0 0;
+    text-align: left;
+    height: 100%;
+}
+
+.pregame-setting-name {
+    text-align: right;
+    padding: 8px 0;
+    font-size: 1.2em;
+    color: darkblue;
+    font-weight: normal;
+}
+
+.pregame-button {
+    padding: 7px 10px;
+    font-size: 1em;
+}
+
+.pregame-display-game:hover, .pregame-display-game:active, .pregame-display-game:active:hover,
+.pregame-display-game:active:hover:focus, .pregame-display-game:focus, .pregame-display-game:focus:active,
+.pregame-display-game:focus:hover {
     color: #ffffff;
-    background-color: #3fb618;
-    border-color: #3fb618;
-    cursor: default;
+    background-color: #5893E0;
+    border-color: #5893E0;
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none;
 }
 
-.pregame-display.active:hover {
+.pregame-display-game.active:hover, .pregame-display-game.active {
     color: #ffffff;
-    background-color: #2f8912;
-    border-color: #2c8011;
-    cursor: default;
+    background-color: #2d77d8;
+    border-color: #2d77d4;
+    -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    -moz-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+}
+
+.pregame-display-topic:hover, .pregame-display-topic:active, .pregame-display-topic:active:hover,
+.pregame-display-topic:active:hover:focus, .pregame-display-topic:focus, .pregame-display-topic:focus:active,
+.pregame-display-topic:focus:hover {
+    color: #ffffff;
+    background-color: #AE54EC;
+    border-color: #AE54EC;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+
+.pregame-display-topic.active:hover, .pregame-display-topic.active {
+    color: #ffffff;
+    background-color: #9826e7;
+    border-color: #941de6;
     -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
     -moz-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
     box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);

@@ -12,3 +12,8 @@ div .thumbnail .caption {
     padding-top: 40px;
     margin-top: -40px;
 }
+
+.rules-nav {
+    position: fixed;
+    min-width: 85px;
+}

@@ -4,8 +4,8 @@
 angular.module('lobby').config(['$stateProvider',
   function ($stateProvider) {
     $stateProvider
-      .state('lobby', {
-        url: '/lobby',
+      .state('home', {
+        url: '/',
         templateUrl: 'modules/lobby/client/views/lobby.client.view.html',
         data: {
           roles: ['user', 'admin']

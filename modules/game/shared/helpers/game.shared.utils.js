@@ -66,6 +66,20 @@
     return Math.max(this.delay - (Date.now() - this.timeStarted), 0);
   };
 
+  exports.keys = function(obj) {
+    if (!obj) {
+      return [];
+    }
+    var keys = [];
+    for (var k in obj) {
+      if (!obj.hasOwnProperty(k)) {
+        continue;
+      }
+      keys.push(k);
+    }
+    return keys;
+  };
+
 })((typeof process === 'undefined' || !process.versions) ? // Not a node.js environment
   (window.utils = window.utils || {})
   : exports);
