@@ -415,6 +415,10 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     }
     window.addEventListener('resize', windowResize);
 
+    $scope.leaveRoom = function () {
+      $state.go('home');
+    };
+
     // Remove the event listener when the controller instance is destroyed
     $scope.$on('$destroy', function () {
       Socket.emit('leaveRoom');
