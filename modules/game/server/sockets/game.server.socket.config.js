@@ -227,11 +227,6 @@ module.exports = function (io, socket) {
       }
     }
 
-    // Join the room as well as the room specific username grouping
-    socket.join(room);
-    socket.join(room+'/'+username);
-    socketToRoom[socket.id] = room;
-
     // Create the room and the game if it doesn't exist
     var game;
     if (!(room in games)) {
@@ -266,6 +261,16 @@ module.exports = function (io, socket) {
     } else {
       game = games[room];
     }
+
+    // Cannot join if already full
+    if (game.numPlayers >= game.maxNumPlayers) {
+      return false;
+    }
+
+    // Join the room as well as the room specific username grouping
+    socket.join(room);
+    socket.join(room+'/'+username);
+    socketToRoom[socket.id] = room;
 
     // Add user to in-memory store if necessary, or simply increment counter
     // to account for multiple windows open
