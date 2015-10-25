@@ -61,29 +61,38 @@
     <div class="drawing-header-pregame unselectable">
       <span ng-bind="username === Game.getHost() ? 'You are' : Game.getHost() + ' is'"></span> choosing the game settings...
     </div>
-    <div class="col-md-12" ng-class="{'non-host': Game.getHost() !== username}">
-      <div class="pregame-group" ng-repeat="setting in Utils.keys(TopicSettings)" ng-init="value = TopicSettings[setting]">
-        <div class="pregame-setting-name"><span ng-bind="value.settingName" class="unselectable"></span></div>
-        <div class="btn-group" ng-repeat="option in value.options">
-          <div ng-if="Game.getHost() !== username" ng-bind="option"
-            ng-class="{'active': chosenSettings[setting] === option}"
-            class="btn btn-warning pregame-button pregame-display-topic unselectable">
+    <div class="settings-body" ng-class="{'non-host': Game.getHost() !== username}">
+      <div class="pregame-group row" ng-repeat="setting in Utils.keys(TopicSettings)" ng-init="value = TopicSettings[setting]" ng-if="TopicSettings[setting].settingName">
+        <div class="col-xs-4 pregame-group-left">
+          <div class="pregame-setting-name"><span ng-bind="value.settingName" class="unselectable"></span></div>
+        </div>
+        <div class="col-xs-8 pregame-group-right">
+          <div class="btn-group" ng-repeat="option in value.options">
+            <div ng-if="Game.getHost() !== username" ng-bind="option"
+                 ng-class="{'active': chosenSettings[setting] === option}"
+                 class="btn btn-warning pregame-button pregame-display-topic unselectable">
+            </div>
+            <label ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" ng-bind="option"
+                   class="btn btn-warning pregame-button" ng-click="changeSetting(setting, option)" btn-radio="option">
+            </label>
           </div>
-          <label ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" ng-bind="option"
-            class="btn btn-warning pregame-button" ng-click="changeSetting(setting, option)" btn-radio="option">
-          </label>
         </div>
       </div>
-      <div class="pregame-group" ng-repeat="setting in Utils.keys(GameSettings)" ng-init="value = GameSettings[setting]">
-        <div class="pregame-setting-name"><span ng-bind="value.settingName" class="unselectable"></span></div>
-        <div class="btn-group" ng-repeat="option in value.options">
-          <div ng-if="Game.getHost() !== username" ng-bind="option"
-            ng-class="{'active': chosenSettings[setting] === option}"
-            class="btn btn-success pregame-button pregame-display-game unselectable">
+      <div style="height: 2em"></div>
+      <div class="pregame-group row" ng-repeat="setting in Utils.keys(GameSettings)" ng-init="value = GameSettings[setting]" ng-if="GameSettings[setting].settingName">
+        <div class="col-xs-4 pregame-group-left">
+          <div class="pregame-setting-name"><span ng-bind="value.settingName" class="unselectable"></span></div>
+        </div>
+        <div class="col-xs-8 pregame-group-right">
+          <div class="btn-group" ng-repeat="option in value.options">
+            <div ng-if="Game.getHost() !== username" ng-bind="option"
+                 ng-class="{'active': chosenSettings[setting] === option}"
+                 class="btn btn-success pregame-button pregame-display-game unselectable">
+            </div>
+            <label ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" ng-bind="option"
+                   class="btn btn-success pregame-button" ng-click="changeSetting(setting, option)" btn-radio="option">
+            </label>
           </div>
-          <label ng-if="Game.getHost() === username" ng-model="chosenSettings[setting]" ng-bind="option"
-            class="btn btn-success pregame-button" ng-click="changeSetting(setting, option)" btn-radio="option">
-          </label>
         </div>
       </div>
     </div>

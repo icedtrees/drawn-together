@@ -5,17 +5,17 @@
     exports.MAX_TOPIC_LENGTH = 25;
 
     exports.numRounds = {
-        settingName : "Number of rounds",
+        settingName : "Rounds",
         default : 10,
         options : [5, 10, 20]
     };
     exports.roundTime = {
-        settingName : "Round time",
+        settingName : "Draw time",
         default: 90,
         options: [45, 60, 90, 120]
     };
     exports.timeAfterGuess = {
-        settingName: "Time after first correct guess",
+        settingName: "Reserve time",
         default: 20,
         options: [10, 20, 30]
     };
