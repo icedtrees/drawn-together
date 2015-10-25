@@ -17,7 +17,6 @@
   page-break-inside: avoid;           /* Firefox */
   break-inside: avoid;                /* IE 10+ */
   /*padding: 3px 0.3em 0 0.3em;*/
-  padding: 0.1em 0.2em;
   margin: 2px 0;
 }
 
