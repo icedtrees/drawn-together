@@ -14,5 +14,6 @@ div .thumbnail .caption {
 }
 
 .rules-nav {
-    position: sticky;
+    position: fixed;
+    min-width: 85px;
 }
