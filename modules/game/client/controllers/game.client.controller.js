@@ -368,6 +368,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       var middleColumnWidth = canvasWidth + middlePadding;
       middleColumnWidth -= 20; // Fix display on firefox
       middleColumn.style.width = middleColumnWidth + 'px';
+      middleColumn.style.fontSize = Math.round(middleColumnWidth / 30) + 'px';
 
       // Left column width is everything left over
       var spaceLeftOver = windowWidth - rightColumnWidth - middleColumn.offsetWidth;
@@ -386,6 +387,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
       }
       var leftColumnWidth = Math.min(spaceLeftOver, leftMaxWidth);
       leftColumn.style.width = leftColumnWidth + 'px';
+      leftColumn.style.fontSize = Math.round(leftColumnWidth / 50 + 6) + 'px';
       spaceLeftOver -= leftColumnWidth;
 
       // Left and right padding for space left over

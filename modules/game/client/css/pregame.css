@@ -4,8 +4,15 @@
 }
 
 .pregame-group {
+    margin-top: 13px;
     /* Doesn't fix cursor flashing into a pointer. */
     cursor: default;
+}
+
+.pregame-display {
+    font-size: 1em;
+    padding: 5px 15px;
+    margin-top: 3px;
 }
 
 .pregame-display:hover, .pregame-display:active, .pregame-display:active:hover,
