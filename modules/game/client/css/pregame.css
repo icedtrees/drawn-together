@@ -1,3 +1,9 @@
+.drawing-header {
+    height: 32px;
+    margin-top: 15px;
+    margin-bottom: 0;
+}
+
 .start-game-div {
     padding-top: 30px;
     text-align: center;
@@ -6,6 +12,19 @@
 .non-host {
     color: gray;
     opacity: 0.65;
+}
+
+.pregame-group {
+    padding-bottom: 1px;
+}
+
+.pregame-setting-name {
+    margin-top: 12px;
+    margin-bottom: 8px;
+}
+
+.pregame-button {
+    padding: 7px 14px;
 }
 
 .pregame-display-game:hover, .pregame-display-game:active, .pregame-display-game:active:hover,
