@@ -12,7 +12,13 @@ var topicLists = {
       easy: ['waterfall', 'test', 'sprint', 'stand-up', 'story', 'cross', 'delivery', 'integration', 'time-box', 'product', 'review', 'spike', 'block', 'chart', 'burn-down'],
       medium: ['manager', 'scope', 'organise', 'continuous', 'manifesto', 'management', 'planning poker', 'refactor', 'criteria', 'backlog', 'showcase', 'improvement', 'user'],
       hard: ['agile', 'pair programming', 'extreme', 'epic', 'functional', 'retrospective', 'Kanban', 'lean', 'scrum', 'adapt', 'iteration', 'prototype', 'acceptance']
-  }
+  },
+
+  programming : {
+      easy: ['ascii', 'unicode', 'array', 'tree', 'dictionary', 'python', 'java', 'go', 'cpp', 'machine learning', 'big data', 'cloud', 'for loop', 'while loop', 'conditional', 'graph', 'frontend', 'backend', 'hello world', 'html', 'css', 'javascript', 'git', 'scala', 'shell', 'terminal', 'development', 'kernal', 'value', 'web', 'string', 'substring', 'dropbox', 'iphone', 'osx', 'windows', 'geometry', 'polygon', 'wikipedia', 'league of legends', 'coffee', 'uber', 'sudo', 'jump', 'intel', 'apple', 'open source', 'hacker'],
+      medium: ['diff', 'head', 'goto', 'assembly', 'gaussian', 'heap', 'ide', 'interpreter', 'linker', 'llvm', 'loosely typed language', 'newline', 'null pointer', 'objective c', 'opengl', 'programmer', 'process', 'thread', 'game of life', 'pseudocode', 'rust', 'compiler', 'tcl', 'variable', 'intellij', 'pycharm', 'sublime', 'quora', 'facebook', 'oculus rift', 'box', 'convex hull', 'fenwick tree', 'combinatorics', 'probability', 'web crawler', 'pwd', 'cut', 'dos2unix', 'revert', 'reset', 'hg', 'register', 'ebp', 'esp', 'eax', 'mov'],
+      hard: ['range tree', 'a star', 'red black tree', 'avl tree', 'nickwu', 'lewin', 'competition programming', 'nan', 'obfuscated', 'md5', 'race condition', 'mergesort', 'strong typed language', 'turing completeness', 'np hard', 'dp', 'spaghetti code', 'segfault', 'null pointer dereference', 'stars and bars', 'amortized', 'binary search tree', 'quicksort', 'pancake sort', 'russian', 'poland', 'dijkstra', 'bellman ford', 'prim', 'kruskal', 'mst', 'euler euler', 'single source shortest path', '3sat', '2sat', 'euclidean', 'diophantine', 'chinese remainder theorem', 'factorial', 'lowest common ancestor', 'network flow', 'palindrome tree', 'suffix array', 'suffix tree', 'treap', 'splay tree', 'link cut tree', 'kd tree', 'centroid decomposition', 'divide and conquer', 'codeforces', 'hackerrank', 'range minimum query']
+  },
 
   // NOTE: if adding new preset topic, add it as an option in game.shared.topic.config.js as well
 };
