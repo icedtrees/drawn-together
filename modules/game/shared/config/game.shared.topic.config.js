@@ -4,7 +4,7 @@
     exports.topicListName = {
         settingName : "Topic",
         default: 'default',
-        options: ['default', 'agile'] // hard-coded
+        options: ['default', 'agile', 'programming'] // hard-coded
     };
     exports.topicListDifficulty = {
         settingName : "Difficulty",
