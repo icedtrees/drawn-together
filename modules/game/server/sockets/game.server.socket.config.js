@@ -669,4 +669,11 @@ module.exports = function (io, socket) {
 
   // Decrement user reference count, and remove from in-memory store if it hits 0
   socket.on('disconnect', leaveRoom);
+
+  // This error seems to occur when the TCP connection hangs up on the other
+  // end. Gracefully handle this so that it doesn't crash Node
+  socket.on('error', function (event) {
+    console.log('WebSocket error: ', event);
+    leaveRoom();
+  });
 };
