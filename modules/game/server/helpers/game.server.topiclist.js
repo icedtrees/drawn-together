@@ -9,7 +9,7 @@ var topicLists = {
   },
 
   figma : {
-      easy: ['Dylan', 'Evan', 'Adobe XD', 'figma', 'invision', 'sketch', 'donut', 'lattice', 'Kris', 'Amanda', 'Sapling', 'Expensify', 'Multiplayer', 'frame', 'comment', 'plugin', 'font'],
+      easy: ['Dylan', 'Evan', 'Adobe XD', 'Figma', 'Invision', 'Sketch', 'Donut', 'Lattice', 'Kris', 'Amanda', 'Praveer', 'Marie', 'Sapling', 'Expensify', 'Multiplayer', 'frame', 'comment', 'plugin', 'font'],
       medium: ['component', 'symbol', 'group', 'layer', 'Show and Tell', 'Cafe Figma', 'Variety Show', 'Maker Week', 'Pepper', 'Organizations', 'Staging', 'Prototype', 'Developer Handoff', 'style', 'PDF Export', 'Version History', 'Observation Mode', 'Starter Team', 'Team Library', 'Design System', 'Design System Analytics', 'Activity Logs'],
       hard: ['Be Bold', 'Foster Inclusivity', 'Have Fun', 'Component States', 'Editor Platform', 'Kleiner Perkins', 'Greylock', 'Sequoia', 'Auto Layout', 'Smart Animate', 'SAML', 'Domain Capture']
   }
