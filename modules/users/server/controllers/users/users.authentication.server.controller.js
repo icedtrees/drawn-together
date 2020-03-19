@@ -7,6 +7,7 @@ var path = require('path'),
   errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
   mongoose = require('mongoose'),
   passport = require('passport'),
+  logger = require(path.resolve('./modules/core/server/log')),
   User = mongoose.model('User');
 
 // URLs for which user can't be redirected on signin
@@ -32,6 +33,7 @@ exports.signup = function (req, res) {
   // Then save the user via mongoose
   user.save(function (err) {
     if (err) {
+      logger.error('Failed to save new user', err);
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
       });
