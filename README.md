@@ -4,18 +4,11 @@
 
 1. Clone repository
   * `git clone https://github.com/icedtrees/drawn-together`
-2. Install [node.js](http://nodejs.org/)
-  * `curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.26.1/install.sh | bash`
-  * `source ~/.profile`
-  * `nvm install v0.12.6`
-  * `nvm use v0.12.6`
-  * `nvm alias default v0.12.6`
+2. Install NVM (node version manager)
+  * nvm use (use version specified in .nvmrc)
 3. Install [MongoDB](https://www.mongodb.org/downloads)
   * `sudo apt-get install mongodb`
-4. Run `npm install -g bower`
-  * Installs bower globally (tracks clientside packages)
-5. Run `npm install -g grunt-cli`
-  * Installs grunt globally (automation and scripts)
+  * OSX: https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/
 6. Run `npm install` within cloned directory
   * Installs packages defined in package.json locally (within the current folder)
 7. Install Ruby and SASS (for compiling CSS)
@@ -27,11 +20,11 @@
   * `rvm install ruby`
   * `rvm use ruby --default`
   * `rvm rubygems current`
-  * `gem install sass`
+  * `gem install sass` (if you don't care about rvm, just run this step)
 
-* Run application: grunt
+* Run application: `npm start`
 * Run with TLS: sh ./scripts/generate-ssl-certs.sh
-* Test: grunt test
+* Test: `npm test`
 
 # Useful links
 - [meanjs](https://github.com/meanjs/mean/tree/0.4.0)

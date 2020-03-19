@@ -96,6 +96,10 @@ function matchingWords(guess, topic) {
 
 // Create the game configuration
 module.exports = function (io, socket) {
+
+  var username = socket.request.user.username;
+  var profileImageURL = socket.request.user.profileImageURL;
+
   function broadcastMessage(message, game, room) {
     message.created = Date.now();
     game.messageHistory.push(message);
@@ -235,9 +239,6 @@ module.exports = function (io, socket) {
 
     advanceRound(game, room);
   }
-
-  var username = socket.request.user.username;
-  var profileImageURL = socket.request.user.profileImageURL;
 
   // Join a room
   function joinRoom (room) {
