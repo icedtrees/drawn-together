@@ -104,6 +104,40 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
         // Last mouse position when dragging
         var lastX;
         var lastY;
+
+        /*
+         * Given a mouse event, update the last and cur values attached to
+         * this element and perform the draw (as well as notifying the server)
+         */
+        var drawAndEmit = function(e) {
+          if (!scope.Game.isDrawer(scope.username) && !scope.Game.finished) {
+            return;
+          }
+
+          var mouse = getMouse(e, element);
+
+          var message = {
+            type: 'line',
+            x1: lastX,
+            y1: lastY,
+            x2: mouse.x,
+            y2: mouse.y
+          };
+          if (scope.mouseMode === 'pen') {
+            message.lineType = 'pen';
+            message.strokeStyle = scope.penColour;
+            message.lineWidth = scope.drawWidth[scope.mouseMode];
+          } else if (scope.mouseMode === 'eraser') {
+            message.lineType = 'eraser';
+            message.lineWidth = scope.drawWidth[scope.mouseMode];
+          }
+          Socket.emit('canvasMessage', message);
+          element.draw(message);
+
+          // set current coordinates to last one
+          lastX = mouse.x;
+          lastY = mouse.y;
+        };
         
         doc.bind('mousedown', function (e) {
           var mouse = getMouse(e, element);
@@ -189,40 +223,6 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
             drawAndEmit(e);
           }
         });
-
-        /*
-         * Given a mouse event, update the last and cur values attached to
-         * this element and perform the draw (as well as notifying the server)
-         */
-        var drawAndEmit = function(e) {
-          if (!scope.Game.isDrawer(scope.username) && !scope.Game.finished) {
-            return;
-          }
-
-          var mouse = getMouse(e, element);
-
-          var message = {
-            type: 'line',
-            x1: lastX,
-            y1: lastY,
-            x2: mouse.x,
-            y2: mouse.y
-          };
-          if (scope.mouseMode === 'pen') {
-            message.lineType = 'pen';
-            message.strokeStyle = scope.penColour;
-            message.lineWidth = scope.drawWidth[scope.mouseMode];
-          } else if (scope.mouseMode === 'eraser') {
-            message.lineType = 'eraser';
-            message.lineWidth = scope.drawWidth[scope.mouseMode];
-          }
-          Socket.emit('canvasMessage', message);
-          element.draw(message);
-
-          // set current coordinates to last one
-          lastX = mouse.x;
-          lastY = mouse.y;
-        };
 
         function drawOnCtx(message, ctx) {
           switch(message.type) {
