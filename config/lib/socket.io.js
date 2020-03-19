@@ -101,8 +101,10 @@ module.exports = function (app, db) {
   io.on('connection', function (socket) {
     config.files.server.sockets.forEach(function (socketConfiguration) {
       require(path.resolve(socketConfiguration))(io, socket);
+      socket.on('error', function(e) { console.log("socket1 error ", e); });
     });
   });
+  io.on('error', function(e) { console.log("io error ", e); });
 
   return server;
 };
