@@ -3,10 +3,11 @@
 var ChatSettings = require('../../shared/config/game.shared.chat.config.js');
 var GameLogic = require('../../shared/helpers/game.shared.gamelogic.js');
 var GameSettings = require('../../shared/config/game.shared.game.config.js');
-var TopicSettings = require('../../shared/config/game.shared.topic.config.js');
 var Utils = require('../../shared/helpers/game.shared.utils.js');
 var ServerUtils = require('../helpers/game.server.utils.js');
-var TopicList = require('../helpers/game.server.topiclist.js');
+var path = require('path');
+var topicsHelper = require('../../../topics/server/helpers/topics.server.helpers');
+var logger = require(path.resolve('./config/lib/log'));
 
 // cln_fuzzy library (for calculating distance between words)
 var clj_fuzzy = require('clj-fuzzy');
@@ -267,8 +268,7 @@ module.exports = function (io, socket) {
         numDrawers: 1,
         roundTime: GameSettings.roundTime.default,
         timeAfterGuess: GameSettings.timeAfterGuess.default,
-        topicListName: TopicSettings.topicListName.default,
-        topicListDifficulty: TopicSettings.topicListDifficulty.default
+        topicListName: 'English (easy)',
       });
       game.drawHistory = [];
       game.messageHistory = [];
@@ -282,7 +282,7 @@ module.exports = function (io, socket) {
       var newRoom = {
         name: room,
         host: username,
-        topic: game.Game.topicListName + ' (' + game.Game.topicListDifficulty + ')',
+        topic: game.Game.topicListName,
         numPlayers: 0,
         maxNumPlayers: GameSettings.MAX_NUM_PLAYERS
       };
@@ -422,11 +422,20 @@ module.exports = function (io, socket) {
     var game = games[room];
 
     if (!game.Game.started && username === game.Game.getHost()) {
-      game.prompts = TopicList.getTopicWords(game.Game.topicListName, game.Game.topicListDifficulty);
-      ServerUtils.shuffleWords(game.prompts);
-      game.Game.startGame();
-      io.to(room).emit('startGame');
-      startRound(game, room);
+      topicsHelper.getWords(game.Game.topicListName, function (err, words) {
+        if (err) {
+          logger.warn('Failed to fetch words for topic %s %s', game.Game.topicListName, err);
+        } else if (words === null || words.length === 0) {
+          logger.warn('No topic selected or no words in topic: %s', words);
+        } else {
+          logger.info('About to start game with prompts %s', words);
+          game.prompts = words;
+          ServerUtils.shuffleWords(game.prompts);
+          game.Game.startGame();
+          io.to(room).emit('startGame');
+          startRound(game, room);
+        }
+      });
     }
   });
 
@@ -440,8 +449,7 @@ module.exports = function (io, socket) {
 
     if (!game.Game.started && username === game.Game.getHost()) {
       // make sure change uses one of the options given
-      if ((GameSettings[change.setting] && GameSettings[change.setting].options.indexOf(change.option) === -1) ||
-          (TopicSettings[change.setting] && TopicSettings[change.setting].options.indexOf(change.option) === -1)) {
+      if ((GameSettings[change.setting] && GameSettings[change.setting].options.indexOf(change.option) === -1)) {
         return;
       }
 
@@ -449,10 +457,10 @@ module.exports = function (io, socket) {
       game.Game[change.setting] = change.option;
 
       // If its a topic change, update room list
-      if (change.setting === 'topicListName' || change.setting === 'topicListDifficulty') {
+      if (change.setting === 'topicListName') {
         for (var i = 0; i < rooms.length; i++) {
           if (rooms[i].name === room) {
-            rooms[i].topic = game.Game.topicListName + ' (' + game.Game.topicListDifficulty + ')';
+            rooms[i].topic = game.Game.topicListName;
             io.emit('changeRoom', rooms[i]);
             break;
           }

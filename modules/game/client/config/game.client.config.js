@@ -41,7 +41,3 @@ angular.module('game').factory('GameLogic', function () {
 angular.module('game').factory('Utils', function () {
   return window.utils;
 });
-
-angular.module('game').factory('TopicSettings', function () {
-  return window.topicSettings;
-});

@@ -4,24 +4,18 @@
  * Module dependencies.
  */
 var config = require('../config'),
-  mongoose = require('./mongoose'),
+  mongooseConfig = require('./mongoose-config'),
   express = require('./express'),
-  chalk = require('chalk');
-
-// Initialize Models
-mongoose.loadModels();
-
-//SeedDB
-if (config.seedDB) {
-  require('./seed');
-}
+  logger = require('./log'),
+  chalk = require('chalk'),
+  mongoose = require('mongoose');
 
 module.exports.loadModels = function loadModels() {
-  mongoose.loadModels();
+  mongooseConfig.loadModels();
 };
 
 module.exports.init = function init(callback) {
-  mongoose.connect(function (db) {
+  mongooseConfig.connect(function (db) {
     // Initialize express
     var app = express.init(db);
     if (callback) callback(app, db, config);
@@ -32,7 +26,13 @@ module.exports.init = function init(callback) {
 module.exports.start = function start(callback) {
   var _this = this;
 
+  _this.loadModels();
   _this.init(function (app, db, config) {
+
+    //Seed DB with initial values
+    if (config.seedDB) {
+      require('./seed');
+    }
 
     // Start the app by listening on <port>
     app.listen(config.port, function () {

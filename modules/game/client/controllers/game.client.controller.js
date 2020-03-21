@@ -1,10 +1,10 @@
 'use strict';
 
 // Create the 'game' controller
-angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', '$state', '$interval', '$stateParams',
-  'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils', 'TopicSettings',
-  function ($scope, $location, $document, $rootScope, $state, $interval, $stateParams, Authentication, Socket,
-            CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils, TopicSettings) {
+angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', '$state', '$interval', '$stateParams', '$http',
+  'Authentication', 'Socket', 'CanvasSettings', 'ChatSettings', 'GameSettings', 'GameLogic', 'Utils',
+  function ($scope, $location, $document, $rootScope, $state, $interval, $stateParams, $http, Authentication, Socket,
+            CanvasSettings, ChatSettings, GameSettings, GameLogic, Utils) {
     var isIE = /*@cc_on!@*/false || !!document.documentMode;
     $scope.isIE = isIE;
 
@@ -18,17 +18,28 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     $scope.CanvasSettings = CanvasSettings;
     $scope.ChatSettings = ChatSettings;
     $scope.GameSettings = GameSettings;
-    $scope.TopicSettings = TopicSettings;
     $scope.Object = Object;
+
+    // Get a list of topics from the server
+    $http.get('/api/topics').success(function (response) {
+      console.log('Retrieved list of topics', response);
+      $scope.listOfTopics = response;
+    }).error(function (response) {
+      console.error('Failed to fetch topics', response);
+    });
 
     // Pregame settings for host to change
     $scope.chosenSettings = {
       numRounds : GameSettings.numRounds.default,
       roundTime : GameSettings.roundTime.default,
       timeAfterGuess : GameSettings.timeAfterGuess.default,
-      topicListName: TopicSettings.topicListName.default,
-      topicListDifficulty: TopicSettings.topicListDifficulty.default
+      topicListName: undefined,
     };
+
+    // Fire off settings change events when the topicListName changes from the select dropdown
+    $scope.$watch('chosenSettings.topicListName', function() {
+      $scope.changeSetting('topicListName', $scope.chosenSettings.topicListName);
+    });
 
     // Create a messages array to store chat messages
     $scope.messages = [];
@@ -274,6 +285,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
 
     // Server tells client a setting has been updated
     Socket.on('updateSetting', function(change) {
+      console.log('A setting has been updated', change.setting, change.option);
       $scope.chosenSettings[change.setting] = change.option;
       $scope.Game[change.setting] = change.option;
     });
@@ -287,6 +299,7 @@ angular.module('game').controller('GameController', ['$scope', '$location', '$do
     $scope.changeSetting = function (setting, option) {
       if (!$scope.Game.started && $scope.username === $scope.Game.getHost()) {
         // Send to server so all other players can update this setting
+        console.log('Changing setting', setting, 'to', option);
         Socket.emit('changeSetting', {setting : setting, option : option});
       }
     };

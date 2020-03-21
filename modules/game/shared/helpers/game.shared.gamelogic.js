@@ -15,7 +15,6 @@
       this.timeAfterGuess = initialState.timeAfterGuess;
       this.roundTime = initialState.roundTime;
       this.topicListName = initialState.topicListName;
-      this.topicListDifficulty = initialState.topicListDifficulty;
     }
   };
 

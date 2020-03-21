@@ -7,7 +7,7 @@ var path = require('path'),
   errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
   mongoose = require('mongoose'),
   passport = require('passport'),
-  logger = require(path.resolve('./modules/core/server/log')),
+  logger = require(path.resolve('./config/lib/log')),
   User = mongoose.model('User');
 
 // URLs for which user can't be redirected on signin
@@ -38,6 +38,8 @@ exports.signup = function (req, res) {
         message: errorHandler.getErrorMessage(err)
       });
     } else {
+      logger.info('Successfully added new user %s', user);
+
       // Remove sensitive data before login
       user.password = undefined;
       user.salt = undefined;

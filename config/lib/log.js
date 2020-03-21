@@ -11,6 +11,7 @@ module.exports = winston.createLogger({
   format: winston.format.combine(
     winston.format.colorize(),
     winston.format.timestamp(),
+    winston.format.splat(),
     myFormat
   ),
   transports: [
