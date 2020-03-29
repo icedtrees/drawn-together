@@ -7,7 +7,7 @@ var path = require('path'),
   errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
   mongoose = require('mongoose'),
   passport = require('passport'),
-  logger = require(path.resolve('./modules/core/server/log')),
+  logger = require(path.resolve('./config/lib/log')),
   User = mongoose.model('User');
 
 // URLs for which user can't be redirected on signin

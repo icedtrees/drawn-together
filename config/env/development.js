@@ -30,5 +30,5 @@ module.exports = {
     callbackURL: '/api/auth/facebook/callback'
   },
   livereload: true,
-  seedDB: process.env.MONGO_SEED || false
+  seedDB: process.env.MONGO_SEED || true
 };

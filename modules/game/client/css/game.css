@@ -45,3 +45,12 @@
   padding-right: 15px;
   float: left;
 }
+
+#topic-selector {
+  background-color: #5893E0;
+  color: white;
+  font-size: 12px;
+  height: 35px;
+  -webkit-border-radius: 0px;
+  border-radius: 0px;
+}
