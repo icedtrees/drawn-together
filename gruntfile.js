@@ -5,7 +5,6 @@
  */
 var _ = require('lodash'),
   defaultAssets = require('./config/assets/default'),
-  testAssets = require('./config/assets/test'),
   fs = require('fs'),
   path = require('path');
 
@@ -14,9 +13,6 @@ module.exports = function (grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     env: {
-      test: {
-        NODE_ENV: 'test'
-      },
       dev: {
         NODE_ENV: 'development'
       },
@@ -91,7 +87,7 @@ module.exports = function (grunt) {
     },
     jshint: {
       all: {
-        src: _.union(defaultAssets.server.gruntConfig, defaultAssets.server.allJS, defaultAssets.client.js, testAssets.tests.server, testAssets.tests.client, testAssets.tests.e2e),
+        src: _.union(defaultAssets.server.gruntConfig, defaultAssets.server.allJS, defaultAssets.client.js),
         options: {
           jshintrc: true,
           node: true,
@@ -168,36 +164,6 @@ module.exports = function (grunt) {
           'no-preload': true,
           'stack-trace-limit': 50,
           'hidden': []
-        }
-      }
-    },
-    mochaTest: {
-      src: testAssets.tests.server,
-      options: {
-        reporter: 'spec'
-      }
-    },
-    mocha_istanbul: {
-      coverage: {
-        src: testAssets.tests.server,
-        options: {
-          print: 'detail',
-          coverage: true,
-          require: 'test.js',
-          coverageFolder: 'coverage',
-          reportFormats: ['cobertura','lcovonly'],
-          check: {
-            lines: 40,
-            statements: 40
-          }
-        }
-      }
-    },
-    karma: {
-      unit: {
-        configFile: 'karma.conf.js',
-        options: {
-          singleRun: true
         }
       }
     },
@@ -317,13 +283,6 @@ module.exports = function (grunt) {
 
   // Lint project files and minify them into two production files.
   grunt.registerTask('build', ['env:dev', 'lint', 'ngAnnotate', 'uglify', 'cssmin']);
-
-  // Run the project tests
-  grunt.registerTask('test', ['install', 'env:test', 'lint', 'mkdir:upload', 'copy:localConfig', 'server', 'mochaTest', 'karma:unit']);
-  grunt.registerTask('test:server', ['install', 'env:test', 'lint', 'server', 'mochaTest']);
-  grunt.registerTask('test:client', ['install', 'env:test', 'lint', 'server', 'karma:unit']);
-  // Run project coverage
-  grunt.registerTask('coverage', ['env:test', 'lint', 'mocha_istanbul:coverage']);
 
   // Run the project in development mode
   grunt.registerTask('default', ['install', 'env:dev', 'lint', 'mkdir:upload', 'copy:localConfig', 'concurrent:default']);

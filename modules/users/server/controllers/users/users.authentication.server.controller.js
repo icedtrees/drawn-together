@@ -17,64 +17,26 @@ var noReturnUrls = [
 ];
 
 /**
- * Signup
- */
-exports.signup = function (req, res) {
-  // For security measurement we remove the roles from the req.body object
-  delete req.body.roles;
-
-  // Init Variables
-  var user = new User(req.body);
-  var message = null;
-
-  // Add missing user fields
-  user.provider = 'local';
-
-  // Then save the user via mongoose
-  user.save(function (err) {
-    if (err) {
-      logger.error('Failed to save new user', err);
-      return res.status(400).send({
-        message: errorHandler.getErrorMessage(err)
-      });
-    } else {
-      logger.info('Successfully added new user %s', user);
-
-      // Remove sensitive data before login
-      user.password = undefined;
-      user.salt = undefined;
-
-      req.login(user, function (err) {
-        if (err) {
-          res.status(400).send(err);
-        } else {
-          res.json(user);
-        }
-      });
-    }
-  });
-};
-
-/**
  * Signin after passport authentication
  */
 exports.signin = function (req, res, next) {
   passport.authenticate('local', function (err, user, info) {
-    if (err || !user) {
-      res.status(400).send(info);
-    } else {
-      // Remove sensitive data before login
-      user.password = undefined;
-      user.salt = undefined;
-
-      req.login(user, function (err) {
-        if (err) {
-          res.status(400).send(err);
-        } else {
-          res.json(user);
-        }
-      });
+    if (!user) {
+      user = new User(req.body);
+      user.provider = 'local';
+      user.save();
     }
+    // Remove sensitive data before login
+    user.password = undefined;
+    user.salt = undefined;
+
+    req.login(user, function (err) {
+      if (err) {
+        res.status(400).send(err);
+      } else {
+        res.json(user);
+      }
+    });
   })(req, res, next);
 };
 
