@@ -79,17 +79,6 @@
           <div ng-if="Game.getHost() !== username" ng-bind="chosenSettings['topicListName']"
                class="btn btn-warning pregame-button pregame-display-topic unselectable active">
           </div>
-          <!--
-          <div class="btn-group" ng-repeat="topicData in listOfTopics">
-            <div ng-if="Game.getHost() !== username" ng-bind="topicData.name"
-                 ng-class="{'active': chosenSettings['topicListName'] === topicData.name}"
-                 class="btn btn-warning pregame-button pregame-display-topic unselectable">
-            </div>
-            <label ng-if="Game.getHost() === username" ng-model="chosenSettings.topicListName" ng-bind="topicData.name"
-                   class="btn btn-warning pregame-button" ng-click="changeSetting('topicListName', topicData.name)" btn-radio="topicData.name">
-            </label>
-          </div>
-          -->
         </div>
       </div>
       <div style="height: 2em"></div>
