@@ -29,6 +29,15 @@ function getMouse(e, canvas) {
   return {x: mx / canvas.scaleX, y: my / canvas.scaleY};
 }
 
+// Get the position of a touch relative to the canvas
+function getTouchPos(canvasDom, touchEvent) {
+  var rect = canvasDom.getBoundingClientRect();
+  return {
+    x: touchEvent.touches[0].clientX - rect.left,
+    y: touchEvent.touches[0].clientY - rect.top
+  };
+}
+
 angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'CanvasSettings', '$compile',
   function (Socket, MouseConstants, CanvasSettings, $compile) {
     function clearLayer(context) {
@@ -114,7 +123,13 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
             return;
           }
 
+
+
           var mouse = getMouse(e, element);
+
+          if (mouse.x < 0 && mouse.y < 0){
+            return;
+          }
 
           var message = {
             type: 'line',
@@ -135,17 +150,19 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
           element.draw(message);
 
           // set current coordinates to last one
+
           lastX = mouse.x;
           lastY = mouse.y;
+
+          console.log(lastX + ' ' + lastY);
         };
-        
-        doc.bind('mousedown', function (e) {
+
+        document.body.addEventListener('mousedown', function (e) {
+          console.log('mousedown triggered');
           var mouse = getMouse(e, element);
-
           // If the mouseDown event was left click within the canvas
-          if (inCanvas(mouse) && e.which === MouseConstants.MOUSE_LEFT) {
-
-            // Prevent the default action of turning into highlight cursor
+          if (inCanvas(mouse)) {
+          //if (inCanvas(mouse) && e.which === MouseConstants.MOUSE_LEFT) {            // Prevent the default action of turning into highlight cursor
             e.preventDefault();
             // Also unhighlight anything that may be highlighted
             if (document.selection) { // IE
@@ -163,9 +180,25 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
             lastY = mouse.y;
           }
 
-        });
+        }, {passive:false});
 
-        doc.bind('mousemove', function (e) {
+        document.body.addEventListener('touchstart', function (e) {
+          if (e.target == previewLayer) {
+            //console.log('Touchstart is running');
+            e.preventDefault();
+          var mouse = getMouse(e, element);
+            var touch = e.touches[0];
+            var mouseEvent = new MouseEvent("mousedown", {
+              clientX: touch.clientX,
+              clientY: touch.clientY
+            });
+            console.log(touch);
+            document.body.dispatchEvent(mouseEvent);
+          }
+        },{passive:false});
+
+        document.body.addEventListener('mousemove', function (e) {
+          console.log('mousemove is triggering');
           var mouse = getMouse(e, element);
 
           // If we started drawing within the canvas, draw the next part of the line
@@ -213,16 +246,40 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
               }
             }
           }
-        });
+        }, {passive:false});
 
-        doc.bind('mouseup', function (e) {
+        document.body.addEventListener('touchmove', function (e) {
+          if (e.target == previewLayer) {
+            e.preventDefault();
+            var touch = e.touches[0];
+
+            var mouseEvent = new MouseEvent("mousemove", {
+              clientX: touch.clientX,
+              clientY: touch.clientY
+            });
+            document.body.dispatchEvent(mouseEvent);
+            }
+        }, {passive:false});
+
+        document.body.addEventListener('mouseup', function (e) {
           // If we released the left mouse button, stop drawing and finish the line
-          if (e.which === MouseConstants.MOUSE_LEFT && drawingLeft) {
+          if (drawingLeft) {
+            //           if (e.which === MouseConstants.MOUSE_LEFT && drawingLeft) {
             drawingLeft = false;
             // Final drawAndEmit allows you to make a dot by clicking once and not moving mouse.
             drawAndEmit(e);
           }
-        });
+        }, {passive:false});
+
+        document.body.addEventListener('touchend', function (e) {
+          if (e.target == previewLayer) {
+            e.preventDefault();
+            var mouseEvent = new MouseEvent("mouseup", {});
+            console.log('Touchend is dispatching');
+            document.body.dispatchEvent(mouseEvent);}
+          },{passive:false});
+
+
 
         function drawOnCtx(message, ctx) {
           switch(message.type) {
