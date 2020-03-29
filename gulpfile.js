@@ -5,7 +5,6 @@
  */
 var _ = require('lodash'),
   defaultAssets = require('./config/assets/default'),
-  testAssets = require('./config/assets/test'),
   gulp = require('gulp'),
   gulpLoadPlugins = require('gulp-load-plugins'),
   runSequence = require('run-sequence'),
@@ -16,11 +15,6 @@ var _ = require('lodash'),
   }),
   path = require('path'),
   endOfLine = require('os').EOL;
-
-// Set NODE_ENV to 'test'
-gulp.task('env:test', function () {
-  process.env.NODE_ENV = 'test';
-});
 
 // Set NODE_ENV to 'development'
 gulp.task('env:dev', function () {
@@ -82,9 +76,6 @@ gulp.task('jshint', function () {
     defaultAssets.server.gulpConfig,
     defaultAssets.server.allJS,
     defaultAssets.client.js,
-    testAssets.tests.server,
-    testAssets.tests.client,
-    testAssets.tests.e2e
   );
 
   return gulp.src(assets)
@@ -157,56 +148,8 @@ gulp.task('templatecache', function () {
     .pipe(gulp.dest('build'));
 });
 
-// Mocha tests task
-gulp.task('mocha', function (done) {
-  // Open mongoose connections
-  var mongoose = require('./config/lib/mongoose.js');
-  var error;
-
-  // Connect mongoose
-  mongoose.connect(function () {
-    // Run the tests
-    gulp.src(testAssets.tests.server)
-      .pipe(plugins.mocha({
-        reporter: 'spec'
-      }))
-      .on('error', function (err) {
-        // If an error occurs, save it
-        error = err;
-      })
-      .on('end', function () {
-        // When the tests are done, disconnect mongoose and pass the error state back to gulp
-        mongoose.disconnect(function () {
-          done(error);
-        });
-      });
-  });
-
-});
-
-// Karma test runner task
-gulp.task('karma', function (done) {
-  return gulp.src([])
-    .pipe(plugins.karma({
-      configFile: 'karma.conf.js',
-      action: 'run',
-      singleRun: true
-    }));
-});
-
 // Selenium standalone WebDriver update task
 gulp.task('webdriver-update', plugins.protractor.webdriver_update);
-
-// Protractor test runner task
-gulp.task('protractor', function () {
-  gulp.src([])
-    .pipe(plugins.protractor.protractor({
-      configFile: 'protractor.conf.js'
-    }))
-    .on('error', function (e) {
-      throw e;
-    });
-});
 
 // Lint CSS and JavaScript files.
 gulp.task('lint', function (done) {
@@ -216,19 +159,6 @@ gulp.task('lint', function (done) {
 // Lint project files and minify them into two production files.
 gulp.task('build', function (done) {
   runSequence('env:dev', 'lint', ['uglify', 'cssmin'], done);
-});
-
-// Run the project tests
-gulp.task('test', function (done) {
-  runSequence('env:test', ['karma', 'mocha'], done);
-});
-
-gulp.task('test:server', function (done) {
-  runSequence('env:test', ['mocha'], done);
-});
-
-gulp.task('test:client', function (done) {
-  runSequence('env:test', ['karma'], done);
 });
 
 // Run the project in development mode

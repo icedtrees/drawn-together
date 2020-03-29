@@ -21,7 +21,6 @@ module.exports = {
         'public/lib/angular-scroll-glue/src/scrollglue.js',
         'public/lib/angular-sanitize/angular-sanitize.js'
       ],
-      tests: ['public/lib/angular-mocks/angular-mocks.js']
     },
     css: [
       'public/modules/core/client/css/*.css', // core css must come before other modules
