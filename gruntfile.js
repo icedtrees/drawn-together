@@ -13,9 +13,6 @@ module.exports = function (grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     env: {
-      test: {
-        NODE_ENV: 'test'
-      },
       dev: {
         NODE_ENV: 'development'
       },
@@ -286,13 +283,6 @@ module.exports = function (grunt) {
 
   // Lint project files and minify them into two production files.
   grunt.registerTask('build', ['env:dev', 'lint', 'ngAnnotate', 'uglify', 'cssmin']);
-
-  // Run the project tests
-  grunt.registerTask('test', ['install', 'env:test', 'lint', 'mkdir:upload', 'copy:localConfig', 'server', 'mochaTest', 'karma:unit']);
-  grunt.registerTask('test:server', ['install', 'env:test', 'lint', 'server', 'mochaTest']);
-  grunt.registerTask('test:client', ['install', 'env:test', 'lint', 'server', 'karma:unit']);
-  // Run project coverage
-  grunt.registerTask('coverage', ['env:test', 'lint', 'mocha_istanbul:coverage']);
 
   // Run the project in development mode
   grunt.registerTask('default', ['install', 'env:dev', 'lint', 'mkdir:upload', 'copy:localConfig', 'concurrent:default']);

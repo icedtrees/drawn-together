@@ -16,11 +16,6 @@ var _ = require('lodash'),
   path = require('path'),
   endOfLine = require('os').EOL;
 
-// Set NODE_ENV to 'test'
-gulp.task('env:test', function () {
-  process.env.NODE_ENV = 'test';
-});
-
 // Set NODE_ENV to 'development'
 gulp.task('env:dev', function () {
   process.env.NODE_ENV = 'development';
@@ -164,19 +159,6 @@ gulp.task('lint', function (done) {
 // Lint project files and minify them into two production files.
 gulp.task('build', function (done) {
   runSequence('env:dev', 'lint', ['uglify', 'cssmin'], done);
-});
-
-// Run the project tests
-gulp.task('test', function (done) {
-  runSequence('env:test', ['karma', 'mocha'], done);
-});
-
-gulp.task('test:server', function (done) {
-  runSequence('env:test', ['mocha'], done);
-});
-
-gulp.task('test:client', function (done) {
-  runSequence('env:test', ['karma'], done);
 });
 
 // Run the project in development mode
