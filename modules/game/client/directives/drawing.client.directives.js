@@ -166,7 +166,6 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
             lastX = mouse.x;
             lastY = mouse.y;
           }
-<<<<<<< HEAD
         });
 
         document.body.addEventListener('touchstart', function (e) {
@@ -185,26 +184,6 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
           }
         }, {passive: false});
 
-=======
-        }, {passive: false});
-
-        document.body.addEventListener('touchstart', function (e) {
-          // If the touchstart is within the canvas
-          if (e.target == previewLayer) {
-            // Prevent page scrolling
-            e.preventDefault();
-            // Convert touch position to mouse position and trigger the mouse event counterpart
-            var mouse = getMouse(e, element);
-            var touch = e.touches[0];
-            var mouseEvent = new MouseEvent("mousedown", {
-              clientX: touch.clientX,
-              clientY: touch.clientY
-            });
-            document.body.dispatchEvent(mouseEvent);
-          }
-        }, {passive: false});
-
->>>>>>> 4579c20dca9bc3bbd155438a0a27a5066f492021
         document.body.addEventListener('mousemove', function (e) {
           var mouse = getMouse(e, element);
           // If we started drawing within the canvas, draw the next part of the line
@@ -251,7 +230,7 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
               }
             }
           }
-        }, {passive: false});
+        });
 
         document.body.addEventListener('touchmove', function (e) {
           // If the touchmove is within the canvas
@@ -275,18 +254,7 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
             // Final drawAndEmit allows you to make a dot by clicking once and not moving mouse.
             drawAndEmit(e);
           }
-        }, {passive: false});
-
-        document.body.addEventListener('touchend', function (e) {
-          // If the touchstart is within the canvas
-          if (e.target == previewLayer) {
-            // Prevent page scrolling
-            e.preventDefault();
-            // Convert touch position to mouse position and trigger the mouse event counterpart
-            var mouseEvent = new MouseEvent("mouseup", {});
-            document.body.dispatchEvent(mouseEvent);
-          }
-        }, {passive: false});
+        });
 
         document.body.addEventListener('touchend', function (e) {
           // If the touchstart is within the canvas
