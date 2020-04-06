@@ -170,7 +170,7 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
 
         document.body.addEventListener('touchstart', function (e) {
           // If the touchstart is within the canvas
-          if (e.target == previewLayer) {
+          if (e.target === previewLayer) {
             // Prevent page scrolling
             e.preventDefault();
             // Convert touch position to mouse position and trigger the mouse event counterpart
@@ -234,7 +234,7 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
 
         document.body.addEventListener('touchmove', function (e) {
           // If the touchmove is within the canvas
-          if (e.target == previewLayer) {
+          if (e.target === previewLayer) {
             // Prevent page scrolling
             e.preventDefault();
             // Convert touch position to mouse position and trigger the mouse event counterpart
@@ -258,7 +258,7 @@ angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'Canv
 
         document.body.addEventListener('touchend', function (e) {
           // If the touchstart is within the canvas
-          if (e.target == previewLayer) {
+          if (e.target === previewLayer) {
             // Prevent page scrolling
             e.preventDefault();
             // Convert touch position to mouse position and trigger the mouse event counterpart
