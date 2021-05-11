@@ -36,7 +36,7 @@
     "forever": "~0.14.2",
     "glob": "^5.0.13",
     "helmet": "~0.9.1",
-    "lodash": "^3.10.0",
+    "lodash": "^4.17.21",
     "method-override": "^2.3.3",
     "mongoose": "^4.0.6",
     "morgan": "^1.6.1",
