@@ -48,7 +48,5 @@ RUN grunt build
 # Run the application as a non-root user.
 USER node
 
-ENV DB_1_PORT_27017_TCP_ADDR mongodb
-
 # Run the application.
 CMD grunt concurrent:default
