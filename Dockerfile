@@ -12,12 +12,6 @@ RUN apt-get install -y ruby-dev
 RUN gem install sass
 RUN npm install -g grunt-cli
 
-RUN curl -fsSL https://pgp.mongodb.com/server-7.0.asc | gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
-RUN echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] http://repo.mongodb.org/apt/debian bullseye/mongodb-org/7.0 main" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list
-RUN apt-get update
-RUN apt-get install -f
-RUN apt-get install -y mongodb-org; apt-get install -f
-
 # Use production node environment by default.
 #ENV NODE_ENV production
 
