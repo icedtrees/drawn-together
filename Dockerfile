@@ -11,6 +11,7 @@ RUN apt-get install -y ruby
 RUN apt-get install -y ruby-dev
 RUN gem install sass
 RUN npm install -g grunt-cli
+RUN npm install -g bower
 
 # Use production node environment by default.
 #ENV NODE_ENV production
@@ -41,6 +42,7 @@ COPY . .
 # Expose the port that the application listens on.
 EXPOSE 8443
 
+RUN bower install --config.interactive=false
 RUN grunt build
 
 # Run the application as a non-root user.
