@@ -1,34 +1,58 @@
-FROM node:0.10
+# syntax=docker/dockerfile:1
 
-MAINTAINER Matthias Luebken, matthias@catalyst-zero.com
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Dockerfile reference guide at
+# https://docs.docker.com/engine/reference/builder/
 
-# Install gem sass for  grunt-contrib-sass
-RUN apt-get update -qq && apt-get install -y build-essential
+FROM node:14
+
+RUN apt-get update
 RUN apt-get install -y ruby
+RUN apt-get install -y ruby-dev
 RUN gem install sass
-
-WORKDIR /home/mean
-
-# Install Mean.JS Prerequisites
 RUN npm install -g grunt-cli
-RUN npm install -g bower
 
-# Install Mean.JS packages
-ADD package.json /home/mean/package.json
-RUN npm install
+RUN curl -fsSL https://pgp.mongodb.com/server-7.0.asc | gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
+RUN echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] http://repo.mongodb.org/apt/debian bullseye/mongodb-org/7.0 main" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+RUN apt-get update
+RUN apt-get install -f
+RUN apt-get install -y mongodb-org; apt-get install -f
 
-# Manually trigger bower. Why doesnt this work via npm install?
-ADD .bowerrc /home/mean/.bowerrc
-ADD bower.json /home/mean/bower.json
-RUN bower install --config.interactive=false --allow-root
+# Use production node environment by default.
+#ENV NODE_ENV production
 
-# Make everything available for start
-ADD . /home/mean
+WORKDIR /usr/src/app
 
-# Set development environment as default
-ENV NODE_ENV development
+# Download dependencies as a separate step to take advantage of Docker's caching.
+# Leverage a cache mount to /root/.npm to speed up subsequent builds.
+# Leverage a bind mounts to package.json and package-lock.json to avoid having to copy them into
+# into this layer.
+RUN --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=package-lock.json,target=package-lock.json \
+    --mount=type=cache,target=/root/.npm \
+    npm ci --omit=dev
 
-# Port 3000 for server
-# Port 35729 for livereload
-EXPOSE 3000 35729
-CMD ["grunt"]
+# Copy the rest of the source files into the image.
+COPY . .
+
+
+# Install global npm dependency without root access
+#ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
+#ENV PATH=$PATH:/home/node/.npm-global/bin
+
+#RUN npm install load-grunt-tasks grunt-concurrent grunt-contrib-copy grunt-contrib-csslint grunt-contrib-cssmin grunt-contrib-jshint grunt-contrib-less grunt-contrib-sass grunt-contrib-uglify grunt-contrib-watch grunt-env grunt-ng-annotate grunt-nodemon
+
+#RUN npm install --save grunt
+
+# Expose the port that the application listens on.
+EXPOSE 8443
+
+RUN grunt build
+
+# Run the application as a non-root user.
+USER node
+
+ENV DB_1_PORT_27017_TCP_ADDR mongodb
+
+# Run the application.
+CMD grunt concurrent:default

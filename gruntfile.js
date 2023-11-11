@@ -282,7 +282,7 @@ module.exports = function (grunt) {
   grunt.registerTask('lint', ['sass', 'less', 'jshint', 'csslint']);
 
   // Lint project files and minify them into two production files.
-  grunt.registerTask('build', ['env:dev', 'lint', 'ngAnnotate', 'uglify', 'cssmin']);
+  grunt.registerTask('build', ['install', 'env:dev', 'lint', 'ngAnnotate', 'uglify', 'cssmin', 'mkdir:upload', 'copy:localConfig']);
 
   // Run the project in development mode
   grunt.registerTask('default', ['install', 'env:dev', 'lint', 'mkdir:upload', 'copy:localConfig', 'concurrent:default']);
@@ -291,5 +291,5 @@ module.exports = function (grunt) {
   grunt.registerTask('debug', ['install', 'env:dev', 'lint', 'mkdir:upload', 'copy:localConfig', 'concurrent:debug']);
 
   // Run the project in production mode
-  grunt.registerTask('prod', ['install', 'build', 'env:prod', 'mkdir:upload', 'copy:localConfig', 'concurrent:default']);
+  grunt.registerTask('prod', ['build', 'concurrent:default']);
 };
