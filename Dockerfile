@@ -7,9 +7,6 @@
 FROM node:14
 
 RUN apt-get update
-RUN apt-get install -y ruby
-RUN apt-get install -y ruby-dev
-RUN gem install sass
 RUN npm install -g grunt-cli
 RUN npm install -g bower
 
@@ -29,15 +26,6 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 
 # Copy the rest of the source files into the image.
 COPY . .
-
-
-# Install global npm dependency without root access
-#ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
-#ENV PATH=$PATH:/home/node/.npm-global/bin
-
-#RUN npm install load-grunt-tasks grunt-concurrent grunt-contrib-copy grunt-contrib-csslint grunt-contrib-cssmin grunt-contrib-jshint grunt-contrib-less grunt-contrib-sass grunt-contrib-uglify grunt-contrib-watch grunt-env grunt-ng-annotate grunt-nodemon
-
-#RUN npm install --save grunt
 
 # Expose the port that the application listens on.
 EXPOSE 8443

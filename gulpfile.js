@@ -46,7 +46,6 @@ gulp.task('watch', function () {
   gulp.watch(defaultAssets.server.allJS, ['jshint']).on('change', plugins.livereload.changed);
   gulp.watch(defaultAssets.client.js, ['jshint']).on('change', plugins.livereload.changed);
   gulp.watch(defaultAssets.client.css, ['csslint']).on('change', plugins.livereload.changed);
-  gulp.watch(defaultAssets.client.sass, ['sass', 'csslint']).on('change', plugins.livereload.changed);
   gulp.watch(defaultAssets.client.less, ['less', 'csslint']).on('change', plugins.livereload.changed);
 
   if (process.env.NODE_ENV === 'production') {
@@ -108,17 +107,6 @@ gulp.task('cssmin', function () {
     .pipe(gulp.dest('public/dist'));
 });
 
-// Sass task
-gulp.task('sass', function () {
-  return gulp.src(defaultAssets.client.sass)
-    .pipe(plugins.sass())
-    .pipe(plugins.autoprefixer())
-    .pipe(plugins.rename(function (file) {
-      file.dirname = file.dirname.replace(path.sep + 'scss', path.sep + 'css');
-    }))
-    .pipe(gulp.dest('./modules/'));
-});
-
 // Less task
 gulp.task('less', function () {
   return gulp.src(defaultAssets.client.less)
@@ -153,7 +141,7 @@ gulp.task('webdriver-update', plugins.protractor.webdriver_update);
 
 // Lint CSS and JavaScript files.
 gulp.task('lint', function (done) {
-  runSequence('less', 'sass', ['csslint', 'jshint'], done);
+  runSequence('less', ['csslint', 'jshint'], done);
 });
 
 // Lint project files and minify them into two production files.
