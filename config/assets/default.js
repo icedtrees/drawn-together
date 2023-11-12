@@ -31,9 +31,6 @@ module.exports = {
       'public/modules/core/client/css/bootswatch.css',
       'modules/game/client/css/range-slider.css'
     ],
-    less: [
-      'modules/*/client/less/*.less'
-    ],
     js: [
       'modules/core/client/app/config.js',
       'modules/core/client/app/init.js',
