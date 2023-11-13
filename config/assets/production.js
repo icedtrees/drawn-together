@@ -20,7 +20,18 @@ module.exports = {
         'public/lib/angular-scroll-glue/src/scrollglue.js'
       ]
     },
-    css: 'public/dist/application.min.css',
-    js: 'public/dist/application.js'
+    css: [
+      'public/modules/core/client/css/*.css', // core css must come before other modules
+      'public/modules/*/client/css/*.css',
+      'modules/*/client/css/*.css'
+    ],
+    js: [
+      'modules/core/client/app/config.js',
+      'modules/core/client/app/init.js',
+      'modules/*/shared/*.js',
+      'modules/*/shared/**/*.js',
+      'modules/*/client/*.js',
+      'modules/*/client/**/*.js'
+    ],
   }
 };

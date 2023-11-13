@@ -50,7 +50,8 @@
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 
   <!--Application JavaScript Files-->
-  {% for jsFile in jsFiles %}<script type="text/javascript" src="{{jsFile}}"></script>{% endfor %}
+  {% for jsFile in jsFiles %}<script type="text/javascript" src="{{jsFile}}"></script>
+  {% endfor %}
 
   {% if livereload %}
   <!--Livereload script rendered -->

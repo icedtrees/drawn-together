@@ -6,14 +6,12 @@
 
 FROM node:14
 
-RUN apt-get update
-RUN npm install -g grunt-cli
-RUN npm install -g bower
-
 # Use production node environment by default.
 #ENV NODE_ENV production
 
 WORKDIR /usr/src/app
+
+ENV NODE_ENV production
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.npm to speed up subsequent builds.
@@ -30,8 +28,8 @@ COPY . .
 # Expose the port that the application listens on.
 EXPOSE 8443
 
+RUN npm install -g bower
 RUN bower install --config.interactive=false
-RUN grunt build
 
 # Run the application as a non-root user.
 USER node
