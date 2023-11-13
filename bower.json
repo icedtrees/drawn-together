@@ -9,8 +9,6 @@
     "angular-bootstrap-colorpicker": "~3.0.19",
     "angular-file-upload": "1.1.5",
     "angular-messages": "1.3.17",
-    "angular-mocks": "~1.3",
-    "angular-moment": "~0.10.3",
     "angular-resource": "~1.3",
     "angular-scroll-glue": "~2.0.6",
     "angular-ui-router": "~0.2",
@@ -18,7 +16,6 @@
     "bootstrap": "~3",
     "bootswatch": "~3.3.5",
     "font-awesome": "fontawesome#~4.4.0",
-    "moment": "momentjs#~2.10.6",
     "angular-sanitize": "~1.4.7"
   },
   "resolutions": {
