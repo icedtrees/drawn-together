@@ -2,16 +2,11 @@
   "name": "drawn-together",
   "description": "iSketch upgraded.",
   "version": "0.3.0",
-  "meanjs-version": "0.4.1",
   "author": "https://github.com/icedtrees/drawn-together/graphs/contributors",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/icedtrees/drawn-together.git"
-  },
-  "engines": {
-    "node": ">=0.10.28",
-    "npm": ">=1.4.28"
   },
   "dependencies": {
     "acl": "~0.4.4",
