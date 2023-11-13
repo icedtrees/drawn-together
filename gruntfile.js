@@ -3,15 +3,12 @@
 /**
  * Module dependencies.
  */
-var _ = require('lodash'),
-  defaultAssets = require('./config/assets/default'),
-  fs = require('fs'),
-  path = require('path');
+var _ = require('lodash')
+var defaultAssets = require('./config/assets/default')
 
 module.exports = function (grunt) {
   // Project Configuration
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
     env: {
       dev: {
         NODE_ENV: 'development'
@@ -26,7 +23,6 @@ module.exports = function (grunt) {
         options: {
           nodeArgs: ['--inspect'],
           ext: 'js,html',
-          watch: _.union(defaultAssets.server.gruntConfig, defaultAssets.server.views, defaultAssets.server.allJS, defaultAssets.server.config)
         }
       }
     },
@@ -77,20 +73,6 @@ module.exports = function (grunt) {
 
   // Load NPM tasks
   require('load-grunt-tasks')(grunt);
-
-  grunt.task.registerTask('server', 'Starting the server', function () {
-    // Get the callback
-    var done = this.async();
-
-    var path = require('path');
-    var app = require(path.resolve('./config/lib/app'));
-    var server = app.start(function () {
-      done();
-    });
-  });
-
-  // Lint CSS and JavaScript files.
-  grunt.registerTask('lint', ['jshint', 'csslint']);
 
   // Lint project files and minify them into two production files.
   grunt.registerTask('build', ['ngAnnotate', 'uglify', 'cssmin']);

@@ -39,7 +39,6 @@ module.exports = {
     templates: ['build/templates.js']
   },
   server: {
-    gruntConfig: 'gruntfile.js',
     allJS: ['server.js', 'config/**/*.js', 'modules/*/shared/*.js', 'modules/*/shared/**/*.js', 'modules/*/server/**/*.js'],
     models: 'modules/*/server/models/**/*.js',
     routes: ['modules/!(core)/server/routes/**/*.js', 'modules/core/server/routes/**/*.js'],
