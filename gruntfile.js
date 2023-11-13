@@ -129,18 +129,6 @@ module.exports = function (grunt) {
         }
       }
     },
-    protractor: {
-      options: {
-        configFile: 'protractor.conf.js',
-        keepAlive: true,
-        noColor: false
-      },
-      e2e: {
-        options: {
-          args: {} // Target-specific arguments
-        }
-      }
-    },
     copy: {
       localConfig: {
         src: 'config/env/local.example.js',
