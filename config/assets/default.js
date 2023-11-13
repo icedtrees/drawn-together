@@ -27,10 +27,6 @@ module.exports = {
       'public/modules/*/client/css/*.css',
       'modules/*/client/css/*.css'
     ],
-    csslint_exclude: [
-      'public/modules/core/client/css/bootswatch.css',
-      'modules/game/client/css/range-slider.css'
-    ],
     js: [
       'modules/core/client/app/config.js',
       'modules/core/client/app/init.js',

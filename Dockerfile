@@ -32,6 +32,7 @@ EXPOSE 8443
 
 RUN bower install --config.interactive=false
 RUN grunt build
+ENV NODE_ENV development
 
 # Run the application as a non-root user.
 USER node
