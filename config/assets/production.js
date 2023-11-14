@@ -4,15 +4,15 @@ module.exports = {
   client: {
     lib: {
       css: [
-        'public/lib/angular-bootstrap-colorpicker/css/colorpicker.min.css',
-        'public/lib/font-awesome/css/font-awesome.min.css'
+        'public/lib/angular-bootstrap-colorpicker/css/colorpicker.css',
+        'public/lib/font-awesome/css/font-awesome.css'
       ],
       js: [
-        'public/lib/angular/angular.min.js',
-        'public/lib/angular-resource/angular-resource.min.js',
-        'public/lib/angular-messages/angular-messages.min.js',
-        'public/lib/angular-ui-router/release/angular-ui-router.min.js',
-        'public/lib/angular-bootstrap-colorpicker/js/bootstrap-colorpicker-module.min.js',
+        'public/lib/angular/angular.js',
+        'public/lib/angular-resource/angular-resource.js',
+        'public/lib/angular-messages/angular-messages.js',
+        'public/lib/angular-ui-router/release/angular-ui-router.js',
+        'public/lib/angular-bootstrap-colorpicker/js/bootstrap-colorpicker-module.js',
         'public/lib/angular-scroll-glue/src/scrollglue.js',
         'public/lib/angular-sanitize/angular-sanitize.js'
       ]
