@@ -1,4 +1,5 @@
 'use strict';
+import angular from '../../../../node_modules/angular'
 
 angular.module('topics').config(['$stateProvider',
   function ($stateProvider) {

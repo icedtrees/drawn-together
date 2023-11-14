@@ -1,4 +1,5 @@
 'use strict';
+import angular from '../../../../node_modules/angular'
 
 // Create the 'lobby' controller
 angular.module('lobby').controller('LobbyController', ['$scope', '$location', '$state', 'Authentication', 'Socket', 'GameSettings',

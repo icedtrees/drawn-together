@@ -1,4 +1,5 @@
 'use strict';
+import angular from '../../../../node_modules/angular'
 
 // Configure the 'lobby' module routes
 angular.module('lobby').config(['$stateProvider',

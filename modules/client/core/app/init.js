@@ -2,6 +2,7 @@
 
 //Start by defining the main module and adding the module dependencies
 import {ApplicationConfiguration} from "./config";
+import angular from '../../../../node_modules/angular'
 
 angular.module(ApplicationConfiguration.applicationModuleName, ApplicationConfiguration.applicationModuleVendorDependencies);
 

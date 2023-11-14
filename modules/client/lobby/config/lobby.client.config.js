@@ -1,4 +1,5 @@
 'use strict';
+import angular from '../../../../node_modules/angular'
 
 // Configuring the Articles module
 angular.module('lobby').run(['Menus',

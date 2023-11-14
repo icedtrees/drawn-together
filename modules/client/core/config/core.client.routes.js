@@ -1,4 +1,5 @@
 'use strict';
+import angular from '../../../../node_modules/angular'
 
 // Setting up route
 angular.module('core').config(['$stateProvider', '$urlRouterProvider',

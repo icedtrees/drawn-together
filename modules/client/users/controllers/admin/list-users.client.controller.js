@@ -1,4 +1,5 @@
 'use strict';
+import angular from '../../../../../node_modules/angular'
 
 angular.module('users.admin').controller('UserListController', ['$scope', '$filter', 'Admin',
   function ($scope, $filter, Admin) {

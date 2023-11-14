@@ -1,4 +1,5 @@
 'use strict';
+import angular from '../../../../node_modules/angular'
 
 angular.module('core.admin').run(['Menus',
   function (Menus) {

@@ -1,4 +1,5 @@
 'use strict';
+import angular from '../../../../node_modules/angular'
 
 /*
  * Get the coordinates of a mouse event relative to a canvas element

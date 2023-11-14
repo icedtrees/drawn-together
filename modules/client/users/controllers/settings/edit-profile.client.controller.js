@@ -1,4 +1,5 @@
 'use strict';
+import angular from '../../../../../node_modules/angular'
 
 angular.module('users').controller('EditProfileController', ['$scope', '$http', '$location', 'Users', 'Authentication',
   function ($scope, $http, $location, Users, Authentication) {

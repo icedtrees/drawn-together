@@ -1,4 +1,5 @@
 'use strict';
+import angular from '../../../../node_modules/angular'
 
 // Configuring the Rules module
 angular.module('rules').run(['Menus',

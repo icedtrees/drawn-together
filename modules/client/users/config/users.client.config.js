@@ -1,4 +1,5 @@
 'use strict';
+import angular from '../../../../node_modules/angular'
 
 // Config HTTP Error Handling
 angular.module('users').config(['$httpProvider',

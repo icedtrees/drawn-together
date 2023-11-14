@@ -27,14 +27,8 @@ COPY . .
 
 RUN node_modules/.bin/esbuild --bundle --outdir=public/modules "modules/client/**/*.js" "modules/shared/**/*.js"
 
-# Replace bower with our budget version until we get esbuild working properly
-RUN mkdir -p public/lib/angular public/lib/angular-messages public/lib/angular-resource
-RUN mkdir -p public/lib/angular-ui-router/release public/lib/font-awesome/css public/lib/font-awesome/fonts public/lib/angular-bootstrap
-RUN cp node_modules/angular/angular.js public/lib/angular/angular.js
-RUN cp node_modules/angular-bootstrap/ui-bootstrap-tpls.js public/lib/angular-bootstrap/ui-bootstrap-tpls.js
-RUN cp node_modules/angular-messages/angular-messages.js public/lib/angular-messages/angular-messages.js
-RUN cp node_modules/angular-resource/angular-resource.js public/lib/angular-resource/angular-resource.js
-RUN cp node_modules/angular-ui-router/release/angular-ui-router.js public/lib/angular-ui-router/release/angular-ui-router.js
+# Install font-awesome
+RUN mkdir -p public/lib/font-awesome/css public/lib/font-awesome/fonts
 RUN cp node_modules/font-awesome/css/font-awesome.css public/lib/font-awesome/css/font-awesome.css
 RUN cp node_modules/font-awesome/fonts/* public/lib/font-awesome/fonts/
 

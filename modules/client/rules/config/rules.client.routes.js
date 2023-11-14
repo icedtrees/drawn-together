@@ -1,4 +1,5 @@
 'use strict';
+import angular from '../../../../node_modules/angular'
 
 // Configure the 'rules' module routes
 angular.module('rules').config(['$stateProvider',

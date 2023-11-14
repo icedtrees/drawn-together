@@ -1,4 +1,5 @@
 'use strict';
+import angular from '../../../../../node_modules/angular'
 
 angular.module('users').controller('ChangePasswordController', ['$scope', '$http', 'Authentication',
   function ($scope, $http, Authentication) {

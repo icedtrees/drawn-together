@@ -1,4 +1,5 @@
 'use strict';
+import angular from '../../../../node_modules/angular'
 
 // Authentication service for user variables
 angular.module('users').factory('Authentication', ['$window',

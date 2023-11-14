@@ -7,13 +7,7 @@ module.exports = {
         'public/modules/client/core/css/bootswatch.css',
         'public/lib/font-awesome/css/font-awesome.css'
       ],
-      js: [
-        'public/lib/angular/angular.js',
-        'public/lib/angular-bootstrap/ui-bootstrap-tpls.js',
-        'public/lib/angular-resource/angular-resource.js',
-        'public/lib/angular-messages/angular-messages.js',
-        'public/lib/angular-ui-router/release/angular-ui-router.js',
-      ],
+      js: [],
     },
     css: [
       'public/modules/client/core/css/*.css', // core css must come before other modules

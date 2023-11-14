@@ -1,4 +1,5 @@
 'use strict';
+import angular from '../../../../../node_modules/angular'
 
 angular.module('users.admin').controller('UserController', ['$scope', '$state', 'Authentication', 'userResolve',
   function ($scope, $state, Authentication, userResolve) {

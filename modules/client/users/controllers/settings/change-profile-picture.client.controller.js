@@ -1,4 +1,5 @@
 'use strict';
+import angular from '../../../../../node_modules/angular'
 
 angular.module('users').controller('ChangeProfilePictureController', ['$scope', '$timeout', '$window', 'Authentication', 'FileUploader',
   function ($scope, $timeout, $window, Authentication, FileUploader) {

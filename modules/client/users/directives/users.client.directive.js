@@ -1,4 +1,5 @@
 ﻿'use strict';
+import angular from '../../../../node_modules/angular'
 
 // Users directive used to force lowercase input
 angular.module('users').directive('lowercase', function () {

@@ -1,4 +1,5 @@
 'use strict';
+import angular from '../../../../node_modules/angular'
 
 //Menu service used for managing  menus
 angular.module('core').service('Menus', [

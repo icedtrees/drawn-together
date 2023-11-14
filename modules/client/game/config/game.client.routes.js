@@ -1,4 +1,5 @@
 'use strict';
+import angular from '../../../../node_modules/angular'
 
 // Configure the 'game' module routes
 angular.module('game').config(['$stateProvider',
