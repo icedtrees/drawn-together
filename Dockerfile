@@ -4,7 +4,7 @@
 # If you need more help, visit the Dockerfile reference guide at
 # https://docs.docker.com/engine/reference/builder/
 
-FROM node:21
+FROM node:21-alpine
 
 # Use production node environment by default.
 #ENV NODE_ENV production
