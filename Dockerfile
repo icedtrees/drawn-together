@@ -28,9 +28,6 @@ COPY . .
 # Expose the port that the application listens on.
 EXPOSE 8443
 
-#RUN npm install -g bower
-#RUN bower install --config.interactive=false
-
 # Replace bower with our budget version until we get esbuild working properly
 RUN mkdir -p public/lib/angular-sanitize public/lib/angular public/lib/angular-bootstrap-colorpicker/js public/lib/angular-bootstrap-colorpicker/css public/lib/angular-messages public/lib/angular-resource
 RUN mkdir -p public/lib/angular-ui-router/release public/lib/angular-scroll-glue/src public/lib/font-awesome/css public/lib/font-awesome/fonts
