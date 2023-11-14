@@ -67,27 +67,6 @@ var validateEnvironmentVariable = function () {
 };
 
 /**
- * Validate Secure=true parameter can actually be turned on
- * because it requires certs and key files to be available
- */
-var validateSecureMode = function (config) {
-
-  if (!config.secure || config.secure.ssl !== true) {
-    return true;
-  }
-
-  var privateKey = fs.existsSync(path.resolve(config.secure.privateKey));
-  var certificate = fs.existsSync(path.resolve(config.secure.certificate));
-
-  if (!privateKey || !certificate) {
-    console.log(chalk.red('+ Error: Certificate file or key file is missing, falling back to non-SSL mode'));
-    console.log(chalk.red('  To create them, simply run the following from your shell: sh ./scripts/generate-ssl-certs.sh'));
-    console.log();
-    config.secure.ssl = false;
-  }
-};
-
-/**
  * Initialize global configuration files
  */
 var initGlobalConfigFolders = function (config, assets) {
@@ -174,8 +153,8 @@ var initGlobalConfig = function () {
   // Initialize global globbed folders
   initGlobalConfigFolders(config, assets);
 
-  // Validate Secure SSL mode can be used
-  validateSecureMode(config);
+  // Run in HTTP and let the proxy handle SSL termination
+  config.secure.ssl = false;
 
   // Expose configuration utilities
   config.utils = {
