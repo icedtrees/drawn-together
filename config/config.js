@@ -126,13 +126,7 @@ var initGlobalConfig = function () {
   validateEnvironmentVariable();
 
   // Get the default assets
-  var defaultAssets = require(path.join(process.cwd(), 'config/assets/default'));
-
-  // Get the current assets
-  var environmentAssets = require(path.join(process.cwd(), 'config/assets/', process.env.NODE_ENV)) || {};
-
-  // Merge assets
-  var assets = _.merge(defaultAssets, environmentAssets);
+  var assets = require(path.join(process.cwd(), 'config/assets/default'));
 
   // Get the default config
   var defaultConfig = require(path.join(process.cwd(), 'config/env/default'));

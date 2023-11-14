@@ -17,9 +17,8 @@ module.exports = {
     js: [
       'modules/client/core/app/config.js',
       'modules/client/core/app/init.js',
-      'modules/shared/*.js',
       'modules/shared/**/*.js',
-      'modules/client/*.js',
+      'modules/client/*/*.js',
       'modules/client/**/*.js',
     ],
     views: ['modules/client/**/views/**/*.html'],
