@@ -30,8 +30,9 @@ EXPOSE 8443
 
 # Replace bower with our budget version until we get esbuild working properly
 RUN mkdir -p public/lib/angular-sanitize public/lib/angular public/lib/angular-bootstrap-colorpicker/js public/lib/angular-bootstrap-colorpicker/css public/lib/angular-messages public/lib/angular-resource
-RUN mkdir -p public/lib/angular-ui-router/release public/lib/angular-scroll-glue/src public/lib/font-awesome/css public/lib/font-awesome/fonts
+RUN mkdir -p public/lib/angular-ui-router/release public/lib/angular-scroll-glue/src public/lib/font-awesome/css public/lib/font-awesome/fonts public/lib/angular-bootstrap
 RUN cp node_modules/angular/angular.js public/lib/angular/angular.js
+RUN cp node_modules/angular-bootstrap/ui-bootstrap-tpls.js public/lib/angular-bootstrap/ui-bootstrap-tpls.js
 RUN cp node_modules/angular-bootstrap-colorpicker/js/bootstrap-colorpicker-module.js public/lib/angular-bootstrap-colorpicker/js/bootstrap-colorpicker-module.js
 RUN cp node_modules/angular-bootstrap-colorpicker/css/colorpicker.css public/lib/angular-bootstrap-colorpicker/css/colorpicker.css
 RUN cp node_modules/angular-messages/angular-messages.js public/lib/angular-messages/angular-messages.js
