@@ -20,11 +20,22 @@ var noReturnUrls = [
  * Signin after passport authentication
  */
 exports.signin = function (req, res, next) {
-  passport.authenticate('local', function (err, user, info) {
+  passport.authenticate('local', async function (err, user, info) {
     if (!user) {
       user = new User(req.body);
       user.provider = 'local';
-      user.save();
+      try {
+        await user.save();
+      } catch (e) {
+        if (e instanceof mongoose.Error.ValidationError) {
+          res.status(400).send(e);
+          return;
+        } else {
+          logger.warn('Failed to create new user %s: %s', req.body.username, e.toString());
+          res.status(500).send(e);
+          return;
+        }
+      }
     }
     // Remove sensitive data before login
     user.password = undefined;
