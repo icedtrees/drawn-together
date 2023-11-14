@@ -5,7 +5,6 @@ module.exports = {
     lib: {
       css: [
         'public/modules/client/core/css/bootswatch.css',
-        'public/lib/font-awesome/css/font-awesome.css'
       ],
       js: [],
     },

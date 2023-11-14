@@ -25,12 +25,9 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 # Copy the rest of the source files into the image.
 COPY . .
 
-RUN node_modules/.bin/esbuild --bundle --outdir=public/modules "modules/client/**/*.js" "modules/shared/**/*.js"
-
-# Install font-awesome
-RUN mkdir -p public/lib/font-awesome/css public/lib/font-awesome/fonts
-RUN cp node_modules/font-awesome/css/font-awesome.css public/lib/font-awesome/css/font-awesome.css
-RUN cp node_modules/font-awesome/fonts/* public/lib/font-awesome/fonts/
+RUN node_modules/.bin/esbuild --bundle --outdir=public/modules "modules/client/**/*.js" "modules/shared/**/*.js" \
+    --loader:.ttf=file --loader:.eot=file --loader:.woff=file --loader:.svg=file --loader:.woff2=file
+# Ensure that esbuild also loads the fonts referenced in font-awesome.css
 
 # Run the application as a non-root user.
 USER node

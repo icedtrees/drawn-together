@@ -2,6 +2,7 @@
 
 // Use Application configuration module to register a new module
 import {ApplicationConfiguration} from "./app/config";
+import '../../../node_modules/font-awesome/css/font-awesome.css'
 
 ApplicationConfiguration.registerModule('core');
 ApplicationConfiguration.registerModule('core.admin', ['core']);
