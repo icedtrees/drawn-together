@@ -38,6 +38,6 @@ module.exports = {
       }
     }
   },
-  logo: 'modules/core/client/img/brand/logo.png',
-  favicon: 'modules/core/client/img/brand/favicon.ico'
+  logo: 'modules/client/core/img/brand/logo.png',
+  favicon: 'modules/client/core/img/brand/favicon.ico'
 };

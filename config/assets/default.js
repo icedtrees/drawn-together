@@ -4,7 +4,7 @@ module.exports = {
   client: {
     lib: {
       css: [
-        'public/modules/core/client/css/bootswatch.css',
+        'public/modules/client/core/css/bootswatch.css',
         'public/lib/angular-bootstrap-colorpicker/css/colorpicker.css',
         'public/lib/font-awesome/css/font-awesome.css'
       ],
@@ -19,28 +19,27 @@ module.exports = {
       ],
     },
     css: [
-      'public/modules/core/client/css/*.css', // core css must come before other modules
-      'public/modules/*/client/css/*.css',
-      'modules/*/client/css/*.css'
+      'public/modules/client/core/css/*.css', // core css must come before other modules
+      'public/modules/client/*/css/*.css',
+      'modules/client/*/css/*.css'
     ],
     js: [
-      'modules/core/client/app/config.js',
-      'modules/core/client/app/init.js',
-      'modules/*/shared/*.js',
-      'modules/*/shared/**/*.js',
-      'modules/*/client/*.js',
-      'modules/*/client/**/*.js'
+      'modules/client/core/app/config.js',
+      'modules/client/core/app/init.js',
+      'modules/shared/*.js',
+      'modules/shared/**/*.js',
+      'modules/client/*.js',
+      'modules/client/**/*.js',
     ],
-    views: ['modules/*/client/views/**/*.html'],
+    views: ['modules/client/**/views/**/*.html'],
     templates: ['build/templates.js']
   },
   server: {
-    allJS: ['server.js', 'config/**/*.js', 'modules/*/shared/*.js', 'modules/*/shared/**/*.js', 'modules/*/server/**/*.js'],
-    models: 'modules/*/server/models/**/*.js',
-    routes: ['modules/!(core)/server/routes/**/*.js', 'modules/core/server/routes/**/*.js'],
-    sockets: 'modules/*/server/sockets/**/*.js',
-    config: 'modules/*/server/config/*.js',
-    policies: 'modules/*/server/policies/*.js',
-    views: 'modules/*/server/views/*.html'
+    models: 'modules/server/**/models/**/*.js',
+    routes: ['modules/server/!(core)/routes/**/*.js', 'modules/server/core/routes/**/*.js'],
+    sockets: 'modules/server/*/sockets/**/*.js',
+    config: 'modules/server/*/config/*.js',
+    policies: 'modules/server/*/policies/*.js',
+    views: 'modules/server/*/views/*.html'
   }
 };

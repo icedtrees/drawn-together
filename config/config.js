@@ -78,8 +78,8 @@ var initGlobalConfigFolders = function (config, assets) {
 
   // Setting globbed client paths
   config.folders.client = getGlobbedPaths([
-    path.join(process.cwd(), 'modules/*/shared/'),
-    path.join(process.cwd(), 'modules/*/client/')
+    path.join(process.cwd(), 'modules/shared/'),
+    path.join(process.cwd(), 'modules/client/')
   ], process.cwd().replace(new RegExp(/\\/g), '/'));
 };
 

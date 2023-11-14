@@ -65,7 +65,7 @@ module.exports.initMiddleware = function (app) {
   }));
 
   // Initialize favicon middleware
-  app.use(favicon('./modules/core/client/img/brand/favicon.ico'));
+  app.use(favicon('./modules/client/core/img/brand/favicon.ico'));
 
   // Environment dependent middleware
   if (process.env.NODE_ENV === 'development') {
@@ -91,7 +91,7 @@ module.exports.initMiddleware = function (app) {
 
   // Add multipart handling middleware
   app.use(multer({
-    dest: './modules/users/client/img/profile/uploads/',
+    dest: './modules/client/users/img/profile/uploads/',
     inMemory: true
   }));
 };
