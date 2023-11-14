@@ -1,6 +1,8 @@
 'use strict';
 
 //Start by defining the main module and adding the module dependencies
+import {ApplicationConfiguration} from "./config";
+
 angular.module(ApplicationConfiguration.applicationModuleName, ApplicationConfiguration.applicationModuleVendorDependencies);
 
 // Setting HTML5 Location Mode

@@ -1,7 +1,7 @@
 'use strict';
 
 // Init the application configuration module for AngularJS application
-var ApplicationConfiguration = (function () {
+export var ApplicationConfiguration = (function () {
   // Init module configuration options
   var applicationModuleName = 'mean';
   var applicationModuleVendorDependencies = ['ngResource', 'ngMessages', 'ui.bootstrap', 'ui.router'];

@@ -25,8 +25,7 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 # Copy the rest of the source files into the image.
 COPY . .
 
-RUN node_modules/.bin/esbuild --bundle --outdir=public/modules/client/game/ modules/client/game/game.client.module.js
-#RUN node_modules/.bin/esbuild --bundle --outdir=public/modules "modules/client/**/*.js" "modules/shared/**/*.js"
+RUN node_modules/.bin/esbuild --bundle --outdir=public/modules "modules/client/**/*.js" "modules/shared/**/*.js"
 
 # Replace bower with our budget version until we get esbuild working properly
 RUN mkdir -p public/lib/angular public/lib/angular-messages public/lib/angular-resource
