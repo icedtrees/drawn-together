@@ -7,5 +7,15 @@ import '../../../node_modules/font-awesome/css/font-awesome.css'
 
 import {ApplicationConfiguration} from "../core/app/config";
 
+import './css/chat.css'
+import './css/drawing.css'
+import './css/game-shared.css'
+import './css/game.css'
+import './css/lobby-info.css'
+import './css/player-list.css'
+import './css/pregame.css'
+import './css/range-slider.css'
+import './css/toolbox.css'
+
 // Use Application configuration module to register a new module
 ApplicationConfiguration.registerModule('game', ['luegg.directives', 'colorpicker.module', ngSanitize]);

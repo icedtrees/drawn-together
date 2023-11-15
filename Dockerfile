@@ -25,9 +25,10 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 # Copy the rest of the source files into the image.
 COPY . .
 
-RUN node_modules/.bin/esbuild --bundle --outdir=public/modules "modules/client/**/*.js" "modules/shared/**/*.js" \
-    --loader:.ttf=file --loader:.eot=file --loader:.woff=file --loader:.svg=file --loader:.woff2=file
 # Ensure that esbuild also loads the fonts referenced in font-awesome.css
+RUN node_modules/.bin/esbuild --bundle --outdir=public/modules/client "modules/client/**/*.*" \
+    --loader:.ttf=file --loader:.eot=file --loader:.woff=file --loader:.svg=file --loader:.woff2=file \
+    --loader:.html=copy --loader:.ico=copy --loader:.gif=copy --loader:.png=copy
 
 # Run the application as a non-root user.
 USER node

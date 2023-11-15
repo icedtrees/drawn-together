@@ -69,23 +69,6 @@ var validateEnvironmentVariable = function () {
 /**
  * Initialize global configuration files
  */
-var initGlobalConfigFolders = function (config, assets) {
-  // Appending files
-  config.folders = {
-    server: {},
-    client: {}
-  };
-
-  // Setting globbed client paths
-  config.folders.client = getGlobbedPaths([
-    path.join(process.cwd(), 'modules/shared/'),
-    path.join(process.cwd(), 'modules/client/')
-  ], process.cwd().replace(new RegExp(/\\/g), '/'));
-};
-
-/**
- * Initialize global configuration files
- */
 var initGlobalConfigFiles = function (config, assets) {
   // Appending files
   config.files = {
@@ -137,15 +120,8 @@ var initGlobalConfig = function () {
   // Merge config files
   var config = _.merge(defaultConfig, environmentConfig);
 
-  // read package.json for MEAN.JS project information
-  var pkg = require(path.resolve('./package.json'));
-  config.meanjs = pkg;
-
   // Initialize global globbed files
   initGlobalConfigFiles(config, assets);
-
-  // Initialize global globbed folders
-  initGlobalConfigFolders(config, assets);
 
   // Run in HTTP and let the proxy handle SSL termination
   config.secure.ssl = false;
