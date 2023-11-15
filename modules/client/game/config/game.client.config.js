@@ -20,10 +20,6 @@ angular.module('game').constant('CanvasSettings', angular.extend({
   RESOLUTION_HEIGHT: 600
 }, window.canvasSettings));
 
-angular.module('game').constant('GameSettings', angular.extend({
-  TIME_BETWEEN_GAMES : 10
-}, window.gameSettings));
-
 angular.module('game').constant('MouseConstants', {
   INVALID: 0,
   MOUSE_LEFT: 1,

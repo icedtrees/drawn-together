@@ -1,9 +1,10 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
+import * as GameSettings from '../../../shared/game/config/game.shared.game.config'
 
 // Create the 'lobby' controller
-angular.module('lobby').controller('LobbyController', ['$scope', '$location', '$state', 'Authentication', 'Socket', 'GameSettings',
-  function ($scope, $location, $state, Authentication, Socket, GameSettings) {
+angular.module('lobby').controller('LobbyController', ['$scope', '$location', '$state', 'Authentication', 'Socket',
+  function ($scope, $location, $state, Authentication, Socket) {
     $scope.GameSettings = GameSettings;
 
     // If user is not signed in then redirect to signin page

@@ -1,12 +1,13 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
 import * as ChatSettings from '../../../shared/game/config/game.shared.chat.config'
+import * as GameSettings from '../../../shared/game/config/game.shared.game.config'
 
 // Create the 'game' controller
 angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', '$state', '$interval', '$stateParams', '$http',
-  'Authentication', 'Socket', 'CanvasSettings', 'GameSettings', 'GameLogic', 'Utils',
+  'Authentication', 'Socket', 'CanvasSettings','GameLogic', 'Utils',
   function ($scope, $location, $document, $rootScope, $state, $interval, $stateParams, $http, Authentication, Socket,
-            CanvasSettings, GameSettings, GameLogic, Utils) {
+            CanvasSettings, GameLogic, Utils) {
     var isIE = /*@cc_on!@*/false || !!document.documentMode;
     $scope.isIE = isIE;
 
