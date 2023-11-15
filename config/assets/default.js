@@ -8,9 +8,7 @@ module.exports = {
       'modules/client/*/css/*.css'
     ],
     js: [
-      'modules/client/core/app/config.js',
       'modules/client/core/app/init.js',
-      'modules/shared/**/*.js',
       'modules/client/*/*.js',
       'modules/client/**/*.js',
     ],

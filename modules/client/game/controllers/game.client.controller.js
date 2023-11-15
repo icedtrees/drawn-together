@@ -2,12 +2,14 @@
 import angular from '../../../../node_modules/angular'
 import * as ChatSettings from '../../../shared/game/config/game.shared.chat.config'
 import * as GameSettings from '../../../shared/game/config/game.shared.game.config'
+import * as GameLogic from '../../../shared/game/helpers/game.shared.gamelogic'
+import * as Utils from '../../../shared/game/helpers/game.shared.utils'
 
 // Create the 'game' controller
 angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', '$state', '$interval', '$stateParams', '$http',
-  'Authentication', 'Socket', 'CanvasSettings','GameLogic', 'Utils',
+  'Authentication', 'Socket', 'CanvasSettings',
   function ($scope, $location, $document, $rootScope, $state, $interval, $stateParams, $http, Authentication, Socket,
-            CanvasSettings, GameLogic, Utils) {
+            CanvasSettings) {
     var isIE = /*@cc_on!@*/false || !!document.documentMode;
     $scope.isIE = isIE;
 

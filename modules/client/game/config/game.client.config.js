@@ -26,12 +26,3 @@ angular.module('game').constant('MouseConstants', {
   MOUSE_MIDDLE: 2,
   MOUSE_RIGHT: 3
 });
-
-// Configure shared code
-angular.module('game').factory('GameLogic', function () {
-  return window.gameLogic;
-});
-
-angular.module('game').factory('Utils', function () {
-  return window.utils;
-});
