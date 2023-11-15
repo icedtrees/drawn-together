@@ -1,5 +1,6 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
+import {CanvasSettings, MouseConstants} from "../config/game.client.config";
 
 /*
  * Get the coordinates of a mouse event relative to a canvas element
@@ -30,8 +31,8 @@ function getMouse(e, canvas) {
   return {x: mx / canvas.scaleX, y: my / canvas.scaleY};
 }
 
-angular.module('game').directive('dtDrawing', ['Socket', 'MouseConstants', 'CanvasSettings', '$compile',
-  function (Socket, MouseConstants, CanvasSettings, $compile) {
+angular.module('game').directive('dtDrawing', ['Socket', '$compile',
+  function (Socket, $compile) {
     function clearLayer(context) {
       context.clearRect(0, 0, CanvasSettings.RESOLUTION_WIDTH, CanvasSettings.RESOLUTION_HEIGHT);
     }

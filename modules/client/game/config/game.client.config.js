@@ -7,7 +7,7 @@ angular.module('game').run(['Menus',
 ]);
 
 // Configure settings and constants
-angular.module('game').constant('CanvasSettings', angular.extend({
+export const CanvasSettings = {
   MIN_DRAW_WIDTH: 3,
   MAX_DRAW_WIDTH: 30,
 
@@ -18,11 +18,11 @@ angular.module('game').constant('CanvasSettings', angular.extend({
   MIN_DISPLAY_WIDTH: 200,
   RESOLUTION_WIDTH: 600,
   RESOLUTION_HEIGHT: 600
-}, window.canvasSettings));
+}
 
-angular.module('game').constant('MouseConstants', {
+export const MouseConstants = {
   INVALID: 0,
   MOUSE_LEFT: 1,
   MOUSE_MIDDLE: 2,
   MOUSE_RIGHT: 3
-});
+};

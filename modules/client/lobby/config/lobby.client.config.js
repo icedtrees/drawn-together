@@ -12,7 +12,3 @@ angular.module('lobby').run(['Menus',
     });
   }
 ]);
-
-angular.module('lobby').constant('PlayerConstants', {
-  MAX_NUM_PLAYERS: 16
-});

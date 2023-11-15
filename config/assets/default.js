@@ -12,7 +12,6 @@ module.exports = {
       'modules/client/*/*.js',
       'modules/client/**/*.js',
     ],
-    views: ['modules/client/**/views/**/*.html'],
   },
   server: {
     models: 'modules/server/**/models/**/*.js',
@@ -20,6 +19,5 @@ module.exports = {
     sockets: 'modules/server/*/sockets/**/*.js',
     config: 'modules/server/*/config/*.js',
     policies: 'modules/server/*/policies/*.js',
-    views: 'modules/server/*/views/*.html'
   }
 };
