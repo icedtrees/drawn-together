@@ -2,12 +2,6 @@
 
 module.exports = {
   client: {
-    lib: {
-      css: [
-        'public/modules/client/core/css/bootswatch.css',
-      ],
-      js: [],
-    },
     css: [
       'public/modules/client/core/css/*.css', // core css must come before other modules
       'public/modules/client/**/*.css',
