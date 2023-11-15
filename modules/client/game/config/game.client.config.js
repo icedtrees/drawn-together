@@ -20,9 +20,6 @@ angular.module('game').constant('CanvasSettings', angular.extend({
   RESOLUTION_HEIGHT: 600
 }, window.canvasSettings));
 
-angular.module('game').constant('ChatSettings', angular.extend({
-}, window.chatSettings));
-
 angular.module('game').constant('GameSettings', angular.extend({
   TIME_BETWEEN_GAMES : 10
 }, window.gameSettings));
