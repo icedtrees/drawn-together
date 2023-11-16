@@ -1,7 +1,11 @@
 'use strict';
 import angular from '../../../../../node_modules/angular'
+import {userAPIService} from "../../services/users.client.service";
+import {authenticationService} from "../../services/authentication.client.service";
+import {usersModule} from "../../users.client.module";
 
-angular.module('users').controller('EditProfileController', ['$scope', '$http', '$location', 'Users', 'Authentication',
+export const editProfileController ='EditProfileController'
+angular.module(usersModule).controller(editProfileController, ['$scope', '$http', '$location', userAPIService, authenticationService,
   function ($scope, $http, $location, Users, Authentication) {
     $scope.user = Authentication.user;
 

@@ -1,7 +1,10 @@
 'use strict';
 import angular from '../../../../../node_modules/angular'
+import {usersModule} from "../../users.client.module";
+import {authenticationService} from "../../services/authentication.client.service";
 
-angular.module('users').controller('ChangePasswordController', ['$scope', '$http', 'Authentication',
+export const changePasswordController = 'ChangePasswordController'
+angular.module(usersModule).controller(changePasswordController, ['$scope', '$http', authenticationService,
   function ($scope, $http, Authentication) {
     $scope.user = Authentication.user;
 

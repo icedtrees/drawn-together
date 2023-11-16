@@ -1,21 +1,25 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
+import {usersAdminRoutesModule} from "../users.client.module";
+import {adminAPIService} from "../services/users.client.service"
+import {userAdminController} from "../controllers/admin/user.client.controller";
+import {userListAdminController} from "../controllers/admin/list-users.client.controller";
 
 // Setting up route
-angular.module('users.admin.routes').config(['$stateProvider',
+angular.module(usersAdminRoutesModule).config(['$stateProvider',
   function ($stateProvider) {
     $stateProvider
       .state('admin.users', {
         url: '/users',
         templateUrl: 'modules/client/users/views/admin/list-users.client.view.html',
-        controller: 'UserListController'
+        controller: userListAdminController,
       })
       .state('admin.user', {
         url: '/users/:userId',
         templateUrl: 'modules/client/users/views/admin/view-user.client.view.html',
-        controller: 'UserController',
+        controller: userAdminController,
         resolve: {
-          userResolve: ['$stateParams', 'Admin', function ($stateParams, Admin) {
+          userResolve: ['$stateParams', adminAPIService, function ($stateParams, Admin) {
             return Admin.get({
               userId: $stateParams.userId
             });

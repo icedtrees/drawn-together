@@ -1,7 +1,10 @@
 'use strict';
 import angular from '../../../../../node_modules/angular'
+import {usersAdminModule} from "../../users.client.module";
+import {adminAPIService} from "../../services/users.client.service";
 
-angular.module('users.admin').controller('UserListController', ['$scope', '$filter', 'Admin',
+export const userListAdminController = 'UserListAdminController'
+angular.module(usersAdminModule).controller(userListAdminController, ['$scope', '$filter', adminAPIService,
   function ($scope, $filter, Admin) {
     Admin.query(function (data) {
       $scope.users = data;

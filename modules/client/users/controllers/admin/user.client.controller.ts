@@ -1,7 +1,10 @@
 'use strict';
 import angular from '../../../../../node_modules/angular'
+import {usersAdminModule} from "../../users.client.module";
+import {authenticationService} from "../../services/authentication.client.service";
 
-angular.module('users.admin').controller('UserController', ['$scope', '$state', 'Authentication', 'userResolve',
+export const userAdminController = 'UserAdminController'
+angular.module(usersAdminModule).controller(userAdminController, ['$scope', '$state', authenticationService, 'userResolve',
   function ($scope, $state, Authentication, userResolve) {
     $scope.authentication = Authentication;
     $scope.user = userResolve;

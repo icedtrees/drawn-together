@@ -1,7 +1,10 @@
 'use strict';
 import angular from '../../../../../node_modules/angular'
+import {authenticationService} from "../../services/authentication.client.service";
+import {usersModule} from "../../users.client.module";
 
-angular.module('users').controller('ChangeProfilePictureController', ['$scope', '$timeout', '$window', 'Authentication', 'FileUploader',
+export const changeProfilePictureController = 'ChangeProfilePictureController'
+angular.module(usersModule).controller(changeProfilePictureController, ['$scope', '$timeout', '$window', authenticationService, 'FileUploader',
   function ($scope, $timeout, $window, Authentication, FileUploader) {
     $scope.user = Authentication.user;
     $scope.imageURL = $scope.user.profileImageURL;

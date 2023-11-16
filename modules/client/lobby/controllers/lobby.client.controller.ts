@@ -3,10 +3,11 @@ import angular from '../../../../node_modules/angular'
 import * as GameSettings from '../../../shared/game/config/game.shared.game.config'
 import {socketService} from "../../core/services/socket.io.client.service";
 import {authenticationService} from "../../users/services/authentication.client.service";
+import {lobbyModule} from "../lobby.client.module";
 
 // Create the 'lobby' controller
 export const lobbyController = 'LobbyController'
-angular.module('lobby').controller(lobbyController, ['$scope', '$location', '$state', authenticationService, socketService,
+angular.module(lobbyModule).controller(lobbyController, ['$scope', '$location', '$state', authenticationService, socketService,
   function ($scope, $location, $state, Authentication, Socket) {
     $scope.GameSettings = GameSettings;
 

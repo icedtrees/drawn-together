@@ -1,11 +1,13 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
+import {usersModule} from "../users.client.module";
+import {authenticationService} from "../services/authentication.client.service";
 
 // Config HTTP Error Handling
-angular.module('users').config(['$httpProvider',
+angular.module(usersModule).config(['$httpProvider',
   function ($httpProvider) {
     // Set the httpProvider "not authorized" interceptor
-    $httpProvider.interceptors.push(['$q', '$location', 'Authentication',
+    $httpProvider.interceptors.push(['$q', '$location', authenticationService,
       function ($q, $location, Authentication) {
         return {
           responseError: function (rejection) {

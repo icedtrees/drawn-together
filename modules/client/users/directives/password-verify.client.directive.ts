@@ -1,7 +1,8 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
+import {usersModule} from "../users.client.module";
 
-angular.module('users')
+angular.module(usersModule)
   .directive("passwordVerify", function() {
     return {
       require: "ngModel",

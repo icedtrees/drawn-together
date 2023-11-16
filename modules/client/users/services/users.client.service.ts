@@ -1,8 +1,9 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
+import {usersAdminModule, usersModule} from "../users.client.module";
 
-// Users service used for communicating with the users REST endpoint
-angular.module('users').factory('Users', ['$resource',
+export const userAPIService = 'UsersAPI';
+angular.module(usersModule).factory(userAPIService, ['$resource',
   function ($resource) {
     return $resource('api/users', {}, {
       update: {
@@ -13,7 +14,8 @@ angular.module('users').factory('Users', ['$resource',
 ]);
 
 
-angular.module('users.admin').factory('Admin', ['$resource',
+export const adminAPIService = 'AdminAPI';
+angular.module(usersAdminModule).factory(adminAPIService, ['$resource',
   function ($resource) {
     return $resource('api/users/:userId', {
       userId: '@_id'

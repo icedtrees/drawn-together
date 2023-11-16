@@ -1,8 +1,9 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
+import {usersModule} from "../users.client.module";
 
 // Setting up route
-angular.module('users').config(['$stateProvider',
+angular.module(usersModule).config(['$stateProvider',
   function ($stateProvider) {
     // Users state routing
     $stateProvider

@@ -1,8 +1,9 @@
 ﻿'use strict';
 import angular from '../../../../node_modules/angular'
+import {usersModule} from "../users.client.module";
 
 // Users directive used to force lowercase input
-angular.module('users').directive('lowercase', function () {
+angular.module(usersModule).directive('lowercase', function () {
   return {
     require: 'ngModel',
     link: function (scope, element, attrs, modelCtrl) {
