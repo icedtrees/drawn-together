@@ -1,8 +1,11 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
 
+import {coreModule} from "../core.client.module";
+
 //Menu service used for managing  menus
-angular.module('core').service('Menus', [
+export const menuService = 'Menus'
+angular.module(coreModule).service(menuService, [
   function () {
     // Define a set of default roles
     this.defaultRoles = ['user', 'admin'];

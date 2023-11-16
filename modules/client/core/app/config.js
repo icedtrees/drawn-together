@@ -13,11 +13,21 @@ export var ApplicationConfiguration = (function () {
 
   // Add a new vertical module
   var registerModule = function (moduleName, dependencies) {
-    // Create angular module
-    angular.module(moduleName, dependencies || []);
+    // If we register modules multiple times, Angular destroys the old module. Make sure we only do it once
+    if (window.angularModules == null) {
+      window.angularModules = {}
+    }
+    if (window.angularModules[moduleName] == null) {
+      // Create angular module
+      angular.module(moduleName, dependencies || []);
 
-    // Add the module to the AngularJS configuration file
-    angular.module(applicationModuleName).requires.push(moduleName);
+      // Add the module to the AngularJS configuration file
+      angular.module(applicationModuleName).requires.push(moduleName);
+
+      angularModules[moduleName] = true
+    }
+
+    return moduleName
   };
 
   return {

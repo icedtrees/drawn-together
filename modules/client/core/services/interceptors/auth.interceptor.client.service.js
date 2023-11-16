@@ -1,7 +1,9 @@
 'use strict';
 import angular from '../../../../../node_modules/angular'
 
-angular.module('core').factory('authInterceptor', ['$q', '$injector',
+import {coreModule} from "../../core.client.module";
+
+angular.module(coreModule).factory('authInterceptor', ['$q', '$injector',
   function ($q, $injector) {
     return {
       responseError: function(rejection) {

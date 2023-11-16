@@ -1,7 +1,12 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
 
-angular.module('core').controller('HeaderController', ['$scope', '$state', 'Authentication', 'Menus',
+import {coreModule} from "../core.client.module";
+import {authenticationService} from "../../users/services/authentication.client.service";
+import {menuService} from "../services/menus.client.service";
+
+export const headerController = 'HeaderController'
+angular.module(coreModule).controller(headerController, ['$scope', '$state', authenticationService, menuService,
   function ($scope, $state, Authentication, Menus) {
     // Expose view variables
     $scope.$state = $state;
