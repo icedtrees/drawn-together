@@ -4,4 +4,4 @@
 import {ApplicationConfiguration} from "../core/app/config";
 import './css/lobby.css'
 
-ApplicationConfiguration.registerModule('lobby');
+export const lobbyModule = ApplicationConfiguration.registerModule('lobby');

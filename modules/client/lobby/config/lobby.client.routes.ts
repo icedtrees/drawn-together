@@ -1,8 +1,9 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
+import {lobbyModule} from "../lobby.client.module";
 
 // Configure the 'lobby' module routes
-angular.module('lobby').config(['$stateProvider',
+angular.module(lobbyModule).config(['$stateProvider',
   function ($stateProvider) {
     $stateProvider
       .state('home', {

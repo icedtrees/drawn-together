@@ -1,9 +1,12 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
 import * as GameSettings from '../../../shared/game/config/game.shared.game.config'
+import {socketService} from "../../core/services/socket.io.client.service";
+import {authenticationService} from "../../users/services/authentication.client.service";
 
 // Create the 'lobby' controller
-angular.module('lobby').controller('LobbyController', ['$scope', '$location', '$state', 'Authentication', 'Socket',
+export const lobbyController = 'LobbyController'
+angular.module('lobby').controller(lobbyController, ['$scope', '$location', '$state', authenticationService, socketService,
   function ($scope, $location, $state, Authentication, Socket) {
     $scope.GameSettings = GameSettings;
 
