@@ -26,15 +26,11 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 COPY . .
 
 # This is needed to load all the html files and stuff that hasn't been imported
-RUN node_modules/.bin/esbuild --bundle --outdir=public/modules/client "modules/client/**/*.*" \
-    --loader:.ttf=file --loader:.eot=file --loader:.woff=file --loader:.svg=file --loader:.woff2=file \
-    --loader:.html=copy --loader:.ico=copy --loader:.gif=copy --loader:.png=copy \
-    --loader:.ts=empty
-# let the other run handle ts files
+RUN node_modules/.bin/esbuild --bundle --outdir=public/modules/client "modules/client/**/*.html" "modules/client/**/*.png" \
+    --loader:.html=copy --loader:.png=copy
 
 RUN node_modules/.bin/esbuild --bundle --outfile=public/application.js "frontend_entry_point.ts" \
-    --loader:.ttf=file --loader:.eot=file --loader:.woff=file --loader:.svg=file --loader:.woff2=file \
-    --loader:.html=copy --loader:.ico=copy --loader:.gif=copy --loader:.png=copy
+    --loader:.ttf=file --loader:.eot=file --loader:.woff=file --loader:.svg=file --loader:.woff2=file
 # These files were migrated to the frontend entry point
 
 # Run the application as a non-root user.
