@@ -5,10 +5,14 @@ import * as GameSettings from '../../../shared/game/config/game.shared.game.conf
 import * as GameLogic from '../../../shared/game/helpers/game.shared.gamelogic'
 import * as Utils from '../../../shared/game/helpers/game.shared.utils'
 import {CanvasSettings} from "../config/game.client.config";
+import {gameModule} from "../game.client.module";
+import {authenticationService} from "../../users/services/authentication.client.service";
+import {socketService} from "../../core/services/socket.io.client.service";
 
 // Create the 'game' controller
-angular.module('game').controller('GameController', ['$scope', '$location', '$document', '$rootScope', '$state', '$interval', '$stateParams', '$http',
-  'Authentication', 'Socket',
+const gameController = 'GameController'
+angular.module(gameModule).controller(gameController, ['$scope', '$location', '$document', '$rootScope', '$state', '$interval', '$stateParams', '$http',
+  authenticationService, socketService,
   function ($scope, $location, $document, $rootScope, $state, $interval, $stateParams, $http, Authentication, Socket) {
     var isIE = /*@cc_on!@*/false || !!document.documentMode;
     $scope.isIE = isIE;

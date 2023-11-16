@@ -1,8 +1,9 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
+import {gameModule} from "../game.client.module";
 
 // Configuring the Game module
-angular.module('game').run(['Menus',
+angular.module(gameModule).run(['Menus',
   function (Menus) {}
 ]);
 

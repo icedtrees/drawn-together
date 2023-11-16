@@ -1,7 +1,9 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
+import {gameModule} from "../game.client.module";
 
-angular.module('game').directive('unselectable', function () {
+export const unselectableDirective = 'unselectable'
+angular.module(gameModule).directive(unselectableDirective, function () {
     return {
       restrict: 'C',
       link: function (scope, element) {
