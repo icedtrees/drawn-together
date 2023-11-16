@@ -28,7 +28,14 @@ COPY . .
 # Ensure that esbuild also loads the fonts referenced in font-awesome.css
 RUN node_modules/.bin/esbuild --bundle --outdir=public/modules/client "modules/client/**/*.*" \
     --loader:.ttf=file --loader:.eot=file --loader:.woff=file --loader:.svg=file --loader:.woff2=file \
+    --loader:.html=copy --loader:.ico=copy --loader:.gif=copy --loader:.png=copy \
+    --loader:.ts=empty
+# let the other run handle ts files
+
+RUN node_modules/.bin/esbuild --bundle --outfile=public/application.js "frontend_entry_point.ts" \
+    --loader:.ttf=file --loader:.eot=file --loader:.woff=file --loader:.svg=file --loader:.woff2=file \
     --loader:.html=copy --loader:.ico=copy --loader:.gif=copy --loader:.png=copy
+# These files were migrated to the frontend entry point
 
 # Run the application as a non-root user.
 USER node
