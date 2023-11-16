@@ -1,5 +1,4 @@
 import './modules/client/core/app/config'
-import './modules/client/core/app/init'
 import './modules/client/core/config/core-admin.client.menus.ts'
 import './modules/client/core/config/core-admin.client.menus.ts'
 import './modules/client/core/config/core-admin.client.routes.ts'

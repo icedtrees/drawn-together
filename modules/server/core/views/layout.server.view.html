@@ -31,9 +31,6 @@
   <link href="{{url}}{{favicon}}" rel="shortcut icon" type="image/x-icon">
 
   <!-- Application CSS Files -->
-  {% for cssFile in cssFiles %}<link rel="stylesheet" href="{{cssFile}}">
-  {% endfor %}
-
   <link rel="stylesheet" href="application.css">
 </head>
 
@@ -52,9 +49,6 @@
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 
   <!--Application JavaScript Files-->
-  {% for jsFile in jsFiles %}<script type="text/javascript" src="{{jsFile}}"></script>
-  {% endfor %}
-
   <script type="text/javascript" src="application.js"></script>
 
   {% if livereload %}

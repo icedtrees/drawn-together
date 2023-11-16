@@ -90,15 +90,6 @@ var initGlobalConfigFiles = function (config, assets) {
 
   // Setting Globbed policies files
   config.files.server.policies = getGlobbedPaths(assets.server.policies);
-
-  // Setting Globbed js files
-  config.files.client.js = getGlobbedPaths(assets.client.js, ['public/']);
-
-  // Setting Globbed css files
-  config.files.client.css = getGlobbedPaths(assets.client.css, ['public/']);
-
-  // Setting Globbed test files
-  config.files.client.tests = getGlobbedPaths(assets.client.tests);
 };
 
 /**
