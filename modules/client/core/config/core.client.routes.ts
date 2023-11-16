@@ -1,8 +1,9 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
+import {coreModule} from "../core.client.module";
 
 // Setting up route
-angular.module('core').config(['$stateProvider', '$urlRouterProvider',
+angular.module(coreModule).config(['$stateProvider', '$urlRouterProvider',
   function ($stateProvider, $urlRouterProvider) {
 
     // Redirect to 404 when route not found

@@ -1,7 +1,8 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
+import {coreAdminModule} from "../core.client.module";
 
-angular.module('core.admin').run(['Menus',
+angular.module(coreAdminModule).run(['Menus',
   function (Menus) {
     Menus.addMenuItem('topbar', {
       title: 'Admin',

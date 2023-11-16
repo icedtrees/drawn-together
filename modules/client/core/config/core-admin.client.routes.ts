@@ -1,8 +1,9 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
+import {coreAdminRoutesModule} from "../core.client.module";
 
 // Setting up route
-angular.module('core.admin.routes').config(['$stateProvider',
+angular.module(coreAdminRoutesModule).config(['$stateProvider',
   function ($stateProvider) {
     $stateProvider
       .state('admin', {

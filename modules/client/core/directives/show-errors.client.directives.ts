@@ -1,12 +1,14 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
+import {coreModule} from "../core.client.module";
 
 /**
  * Edits by Ryan Hutchison
  * Credit: https://github.com/paulyoder/angular-bootstrap-show-errors */
 
-angular.module('core')
-  .directive('showErrors', ['$timeout', '$interpolate', function ($timeout, $interpolate) {
+export const showErrorsDirective = 'showErrors'
+angular.module(coreModule)
+  .directive(showErrorsDirective, ['$timeout', '$interpolate', function ($timeout, $interpolate) {
     var linkFn = function (scope, el, attrs, formCtrl) {
       var inputEl, inputName, inputNgEl, options, showSuccess, toggleClasses,
         initCheck = false,

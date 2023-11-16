@@ -1,8 +1,11 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
+import {coreModule} from "../core.client.module";
+import {authenticationService} from "../../users/services/authentication.client.service";
 
 // Create the Socket.io wrapper service
-angular.module('core').service('Socket', ['Authentication', '$state', '$timeout',
+export const socketService = 'Socket'
+angular.module(coreModule).service(socketService, [authenticationService, '$state', '$timeout',
   function (Authentication, $state, $timeout) {
     // Connect to Socket.io server
     this.connect = function () {

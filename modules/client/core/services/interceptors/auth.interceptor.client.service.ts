@@ -3,7 +3,8 @@ import angular from '../../../../../node_modules/angular'
 
 import {coreModule} from "../../core.client.module";
 
-angular.module(coreModule).factory('authInterceptor', ['$q', '$injector',
+export const authInterceptorSerivce = 'authInterceptor'
+angular.module(coreModule).factory(authInterceptorSerivce, ['$q', '$injector',
   function ($q, $injector) {
     return {
       responseError: function(rejection) {
