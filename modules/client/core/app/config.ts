@@ -4,6 +4,7 @@ import ngResource from '../../../../node_modules/angular-resource'
 import ngMessages from '../../../../node_modules/angular-messages'
 import '../../../../node_modules/angular-bootstrap'  // ui.bootstrap
 import '../../../../node_modules/angular-ui-router'  // ui.router
+import {startReact} from "./reactapp";
 
 // Init module configuration options
 const applicationModuleName = 'mean';
@@ -88,6 +89,7 @@ const registerModule = function (moduleName, dependencies) {
   // If we register modules multiple times, Angular destroys the old module. Make sure we only do it once
   if (window.angularModules == null) {
     startAngularApp()
+    startReact()
     window.angularModules = {}
   }
   if (window.angularModules[moduleName] == null) {
