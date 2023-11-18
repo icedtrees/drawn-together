@@ -17,7 +17,7 @@
 
 Using docker-compose for development:
 
-1. Run `docker compose --file compose-dev.yaml up --build`
+1. Run `docker compose up --build -d`
    1. This will start a docker container for mongodb and one for your webserver, and install every dependency you need
    2. This will run the backend in development mode with hot reload on both 
       frontend and backend
@@ -25,7 +25,7 @@ Using docker-compose for development:
 
 Using docker-compose to mimic production:
 
-1. Run `docker compose --file compose.yaml up --build`
+1. Run `docker compose --file compose-prod.yaml up --build -d`
     1. This will start a docker container for mongodb and one for your webserver, and install every dependency you need
     2. This will run the backend in production mode without hot reload
 2. Access at http://localhost:8443/

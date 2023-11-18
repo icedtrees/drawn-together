@@ -1,3 +1,5 @@
+# This is for emulating how the app would run in production
+
 # Comments are provided throughout this file to help you get started.
 # If you need more help, visit the Docker compose reference guide at
 # https://docs.docker.com/compose/compose-file/
@@ -11,12 +13,12 @@ services:
   server:
     build:
       context: .
-      dockerfile: dev.Dockerfile
+      dockerfile: Dockerfile
     restart: always
     volumes:
       - ./:/usr/src/app
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       DB_1_PORT_27017_TCP_ADDR: mongodb
     depends_on:
       - mongodb
