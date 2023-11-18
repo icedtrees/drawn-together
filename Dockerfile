@@ -17,7 +17,7 @@ ENV NODE_ENV production
 RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=package-lock.json,target=package-lock.json \
     --mount=type=cache,target=/root/.npm \
-    npm ci --omit=dev
+    npm ci --include=dev # Must install dev dependencies because we're building the project in this docker image
 
 # Copy the rest of the source files into the image.
 COPY . .
@@ -29,6 +29,9 @@ RUN node_modules/.bin/esbuild --bundle --outdir=public "application.ts" "modules
     --loader:.html=copy --loader:.png=copy \
     --loader:.ttf=file --loader:.eot=file --loader:.woff=file --loader:.svg=file --loader:.woff2=file
 
+# Build backend
+RUN node esbuild.config.mjs build
+
 # Run the application as a non-root user.
 USER node
 
@@ -36,4 +39,4 @@ USER node
 EXPOSE 8443
 
 # Run the application.
-CMD node server.js
+CMD node build/src/server.js

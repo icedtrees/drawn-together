@@ -11,12 +11,12 @@ services:
   server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: dev.Dockerfile
     restart: always
     volumes:
       - ./:/usr/src/app
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       DB_1_PORT_27017_TCP_ADDR: mongodb
     depends_on:
       - mongodb

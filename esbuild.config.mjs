@@ -1,7 +1,13 @@
+/**
+ * Run with node esbuild.config.mjs in order to build the backend
+ */
 import * as esbuild from "esbuild";
 import start from '@es-exec/esbuild-plugin-start';
 
-const context = await esbuild.context({
+// "watch" or "build"
+const command = process.argv[2];
+
+const baseOptions = {
   entryPoints: [
     'src/server.ts',
     'config/**/*.ts',
@@ -16,9 +22,19 @@ const context = await esbuild.context({
   format: 'cjs',
   outdir: 'build',
   sourcemap: true,
-  plugins: [start({
-    script: 'node build/src/server.js',
-  })],
-});
+}
 
-context.watch();
+if (command === 'watch') {
+  const context = await esbuild.context({
+    ...baseOptions,
+    plugins: command === 'watch' ? [start({
+      script: 'node build/src/server.js',
+    })] : [],
+  });
+  await context.watch();
+} else if (command === 'build') {
+  await esbuild.build(baseOptions);
+} else {
+  console.error(`Unknown command ${command}`);
+  process.exit(1);
+}

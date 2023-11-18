@@ -27,4 +27,4 @@ CMD npm install --include=dev && \
         --loader:.ttf=file --loader:.eot=file --loader:.woff=file --loader:.svg=file --loader:.woff2=file \
         --watch & \
     # Run the backend server in parallel, but bring the previous command to the foreground if the backend is killed
-    node esbuild.config.mjs && fg)
+    node esbuild.config.mjs watch && fg)
