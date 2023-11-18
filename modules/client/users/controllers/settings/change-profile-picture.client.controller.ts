@@ -2,6 +2,7 @@
 import angular from '../../../../../node_modules/angular'
 import {authenticationService} from "../../services/authentication.client.service";
 import {usersModule} from "../../users.client.module";
+import {setCurrentUser} from "../../../core/app/reactapp";
 
 export const changeProfilePictureController = 'ChangeProfilePictureController'
 angular.module(usersModule).controller(changeProfilePictureController, ['$scope', '$timeout', '$window', authenticationService, 'FileUploader',
@@ -44,6 +45,7 @@ angular.module(usersModule).controller(changeProfilePictureController, ['$scope'
 
       // Populate user object
       $scope.user = Authentication.user = response;
+      setCurrentUser(response)
 
       // Clear upload buttons
       $scope.cancelUpload();

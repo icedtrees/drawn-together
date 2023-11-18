@@ -2,6 +2,7 @@
 import angular from '../../../../node_modules/angular'
 import {usersModule} from "../users.client.module";
 import {authenticationService} from "../services/authentication.client.service";
+import {setCurrentUser} from "../../core/app/reactapp";
 
 // Config HTTP Error Handling
 angular.module(usersModule).config(['$httpProvider',
@@ -15,6 +16,7 @@ angular.module(usersModule).config(['$httpProvider',
               case 401:
                 // Deauthenticate the global user
                 Authentication.user = null;
+                setCurrentUser(null)
 
                 // Redirect to signin page
                 $location.path('signin');

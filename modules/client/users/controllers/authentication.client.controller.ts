@@ -2,6 +2,7 @@
 import angular from '../../../../node_modules/angular'
 import {usersModule} from "../users.client.module";
 import {authenticationService} from "../services/authentication.client.service";
+import {setCurrentUser} from "../../core/app/reactapp";
 
 export const authenticationController = 'AuthenticationController'
 angular.module(usersModule).controller(authenticationController, ['$scope', '$state', '$http', '$location', '$window', authenticationService,
@@ -28,6 +29,7 @@ angular.module(usersModule).controller(authenticationController, ['$scope', '$st
       $http.post('/api/auth/signup', $scope.credentials).success(function (response) {
         // If successful we assign the response to the global user model
         $scope.authentication.user = response;
+        setCurrentUser(response)
 
         // And redirect to the previous or home page
         $state.go($state.previous.state.name || 'home', $state.previous.params);
@@ -48,6 +50,7 @@ angular.module(usersModule).controller(authenticationController, ['$scope', '$st
       $http.post('/api/auth/signin', $scope.credentials).success(function (response) {
         // If successful we assign the response to the global user model
         $scope.authentication.user = response;
+        setCurrentUser(response)
 
         // And redirect to the previous or home page
         $state.go($state.previous.state.name || 'home', $state.previous.params);

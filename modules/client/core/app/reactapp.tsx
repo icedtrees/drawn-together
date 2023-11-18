@@ -7,14 +7,18 @@ export const startReact = () => {
   root.render(<ReactApp/>)
 }
 
+// These are temporary hacks to update React state from angular code until we fully migrate off Angular
 export let setCurrentPage = null
+export let setCurrentUser = null
 
 export const ReactApp = () => {
-  const [page, setPage] = React.useState<string>(null)
+  const [page, setPage] = React.useState<'topics' | null>(null)
+  const [user, setUser] = React.useState(null)
   setCurrentPage = (p) => setPage(p)
+  setCurrentUser = (u) => setUser(u)
   if (page === 'topics') {
     return (
-      <TopicsPage/>
+      <TopicsPage user={user}/>
     )
   }
   return null
