@@ -17,7 +17,8 @@ USER node
 # Expose the port that the application listens on.
 EXPOSE 8443
 
-CMD npm install && \
+# Not sure why dev dependencies aren't automatically installed here
+CMD npm install --include=dev && \
     # This is for frontend only - the express backend server will serve all the outputs in public/
     # Transpile all frontend .ts files that are reachable from the application.ts entrypoint
     # Load all the html files and stuff that hasn't been imported
@@ -26,4 +27,4 @@ CMD npm install && \
         --loader:.ttf=file --loader:.eot=file --loader:.woff=file --loader:.svg=file --loader:.woff2=file \
         --watch & \
     # Run the backend server in parallel, but bring the previous command to the foreground if the backend is killed
-    node server.js && fg)
+    node esbuild.config.mjs && fg)
