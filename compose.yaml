@@ -11,7 +11,10 @@ services:
   server:
     build:
       context: .
+      dockerfile: dev.Dockerfile
     restart: always
+    volumes:
+      - ./:/usr/src/app
     environment:
       NODE_ENV: production
       DB_1_PORT_27017_TCP_ADDR: mongodb
@@ -21,8 +24,6 @@ services:
       - 8443:8443
   mongodb:
     image: mongo:4
-    ports:
-      - "27017:27017"
 
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to

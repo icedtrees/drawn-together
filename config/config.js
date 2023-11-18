@@ -115,7 +115,9 @@ var initGlobalConfig = function () {
   initGlobalConfigFiles(config, assets);
 
   // Run in HTTP and let the proxy handle SSL termination
-  config.secure.ssl = false;
+  if (config.secure) {
+    config.secure.ssl = false;
+  }
 
   // Expose configuration utilities
   config.utils = {

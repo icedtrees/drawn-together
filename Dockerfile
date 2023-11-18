@@ -6,9 +6,6 @@
 
 FROM node:21-alpine
 
-# Use production node environment by default.
-#ENV NODE_ENV production
-
 WORKDIR /usr/src/app
 
 ENV NODE_ENV production
@@ -25,13 +22,12 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 # Copy the rest of the source files into the image.
 COPY . .
 
-# This is needed to load all the html files and stuff that hasn't been imported
-RUN node_modules/.bin/esbuild --bundle --outdir=public/modules/client "modules/client/**/*.html" "modules/client/**/*.png" \
-    --loader:.html=copy --loader:.png=copy
-
-RUN node_modules/.bin/esbuild --bundle --outfile=public/application.js "frontend_entry_point.ts" \
+# This is for frontend only - the express backend server will serve all the outputs in public/
+# Transpile all frontend .ts files that are reachable from the application.ts entrypoint
+# Load all the html files and stuff that hasn't been imported
+RUN node_modules/.bin/esbuild --bundle --outdir=public "application.ts" "modules/client/**/*.html" "modules/client/**/*.png" \
+    --loader:.html=copy --loader:.png=copy \
     --loader:.ttf=file --loader:.eot=file --loader:.woff=file --loader:.svg=file --loader:.woff2=file
-# These files were migrated to the frontend entry point
 
 # Run the application as a non-root user.
 USER node
