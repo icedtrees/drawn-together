@@ -1,3 +1,12 @@
+/**
+ * This is the frontend application entrypoint.
+ *
+ * It is built via an esbuild command in the Dockerfile.
+ *
+ * While the react app has a root that will pull in all of its dependencies, the angular app
+ * is distributed across many files that aren't directly referenced. Any new angular files must be
+ * imported here by hand.
+ */
 import './modules/client/core/app/config'
 import './modules/client/core/app/reactapp'
 import './modules/client/core/config/core-admin.client.menus.ts'
