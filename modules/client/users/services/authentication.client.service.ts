@@ -1,7 +1,7 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
 import {usersModule} from "../users.client.module";
-import {setCurrentUser} from "../../core/app/reactapp";
+import {ReactGlobalState} from "../../core/app/react-global-state";
 
 // Authentication service for user variables
 export const authenticationService = 'Authentication'
@@ -10,7 +10,7 @@ export const auth = {
 }
 angular.module(usersModule).factory(authenticationService, [
   function () {
-    setCurrentUser(window.user)
+    ReactGlobalState.setCurrentUser(window.user)
     return auth;
   }
 ]);

@@ -4,6 +4,7 @@ import ngResource from '../../../../node_modules/angular-resource'
 import ngMessages from '../../../../node_modules/angular-messages'
 import '../../../../node_modules/angular-bootstrap'  // ui.bootstrap
 import '../../../../node_modules/angular-ui-router'  // ui.router
+import {ReactGlobalState} from "./react-global-state";
 
 // Init module configuration options
 const applicationModuleName = 'mean';
@@ -40,7 +41,7 @@ const startAngularApp = () => {
         if (!allowed) {
           e.preventDefault();
           if (Authentication.user !== undefined && typeof Authentication.user === 'object') {
-            $state.go('forbidden');
+            ReactGlobalState.setCurrentPage('forbidden')
           } else {
             $state.go('authentication.signin');
           }

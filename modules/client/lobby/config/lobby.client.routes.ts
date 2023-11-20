@@ -1,7 +1,7 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
 import {lobbyModule} from "../lobby.client.module";
-import {setCurrentPage} from "../../core/app/reactapp";
+import {ReactGlobalState} from "../../core/app/react-global-state";
 
 // Configure the 'lobby' module routes
 angular.module(lobbyModule).config(['$stateProvider',
@@ -12,8 +12,8 @@ angular.module(lobbyModule).config(['$stateProvider',
         data: {
           roles: ['user', 'admin']
         },
-        onEnter: () => setCurrentPage('lobby'),
-        onExit: () => setCurrentPage(null),
+        onEnter: () => ReactGlobalState.setCurrentPage('lobby'),
+        onExit: () => ReactGlobalState.setCurrentPage(null),
       });
   }
 ]);

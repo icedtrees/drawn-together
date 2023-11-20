@@ -2,6 +2,7 @@
 import angular from '../../../../../node_modules/angular'
 
 import {coreModule} from "../../core.client.module";
+import {ReactGlobalState} from "../../app/react-global-state";
 
 export const authInterceptorSerivce = 'authInterceptor'
 angular.module(coreModule).factory(authInterceptorSerivce, ['$q', '$injector',
@@ -14,7 +15,7 @@ angular.module(coreModule).factory(authInterceptorSerivce, ['$q', '$injector',
               $injector.get('$state').transitionTo('authentication.signin');
               break;
             case 403:
-              $injector.get('$state').transitionTo('forbidden');
+              ReactGlobalState.setCurrentPage('forbidden')
               break;
           }
         }
