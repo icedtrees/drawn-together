@@ -17,7 +17,6 @@ angular.module(coreModule).service(socketService, [authenticationService, '$stat
       if (Authentication.user) {
         currentSocket.socket = io();
         this.socket = currentSocket.socket
-        console.log('creating socket')
       }
     };
     this.connect();

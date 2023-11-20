@@ -13,7 +13,7 @@ export let setCurrentPage = null
 export let setCurrentUser = null
 
 export const ReactApp = () => {
-  const [page, setPage] = React.useState<null>(null)
+  const [page, setPage] = React.useState(null)
   const [user, setUser] = React.useState(null)
   setCurrentPage = (p) => setPage(p)
   setCurrentUser = (u) => setUser(u)
