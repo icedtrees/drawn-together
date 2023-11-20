@@ -5,12 +5,13 @@ import {setCurrentUser} from "../../core/app/reactapp";
 
 // Authentication service for user variables
 export const authenticationService = 'Authentication'
-export const auth = {
-  user: window.user,
-}
-angular.module(usersModule).factory(authenticationService, [
-  function () {
-    setCurrentUser(window.user)
+angular.module(usersModule).factory(authenticationService, ['$window',
+  function ($window) {
+    var auth = {
+      user: $window.user
+    };
+    setCurrentUser($window.user)
+
     return auth;
   }
 ]);
