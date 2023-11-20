@@ -3,6 +3,10 @@ import angular from '../../../../node_modules/angular'
 import {coreModule} from "../core.client.module";
 import {authenticationService} from "../../users/services/authentication.client.service";
 
+export const currentSocket = {
+  socket: null,
+}
+
 // Create the Socket.io wrapper service
 export const socketService = 'Socket'
 angular.module(coreModule).service(socketService, [authenticationService, '$state', '$timeout',
@@ -11,14 +15,15 @@ angular.module(coreModule).service(socketService, [authenticationService, '$stat
     this.connect = function () {
       // Connect only when authenticated
       if (Authentication.user) {
-        this.socket = io();
+        currentSocket.socket = io();
+        this.socket = currentSocket.socket
       }
     };
     this.connect();
 
     // Wrap the Socket.io 'on' method
     this.on = function (eventName, callback) {
-      if (this.socket) {
+      if (currentSocket.socket) {
         this.socket.on(eventName, function (data) {
           $timeout(function () {
             callback(data);

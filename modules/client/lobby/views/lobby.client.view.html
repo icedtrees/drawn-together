@@ -37,19 +37,6 @@
         <label for="roomName">Room Name</label>
         <input autocomplete="off" type="text" id="roomName" name="roomName" class="form-control" ng-model="roomName" ng-trim="false" ng-change="error = ''" maxlength="{{GameSettings.MAX_ROOM_NAME_LENGTH}}" placeholder="Room Name">
       </div>
-      <!-- Room Password -->
-      <!--<div class="form-group">-->
-        <!--<label for="roomPassword">Room Password</label>-->
-        <!--<input type="text" id="roomPassword" name="roomPassword" class="form-control"-->
-               <!--autocomplete="off" placeholder="Room Password" />-->
-      <!--</div>-->
-      <!-- Hidden Room -->
-      <!--<div class="form-group checkbox">-->
-        <!--<label>-->
-          <!--<input type="checkbox" value="">-->
-          <!--Hidden Room-->
-        <!--</label>-->
-      <!--</div>-->
       <button type="submit" value="Create Room" class="btn btn-primary">Create Room</button>
     </form>
     <span class="error-message" ng-bind="error"></span>
