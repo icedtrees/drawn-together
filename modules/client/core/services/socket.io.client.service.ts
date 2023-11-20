@@ -3,17 +3,26 @@ import angular from '../../../../node_modules/angular'
 import {coreModule} from "../core.client.module";
 import {authenticationService} from "../../users/services/authentication.client.service";
 
+export const currentSocket = {
+  socket: null,
+}
+
+export const connectSocket = (user) => {
+  // Connect only when authenticated
+  if (user) {
+    currentSocket.socket = io();
+  }
+}
+
 // Create the Socket.io wrapper service
 export const socketService = 'Socket'
 angular.module(coreModule).service(socketService, [authenticationService, '$state', '$timeout',
   function (Authentication, $state, $timeout) {
     // Connect to Socket.io server
-    this.connect = function () {
-      // Connect only when authenticated
-      if (Authentication.user) {
-        this.socket = io();
-      }
-    };
+    this.connect = () => {
+      connectSocket(Authentication.user)
+      this.socket = currentSocket.socket
+    }
     this.connect();
 
     // Wrap the Socket.io 'on' method
