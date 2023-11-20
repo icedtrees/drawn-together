@@ -7,23 +7,27 @@ export const currentSocket = {
   socket: null,
 }
 
+export const connectSocket = (user) => {
+  // Connect only when authenticated
+  if (user) {
+    currentSocket.socket = io();
+  }
+}
+
 // Create the Socket.io wrapper service
 export const socketService = 'Socket'
 angular.module(coreModule).service(socketService, [authenticationService, '$state', '$timeout',
   function (Authentication, $state, $timeout) {
     // Connect to Socket.io server
-    this.connect = function () {
-      // Connect only when authenticated
-      if (Authentication.user) {
-        currentSocket.socket = io();
-        this.socket = currentSocket.socket
-      }
-    };
+    this.connect = () => {
+      connectSocket(Authentication.user)
+      this.socket = currentSocket.socket
+    }
     this.connect();
 
     // Wrap the Socket.io 'on' method
     this.on = function (eventName, callback) {
-      if (currentSocket.socket) {
+      if (this.socket) {
         this.socket.on(eventName, function (data) {
           $timeout(function () {
             callback(data);

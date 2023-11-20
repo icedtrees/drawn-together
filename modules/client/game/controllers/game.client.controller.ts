@@ -97,15 +97,7 @@ angular.module(gameModule).controller(gameController, ['$scope', '$location', '$
       $scope.username = Authentication.user.username;
     }
 
-    // Make sure the Socket is connected
-    if (!Socket.socket) {
-      Socket.connect(function () {
-        Socket.emit('requestState', $scope.roomName);
-      });
-    } else {
-      // We are already connected but in a new window - request to be brought up to scratch
-      Socket.emit('requestState', $scope.roomName);
-    }
+    Socket.emit('requestState', $scope.roomName);
 
     var scroller = document.getElementById('chat-container');
     var ieIsEnd = function () {

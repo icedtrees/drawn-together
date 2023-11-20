@@ -9,7 +9,6 @@ angular.module(lobbyModule).config(['$stateProvider',
     $stateProvider
       .state('home', {
         url: '/',
-        templateUrl: 'modules/client/lobby/views/lobby.client.view.html',
         data: {
           roles: ['user', 'admin']
         },
