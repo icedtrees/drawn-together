@@ -38,7 +38,6 @@ export const Header = ({user, page, setPage}) => {
 }
 
 const MenuItems = ({user, page, setPage}) => {
-  console.log(menus['topbar'])
   return (
     <ul className="nav navbar-nav" >
       {menus['topbar'].items.toSorted((i, j) => i.position - j.position).map((item) => {
@@ -56,7 +55,6 @@ const MenuItems = ({user, page, setPage}) => {
                 // Temporary hack to make sure that setPage runs after the angular code to reset the page state.
                 // Once we are migrated to react we can delete this and make it synchronous
                 setTimeout(() => {
-                  console.log("setPage", item.state)
                   setPage(item.state);
                 })
               }}
