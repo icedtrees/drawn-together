@@ -2,7 +2,7 @@
 import angular from '../../../../node_modules/angular'
 import {usersModule} from "../users.client.module";
 import {authenticationService} from "../services/authentication.client.service";
-import {setCurrentUser} from "../../core/app/reactapp";
+import {ReactGlobalState} from "../../core/app/react-global-state";
 
 export const passwordController = 'PasswordController'
 angular.module(usersModule).controller(passwordController, ['$scope', '$stateParams', '$http', '$location', authenticationService,
@@ -55,7 +55,7 @@ angular.module(usersModule).controller(passwordController, ['$scope', '$statePar
 
         // Attach user profile
         Authentication.user = response;
-        setCurrentUser(response)
+        ReactGlobalState.setCurrentUser(response)
 
         // And redirect to the index page
         $location.path('/password/reset/success');

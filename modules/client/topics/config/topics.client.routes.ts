@@ -1,7 +1,7 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
 import {topicsModule} from "../topics.client.module";
-import {setCurrentPage} from "../../core/app/reactapp";
+import {ReactGlobalState} from "../../core/app/react-global-state";
 
 angular.module(topicsModule).config(['$stateProvider',
   function ($stateProvider) {
@@ -9,10 +9,10 @@ angular.module(topicsModule).config(['$stateProvider',
       .state('topics', {
         url: '/topics',
         onEnter: () => {
-          setCurrentPage('topics')
+          ReactGlobalState.setCurrentPage('topics')
         },
         onExit: () => {
-          setCurrentPage(null)
+          ReactGlobalState.setCurrentPage(null)
         },
       });
   }

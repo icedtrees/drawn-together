@@ -1,12 +1,20 @@
+/**
+ * This is the frontend application entrypoint.
+ *
+ * It is built via an esbuild command in the Dockerfile.
+ *
+ * While the react app has a root that will pull in all of its dependencies, the angular app
+ * is distributed across many files that aren't directly referenced. Any new angular files must be
+ * imported here by hand.
+ */
 import './modules/client/core/app/config'
 import './modules/client/core/app/reactapp'
+import './modules/client/core/app/react-global-state'
 import './modules/client/core/config/core-admin.client.menus.ts'
 import './modules/client/core/config/core-admin.client.menus.ts'
 import './modules/client/core/config/core-admin.client.routes.ts'
 import './modules/client/core/config/core.client.routes.ts'
 import './modules/client/core/controllers/header.client.controller'
-import './modules/client/core/controllers/home.client.controller'
-import './modules/client/core/controllers/home.client.controller.ts'
 import './modules/client/core/core.client.module.ts'
 import './modules/client/core/directives/show-errors.client.directives.ts'
 import './modules/client/core/services/interceptors/auth.interceptor.client.service.ts'
@@ -19,9 +27,8 @@ import './modules/client/game/directives/unselectable.client.directive.ts'
 import './modules/client/game/game.client.module.ts'
 import './modules/client/lobby/config/lobby.client.config.ts'
 import './modules/client/lobby/config/lobby.client.routes.ts'
-import './modules/client/lobby/controllers/lobby.client.controller.ts'
-import './modules/client/lobby/controllers/lobby.client.controller.ts'
 import './modules/client/lobby/lobby.client.module.ts'
+import './modules/client/lobby/lobby.tsx'
 import './modules/client/rules/config/rules.client.config.ts'
 import './modules/client/rules/config/rules.client.routes.ts'
 import './modules/client/rules/controllers/rules.client.controller.ts'
