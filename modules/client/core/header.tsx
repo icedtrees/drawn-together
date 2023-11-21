@@ -26,8 +26,7 @@ export const Header = ({user, page, setPage}) => {
           </a>
         </div>
         <nav
-          className="collapse navbar-collapse"
-          collapse={(!isCollapsed).toString()}
+          className={"navbar-collapse" + (isCollapsed ? ' collapse' : '')}
           role="navigation"
         >
           <MenuItems user={user} page={page} setPage={setPage}/>
