@@ -15,8 +15,6 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: always
-    volumes:
-      - ./:/usr/src/app
     environment:
       NODE_ENV: production
       DB_1_PORT_27017_TCP_ADDR: mongodb

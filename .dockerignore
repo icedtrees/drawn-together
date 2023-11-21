@@ -36,3 +36,4 @@ README.md
 # Project-specific ignores
 # This directory is for our bundled static assets apparently
 public/
+build/

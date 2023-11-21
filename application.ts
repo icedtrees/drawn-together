@@ -8,13 +8,10 @@
  * imported here by hand.
  */
 import './modules/client/core/app/config'
-import './modules/client/core/app/reactapp'
 import './modules/client/core/app/react-global-state'
-import './modules/client/core/config/core-admin.client.menus.ts'
-import './modules/client/core/config/core-admin.client.menus.ts'
+import './modules/client/core/app/reactapp'
 import './modules/client/core/config/core-admin.client.routes.ts'
 import './modules/client/core/config/core.client.routes.ts'
-import './modules/client/core/controllers/header.client.controller'
 import './modules/client/core/core.client.module.ts'
 import './modules/client/core/directives/show-errors.client.directives.ts'
 import './modules/client/core/services/interceptors/auth.interceptor.client.service.ts'
