@@ -1,4 +1,4 @@
-import * as React from '../../../node_modules/react'
+import * as React from 'react'
 import {connectSocket, currentSocket} from "../core/services/socket.io.client.service";
 import './css/lobby.css'
 import * as GameSettings from '../../shared/game/config/game.shared.game.config'
