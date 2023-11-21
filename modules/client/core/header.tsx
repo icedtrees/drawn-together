@@ -18,7 +18,10 @@ export const Header = ({user, page, setPage}) => {
             <span className="icon-bar" />
             <span className="icon-bar" />
           </button>
-          <a ui-sref="home" className="navbar-brand">
+          <a className="navbar-brand" onClick={() => {
+            setPage('home')
+            window.state.go('home')
+          }}>
             <i className="fa fa-pencil-square-o" /> Drawn Together
           </a>
         </div>
