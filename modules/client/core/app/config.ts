@@ -42,8 +42,6 @@ const startAngularApp = () => {
           e.preventDefault();
           if (Authentication.user !== undefined && typeof Authentication.user === 'object') {
             ReactGlobalState.setCurrentPage('forbidden')
-          } else {
-            $state.go('authentication.signin');
           }
         }
       }

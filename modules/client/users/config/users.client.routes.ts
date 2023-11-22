@@ -34,11 +34,9 @@ angular.module(usersModule).config(['$stateProvider',
       .state('authentication', {
         abstract: true,
         url: '/authentication',
-        templateUrl: 'modules/client/users/views/authentication/authentication.client.view.html'
       })
       .state('authentication.signin', {
-        url: '/signin?err',
-        templateUrl: 'modules/client/users/views/authentication/signin.client.view.html'
+        url: '/signin',
       });
   }
 ]);

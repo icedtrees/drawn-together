@@ -5,6 +5,7 @@ import {LobbyPage} from "../../lobby/lobby";
 import {ForbiddenPage, NotFoundPage} from "../error-pages";
 import {ReactGlobalState} from "./react-global-state";
 import {Header} from "../header";
+import {SignInPage} from "../../users/signin";
 
 type Page = 'topics' | 'home' | 'not-found' | 'bad-request' | 'forbidden'
 
@@ -28,13 +29,13 @@ export const ReactApp = () => {
     <>
       <Header user={user} page={page} setPage={setPage}/>
       <section className={"content"}>
-        <Content user={user} page={page} setPage={setPage}/>
+        <Content user={user} page={page} setPage={setPage} setUser={setUser}/>
       </section>
     </>
   )
 };
 
-const Content = ({page, user, setPage}) => {
+const Content = ({page, user, setPage, setUser}) => {
   if (page === 'not-found') {
     return (<NotFoundPage/>)
   }
@@ -44,9 +45,12 @@ const Content = ({page, user, setPage}) => {
   if (page === 'topics') {
     return (<TopicsPage user={user}/>)
   }
-  if (!user) {
-    // Render sign-in page?
+  if (page === 'rules') {
+    // Not implemented yet
     return null
+  }
+  if (!user) {
+    return (<SignInPage setUser={setUser} setPage={setPage}/>)
   }
   if (page === 'home' || page === 'lobby') {
     return (<LobbyPage user={user} setPage={setPage}/>)
