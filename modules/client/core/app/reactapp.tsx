@@ -6,6 +6,7 @@ import {ForbiddenPage, NotFoundPage} from "../error-pages";
 import {ReactGlobalState} from "./react-global-state";
 import {Header} from "../header";
 import {SignInPage} from "../../users/signin";
+import {GamePage} from "../../game/game";
 
 type Page = 'topics' | 'home' | 'not-found' | 'bad-request' | 'forbidden'
 
@@ -56,6 +57,9 @@ const Content = ({page, user, setPage, setUser}) => {
   }
   if (page === 'home' || page === 'lobby') {
     return (<LobbyPage user={user} setPage={setPage}/>)
+  }
+  if (page === 'game') {
+    return (<GamePage/>)
   }
   return null
 }

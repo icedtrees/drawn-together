@@ -13,6 +13,36 @@
   }
 }
 
+.game-page {
+  display: flex;
+  gap: 2%;
+  justify-content: center;
+  padding: 2%;
+}
+
+.left-column {
+  width: 480px;
+}
+
+/*
+In our UI, all the elements are fixed size except for the 1:1 canvas itself, which flexes based on the screen size.
+If we have enough horizontal space, the dimension should be 100vh - middle header height. If we have not enough
+horizontal space, the dimension should be (100vw - leftcolumn - rightcolumn)
+ */
+.middle-column {
+  flex-grow: 1; /* Expand to take up remaining space */
+  max-width: 80vh; /* Suppose middle header height is 20vh for now */
+}
+.dt-drawing {
+  aspect-ratio: 1; /* Set height to same as width */
+  border: 1px solid black;
+}
+
+.right-column {
+  width: 150px;
+}
+
+
 .left-sidebar {
   display: flex;
   display: -webkit-flex;
