@@ -31,7 +31,6 @@ angular.module(gameModule).controller(gameController, ['$scope', '$location', '$
 
     // Get a list of topics from the server
     $http.get('/api/topics').success(function (response) {
-      console.log('Retrieved list of topics', response);
       $scope.listOfTopics = response;
     }).error(function (response) {
       console.error('Failed to fetch topics', response);
@@ -294,7 +293,6 @@ angular.module(gameModule).controller(gameController, ['$scope', '$location', '$
 
     // Server tells client a setting has been updated
     Socket.on('updateSetting', function(change) {
-      console.log('A setting has been updated', change.setting, change.option);
       $scope.chosenSettings[change.setting] = change.option;
       $scope.Game[change.setting] = change.option;
     });
@@ -308,7 +306,6 @@ angular.module(gameModule).controller(gameController, ['$scope', '$location', '$
     $scope.changeSetting = function (setting, option) {
       if (!$scope.Game.started && $scope.username === $scope.Game.getHost()) {
         // Send to server so all other players can update this setting
-        console.log('Changing setting', setting, 'to', option);
         Socket.emit('changeSetting', {setting : setting, option : option});
       }
     };

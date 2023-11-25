@@ -1,4 +1,8 @@
 import * as React from 'react'
+import * as GameConfig from '../../shared/game/config/game.shared.game.config'
+import {Game} from '../../shared/game/helpers/game.shared.gamelogic'
+import {MAX_MSG_LEN} from '../../shared/game/config/game.shared.chat.config'
+import {connectSocket, currentSocket} from "../core/services/socket.io.client.service";
 import './css/chat.css'
 import './css/drawing.css'
 import './css/game-shared.css'
@@ -9,21 +13,60 @@ import './css/pregame.css'
 import './css/range-slider.css'
 import './css/toolbox.css'
 
-export const GamePage = () => {
-  const isDrawer = false
+export const GamePage = ({user, roomName, setPage, setRoomName}) => {
+  const [game, setGame] = React.useState(new Game())
+  // Game host tells server to start game with chosen settings
+  React.useEffect(() => {
+    // Set the game state based on what the server tells us it currently is
+    const updateGame = (state) => {
+      console.log("updating game...", state)
+      setGame(Object.assign(new Game(), game, state))
+    }
+    currentSocket.socket.on('gameState', updateGame)
+    return (() => {
+      currentSocket.socket.removeEventListener('gameState', updateGame)
+    })
+  }, [game, setGame])
+  React.useEffect(() => {
+    // Server tells client a setting has been updated
+    const updateSetting = (change) => {
+      console.log('updating setting...', change)
+      setGame(Object.assign(new Game(), game, {[change.setting]: change.option}))
+    }
+    currentSocket.socket.on('updateSetting', updateSetting)
+    return (() => {
+      currentSocket.socket.removeEventListener('updateSetting', updateSetting)
+    })
+  }, [game, setGame])
+  React.useEffect(() => {
+    console.log("requesting state from game.tsx for room", roomName)
+    currentSocket.socket.emit('requestState', roomName)
+    return () => {
+      currentSocket.socket.emit('leaveRoom')
+    }
+  }, [])
+
   return (
     <>
       <section
         className="game-page"
       >
         <div className="left-column">
-          <LobbyInformation/>
+          <LobbyInformation topicListName={game.topicListName} roomName={roomName} onLeaveRoom={() => {
+            setRoomName(null)
+            setPage('lobby')
+            window.state.go('home')
+          }}/>
           <PlayerList/>
           <MessageSection/>
         </div>
         <div className="middle-column">
-          <PreGameSettings/>
-          <DrawingSection/>
+          {!game.started && (
+            <PreGameSettings user={user} game={game} setGame={setGame}/>
+          )}
+          {game.started && (
+            <DrawingSection/>
+          )}
         </div>
         <div className="right-column" ng-disabled="!toolboxUsable()">
           <DrawingTools/>
@@ -33,16 +76,16 @@ export const GamePage = () => {
   )
 }
 
-const LobbyInformation = () => {
+const LobbyInformation = ({topicListName, roomName, onLeaveRoom}) => {
   return (
     <div className="lobby-info ui-panel unselectable bg-primary">
       <h4>
-        <span ng-bind="roomName" />
+        <span>{roomName}</span>
       </h4>
       <h5>
-        Topic: <span ng-bind="Game.topicListName" />
+        Topic: <span>{topicListName}</span>
       </h5>
-      <button className="btn leave-lobby" ng-click="leaveRoom()">
+      <button className="btn leave-lobby" onClick={onLeaveRoom}>
         <i className="fa fa-sign-out" style={{ paddingRight: 2 }} /> Leave
         Room
       </button>
@@ -144,7 +187,7 @@ const MessageSection = () => {
                 className="form-control message-input"
                 ng-model="messageText"
                 ng-trim="false"
-                maxLength="{{ChatSettings.MAX_MSG_LEN}}"
+                maxLength={MAX_MSG_LEN}
                 placeholder="Enter new message"
               />
             </div>
@@ -155,20 +198,48 @@ const MessageSection = () => {
   )
 }
 
-const PreGameSettings = () => {
+const PreGameSettings = ({game, setGame, user}) => {
+  const [topicList, setTopicList] = React.useState(null)
+  React.useEffect(() => {
+    if (topicList) {
+      return
+    }
+    console.log('fetching topics...')
+    fetch('/api/topics').then((response) => {
+      return response.json()
+    }).then((topics) => {
+      console.log('fetched topics')
+      setGame(Object.assign(new Game(), game, {topicListName: topics[0].name}))
+      setTopicList(topics)
+    })
+  }, [game, setGame, topicList, setTopicList])
+
+  const isHost = user.username === game.getHost()
+
+  // Game host updates a setting
+  const onChangeSetting = function (setting, option) {
+    if (/*!game.started &&*/isHost) {
+      // Send to server so all other players can update this setting
+      currentSocket.socket.emit('changeSetting', {setting : setting, option : option});
+      setGame(Object.assign(new Game(), game, {[setting]: option}))
+    }
+  };
+
+  if (!topicList) {
+    return null
+  }
+
   return (
     <div
       id="settings"
       className="col"
-      style={{ display: "none", height: "100%", textAlign: "center" }}
+      style={{ height: "100%", textAlign: "center" }}
     >
       <div className="drawing-header-pregame unselectable">
-        <span ng-bind="username === Game.getHost() ? 'You are' : Game.getHost() + ' is'" />{" "}
-        choosing the game settings...
+        <span>{(isHost ? 'You are' : game.getHost() + ' is')} choosing the game settings...</span>
       </div>
       <div
-        className="settings-body"
-        ng-class="{'non-host': Game.getHost() !== username}"
+        className={"settings-body" + (!isHost ? ' non-host' : '')}
       >
         <div className="pregame-group row">
           <div className="col-xs-4 pregame-group-left">
@@ -177,68 +248,95 @@ const PreGameSettings = () => {
             </div>
           </div>
           <div className="col-xs-8 pregame-group-right">
-            <select
-              id="topic-selector"
-              className="form-control"
-              ng-if="username === Game.getHost()"
-              ng-model="chosenSettings['topicListName']"
-            >
-              <option ng-repeat="topicData in listOfTopics">
-                {"{"}
-                {"{"}topicData.name{"}"}
-                {"}"}
-              </option>
-            </select>
-            <div
-              ng-if="Game.getHost() !== username"
-              ng-bind="chosenSettings['topicListName']"
-              className="btn btn-warning pregame-button pregame-display-topic unselectable active"
-            ></div>
+            {isHost && (
+              <select
+                id="topic-selector"
+                className="form-control"
+                onChange={(e) => {
+                  onChangeSetting('topicListName', e.target.value)
+                }}
+                value={game.topicListName}
+              >
+                {topicList.map((topic) => {
+                  return (
+                    <option key={topic.name}>
+                      {topic.name}
+                    </option>
+                  )
+                })}
+              </select>
+            )}
+            {!isHost && (
+              <div
+                className="btn btn-warning pregame-button pregame-display-topic unselectable active"
+              >
+                {game.topicListName}
+              </div>
+            )}
           </div>
         </div>
         <div style={{ height: "2em" }} />
-        <div
-          className="pregame-group row"
-          ng-repeat="setting in Utils.keys(GameSettings)"
-          ng-init="value = GameSettings[setting]"
-          ng-if="GameSettings[setting].settingName"
-        >
-          <div className="col-xs-4 pregame-group-left">
-            <div className="pregame-setting-name">
-              <span ng-bind="value.settingName" className="unselectable" />
-            </div>
+        {
+          ['numRounds', 'roundTime', 'timeAfterGuess'].map((setting: string) => {
+            const settingsData = GameConfig[setting]
+            return (
+              <div key={setting}>
+                <Setting chosen={game[setting] ?? settingsData.default} onChangeSetting={onChangeSetting} setting={setting} isHost={isHost}/>
+              </div>
+            )
+          })
+        }
+        {isHost && (
+          <div className="col-md-12 start-game-div">
+            <button
+              className="btn btn-primary"
+              onClick={() => currentSocket.socket.emit('startGame')}
+            >
+              Start Game
+            </button>
           </div>
-          <div className="col-xs-8 pregame-group-right">
-            <div className="btn-group" ng-repeat="option in value.options">
-              <div
-                ng-if="Game.getHost() !== username"
-                ng-bind="option"
-                ng-class="{'active': chosenSettings[setting] === option}"
-                className="btn btn-success pregame-button pregame-display-game unselectable"
-              ></div>
-              <label
-                ng-if="Game.getHost() === username"
-                ng-model="chosenSettings[setting]"
-                ng-bind="option"
-                className="btn btn-success pregame-button"
-                ng-click="changeSetting(setting, option)"
-                btn-radio="option"
-              ></label>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="col-md-12 start-game-div">
-        <button
-          className="btn btn-primary"
-          ng-hide="Game.getHost() !== username"
-          ng-click="startGame()"
-        >
-          Start Game
-        </button>
+        )}
       </div>
     </div>
 
+  )
+}
+
+const Setting = ({setting, isHost, onChangeSetting, chosen}) => {
+  const settingConfig = GameConfig[setting]
+  return (
+    <div
+      className="pregame-group row"
+      ng-init="value = GameSettings[setting]"
+    >
+      <div className="col-xs-4 pregame-group-left">
+        <div className="pregame-setting-name">
+          <span className="unselectable">{settingConfig.settingName}</span>
+        </div>
+      </div>
+      <div className="col-xs-8 pregame-group-right">
+        {settingConfig.options.map((option) => {
+          return (
+            <div className="btn-group" key={option}>
+              {!isHost && (
+                <div className={"btn btn-success pregame-button pregame-display-game unselectable" + (chosen === option ? ' active' : '')}>
+                  {option}
+                </div>
+              )}
+              {isHost && (
+                <label
+                  className={"btn btn-success pregame-button" + (chosen === option ? ' active' : '')}
+                  onClick={() => onChangeSetting(setting, option)}
+                  btn-radio="option"
+                >
+                  {option}
+                </label>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
   )
 }
 
@@ -281,7 +379,7 @@ const DrawingSection  = () => {
           ng-style="{'background-color': timerBot.paused ? 'grey' : 'pink', 'width': timerBotLeft / 10 / Game.timeAfterGuess + '%'}"
         />
       </div>
-      <div id="drawing-canvas" className="dt-drawing" />
+      {/*<div id="drawing-canvas" className="dt-drawing" />*/}
     </>
   )
 }

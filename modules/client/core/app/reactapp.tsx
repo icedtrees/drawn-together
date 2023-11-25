@@ -39,6 +39,9 @@ export const ReactApp = () => {
 };
 
 const Content = ({page, user, setPage, setUser}) => {
+  const roomNameFromURL = window.location.pathname.split('/')[2]
+  const [roomName, setRoomName] = React.useState(roomNameFromURL)
+
   if (page === 'not-found') {
     return (<NotFoundPage/>)
   }
@@ -56,10 +59,15 @@ const Content = ({page, user, setPage, setUser}) => {
     return (<SignInPage setUser={setUser} setPage={setPage}/>)
   }
   if (page === 'home' || page === 'lobby') {
-    return (<LobbyPage user={user} setPage={setPage}/>)
+    return (<LobbyPage user={user} setPage={setPage} setRoomName={setRoomName}/>)
   }
   if (page === 'game') {
-    return (<GamePage/>)
+    return (<GamePage
+      user={user}
+      roomName={roomName}
+      setPage={setPage}
+      setRoomName={setRoomName}
+    />)
   }
   return null
 }

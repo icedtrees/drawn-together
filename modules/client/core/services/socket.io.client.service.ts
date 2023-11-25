@@ -9,7 +9,7 @@ export const currentSocket = {
 
 export const connectSocket = (user) => {
   // Connect only when authenticated
-  if (user) {
+  if (user && !currentSocket.socket) {
     currentSocket.socket = io();
   }
 }
