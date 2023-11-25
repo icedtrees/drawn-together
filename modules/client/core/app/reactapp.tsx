@@ -21,9 +21,11 @@ export const ReactApp = () => {
     ReactGlobalState.setCurrentPage = (p) => {
       setPage(p)
     }
+    return () => ReactGlobalState.setCurrentPage = null
   }, [setPage])
   React.useEffect(() => {
     ReactGlobalState.setCurrentUser = (p) => setUser(p)
+    return () => ReactGlobalState.setCurrentUser = null
   }, [setUser])
   return (
     <>

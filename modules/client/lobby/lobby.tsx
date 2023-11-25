@@ -11,11 +11,11 @@ export const LobbyPage = ({user, setPage}) => {
   React.useEffect(() => {
     connectSocket(user)
     currentSocket.socket.emit('requestRooms')
-  }, [])
+  }, [user])
 
   React.useEffect(() => {
-    currentSocket.socket.removeAllListeners()
-    currentSocket.socket.on('changeRoom', function (room) {
+    const changeRoom = (room) => {
+      // Receive room update from server
       for (let i = 0; i < rooms.length; i++) {
         if (rooms[i].name === room.name) {
           if (room.numPlayers > 0) {
@@ -31,19 +31,28 @@ export const LobbyPage = ({user, setPage}) => {
       if (room.numPlayers > 0) {
         setRooms([...rooms, room])
       }
-    });
-    currentSocket.socket.on('requestRooms', (r) => {
-      setRooms(r)
-    })
-
-    currentSocket.socket.on('validRoomName', function (roomName) {
+    }
+    currentSocket.socket.on('changeRoom', changeRoom)
+    return () => currentSocket.socket.removeEventListener('changeRoom', changeRoom)
+  }, [rooms, setRooms])
+  React.useEffect(() => {
+    const requestRooms = (r) => setRooms(r)
+    currentSocket.socket.on('requestRooms', requestRooms)
+    return () => currentSocket.socket.removeEventListener('requestRooms', requestRooms)
+  }, [setRooms])
+  React.useEffect(() => {
+    const validRoomName = (roomName) => {
       setPage('game')
       window.state.go('game', {roomName: roomName});
-    });
-    currentSocket.socket.on('invalidRoomName', function (error) {
-      setError(error)
-    });
-  }, [rooms, setRooms, setPage, setError])
+    }
+    currentSocket.socket.on('validRoomName', validRoomName)
+    return () => currentSocket.socket.removeEventListener('validRoomName', validRoomName)
+  }, [setPage])
+  React.useEffect(() => {
+    const invalidRoomName = (error) => setError(error)
+    currentSocket.socket.on('invalidRoomName', invalidRoomName);
+    return () => currentSocket.socket.removeEventListener('invalidRoomName', invalidRoomName)
+  }, [setError])
 
   const joinRoom = (roomName) => {
     setPage('game')
