@@ -1,11 +1,19 @@
 'use strict';
 import angular from '../../../../node_modules/angular'
+import * as React from 'react'
 import {coreModule} from "../core.client.module";
 import {authenticationService} from "../../users/services/authentication.client.service";
 
 export const currentSocket = {
   socket: null,
 }
+
+export const useAddSocketListener = ((event: string, callback: (x: any) => void, deps: any[]) => {
+  React.useEffect(() => {
+    currentSocket.socket.addEventListener(event, callback)
+    return (() => currentSocket.socket.removeEventListener(callback))
+  }, deps)
+})
 
 export const connectSocket = (user) => {
   // Connect only when authenticated

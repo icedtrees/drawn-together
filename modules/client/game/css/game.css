@@ -16,11 +16,14 @@
 .game-page {
   display: flex;
   gap: 2%;
+  height: 85vh;  /* This is kind of arbitrary - ideally we want it to be 100vh - navbar height */
   justify-content: center;
   padding: 2%;
 }
 
 .left-column {
+  display: flex;
+  flex-direction: column;
   width: 480px;
 }
 
