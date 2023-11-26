@@ -4,6 +4,8 @@ import {Game} from '../../shared/game/helpers/game.shared.gamelogic'
 import {Timer, toCommaListIs} from '../../shared/game/helpers/game.shared.utils'
 import {MAX_MSG_LEN, MAX_MESSAGES} from '../../shared/game/config/game.shared.chat.config'
 import {currentSocket, useAddSocketListener} from "../core/services/socket.io.client.service";
+import {CanvasElement} from "./canvas";
+
 import './css/chat.css'
 import './css/drawing.css'
 import './css/game-shared.css'
@@ -204,7 +206,7 @@ const PlayerList = ({game}) => {
               <div className="player-score">
                 {game.isDrawer(username) && (
                   <div>
-                    <strong ng-bind="Game.users[user].score.toString()" />
+                    <strong>{game.users[username].score.toString()}</strong>
                   </div>
                 )}
                 {!game.isDrawer(username) && (
@@ -526,7 +528,7 @@ const DrawingSection = ({game, topic, user, timerTop, timerBottom}) => {
       {timerBottom && (
         <TimerComponent color={'pink'} gameFinished={game.finished} timer={timerBottom} totalTime={game.timeAfterGuess}/>
       )}
-      <div id="drawing-canvas" className="dt-drawing" />
+      <CanvasElement canDraw={game.isDrawer(user.username) || game.finished}/>
     </>
   )
 }
