@@ -15,6 +15,7 @@ import './css/player-list.css'
 import './css/pregame.css'
 import './css/range-slider.css'
 import './css/toolbox.css'
+import {CanvasSettings} from "./config/game.client.config";
 
 export const GamePage = ({user, roomName, setPage, setRoomName}) => {
   const [game, setGame] = React.useState(new Game())
@@ -129,6 +130,11 @@ export const GamePage = ({user, roomName, setPage, setRoomName}) => {
     }
   }, [])
 
+  const canDraw = game.isDrawer(user.username) || game.finished
+  const [drawWidth, setDrawWidth] = React.useState({pen: CanvasSettings.DEFAULT_PEN_WIDTH, eraser: CanvasSettings.DEFAULT_ERASER_WIDTH})
+  const [penColour, setPenColour] = React.useState(CanvasSettings.DEFAULT_PEN_COLOUR)
+  const [mouseMode, setMouseMode] = React.useState('pen')
+
   return (
     <>
       <section
@@ -148,11 +154,20 @@ export const GamePage = ({user, roomName, setPage, setRoomName}) => {
             <PreGameSettings user={user} game={game} setGame={setGame}/>
           )}
           {game.started && (
-            <DrawingSection game={game} topic={topic} user={user} timerTop={timerTop} timerBottom={timerBottom}/>
+            <DrawingSection game={game} canDraw={canDraw} topic={topic} user={user} timerTop={timerTop} timerBottom={timerBottom}/>
           )}
         </div>
-        <div className="right-column" ng-disabled="!toolboxUsable()">
-          <DrawingTools/>
+        <div className="right-column" disabled={!canDraw}>
+          <DrawingTools
+            canDraw={canDraw}
+            gameFinished={game.finished}
+            drawWidth={drawWidth}
+            setDrawWidth={setDrawWidth}
+            penColour={penColour}
+            setPenColour={setPenColour}
+            mouseMode={mouseMode}
+            setMouseMode={setMouseMode}
+          />
         </div>
       </section>
     </>
@@ -493,7 +508,7 @@ const Setting = ({setting, isHost, onChangeSetting, chosen}) => {
   )
 }
 
-const DrawingSection = ({game, topic, user, timerTop, timerBottom}) => {
+const DrawingSection = ({game, topic, user, timerTop, timerBottom, canDraw}) => {
   return (
     <>
       <div className="drawing-header">
@@ -528,7 +543,7 @@ const DrawingSection = ({game, topic, user, timerTop, timerBottom}) => {
       {timerBottom && (
         <TimerComponent color={'pink'} gameFinished={game.finished} timer={timerBottom} totalTime={game.timeAfterGuess}/>
       )}
-      <CanvasElement canDraw={game.isDrawer(user.username) || game.finished}/>
+      <CanvasElement canDraw={canDraw}/>
     </>
   )
 }
@@ -551,47 +566,85 @@ const TimerComponent = ({gameFinished, color, timer, totalTime}) => {
   )
 }
 
-const DrawingTools = () => {
+
+const DrawingTools = ({mouseMode, setMouseMode, canDraw, drawWidth, setDrawWidth, gameFinished, penColour, setPenColour}) => {
+  const drawTools = [
+    [{type: 'pen', glyph: 'pencil'}, {type: 'eraser', glyph: 'eraser'}]
+    //[{type: 'line', glyph: 'arrows-h'}, {type: 'fill', glyph: 'paint-brush'}],
+    //[{type: 'circle', glyph: 'circle-thin'}, {type: 'rect', glyph: 'square-o'}]
+  ];
+  const paletteColours = [
+    [{title: 'black', value: 'black'}, {title: 'grey', value: 'grey'}, {title: 'white', value: 'white'}],
+    [{title: 'dark brown', value: 'brown'}, {title: 'brown', value: 'chocolate'}, {title: 'pink', value: 'pink'}],
+    [{title: 'red', value: 'red'}, {title: 'orange', value: 'orange'}, {title: 'yellow', value: '#ffef00'}],
+    [{title: 'purple', value: 'blueviolet'}, {title: 'green', value: 'limegreen'}, {title: 'light green', value: 'greenyellow'}],
+    [{title: 'dark blue', value: 'mediumblue'}, {title: 'blue', value: 'dodgerblue'}, {title: 'light blue', value: 'lightskyblue'}]
+  ];
   return (
     <>
       <div className="grid">
-        <div className="grid-row" ng-repeat="drawToolRow in drawTools">
-          <div
-            ng-repeat="drawTool in drawToolRow"
-            ng-class="{'grid-cell': true, 'draw-tool': true, 'selected': $parent.$parent.mouseMode === drawTool.type}"
-            ng-attr-title="{{drawTool.type}}"
-            ng-click="toolboxUsable() && ($parent.$parent.mouseMode = drawTool.type)"
-          >
-            <div className="draw-tool-content">
-              <i className="fa fa-{{drawTool.glyph}}" />
+        {drawTools.map((drawToolRow, i) => {
+          return (
+            <div className="grid-row" key={i}>
+              {drawToolRow.map(({type, glyph}) => {
+                return (
+                  <div
+                    className={'grid-cell draw-tool' + (mouseMode === type ? ' selected' : '')}
+                    key={type}
+                    title={type}
+                    onClick={() => {
+                      if (canDraw) {
+                        setMouseMode(type)
+                      }
+                    }}
+                  >
+                    <div className="draw-tool-content">
+                      <i className={`fa fa-${glyph}`} />
+                    </div>
+                  </div>
+                )
+              })}
             </div>
-          </div>
-        </div>
+          )
+        })}
       </div>
-      {/* Size slider */}
       <div>
         <div className="size-triangle" />
         <input
           className="size-slider"
           type="range"
-          ng-model="drawWidth[mouseMode]"
-          min="{{CanvasSettings.MIN_DRAW_WIDTH}}"
-          max="{{CanvasSettings.MAX_DRAW_WIDTH}}"
-          ng-disabled="!toolboxUsable()"
+          onChange={(e) => setDrawWidth({...drawWidth, [mouseMode]: e.target.value})}
+          value={drawWidth[mouseMode]}
+          min={CanvasSettings.MIN_DRAW_WIDTH}
+          max={CanvasSettings.MAX_DRAW_WIDTH}
+          disabled={!canDraw}
         />
         <p className="unselectable">Size</p>
       </div>
-      {/* Colour palette */}
       <div className="grid" style={{ marginBottom: 10 }}>
-        <div className="grid-row" ng-repeat="paletteRow in paletteColours">
-          <div
-            ng-repeat="paletteColour in paletteRow"
-            ng-class="{'grid-cell': true, 'palette-colour': true, 'selected': $parent.$parent.penColour === paletteColour.value}"
-            ng-style="{'background-color': paletteColour.value}"
-            ng-attr-title="{{paletteColour.title}}"
-            ng-click="toolboxUsable() && (($parent.$parent.mouseMode = 'pen') && ($parent.$parent.penColour = paletteColour.value))"
-          ></div>
-        </div>
+        {paletteColours.map((paletteRow, i) => {
+          return (
+            <div className="grid-row" key={i}>
+              {paletteRow.map((paletteColour) => {
+                return (
+                  <div
+                    key={paletteColour.title}
+                    className={'grid-cell palette-colour' + (penColour === paletteColour.value ? ' selected' : '')}
+                    style={{'background-color': paletteColour.value}}
+                    title={paletteColour.title}
+                    onClick={() => {
+                      if (canDraw) {
+                        setMouseMode('pen')
+                        setPenColour(paletteColour.value)
+                      }
+                    }}
+                  />
+                )
+              })}
+            </div>
+
+          )
+        })}
         <div
           className="custom-palette-colour-wrapper unselectable"
           ng-click="toolboxUsable() && ((mouseMode = 'pen') && (penColour = penColourCustom))"
@@ -620,7 +673,7 @@ const DrawingTools = () => {
       <div style={{ marginBottom: 0, marginTop: 12 }}>
         <button
           className="btn btn-primary clear-canvas"
-          ng-disabled="!toolboxUsable() || Game.finished"
+          disabled={!canDraw || gameFinished}
           ng-click="clearDrawing()"
         >
           Clear Canvas
