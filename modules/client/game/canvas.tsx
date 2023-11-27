@@ -1,7 +1,7 @@
 'use strict';
 import * as React from 'react'
 import {CanvasSettings, MouseConstants} from './config/game.client.config';
-import {currentSocket} from "../core/services/socket.io.client.service";
+import {currentSocket, useAddSocketListener} from "../core/services/socket.io.client.service";
 
 /*
  * Get the coordinates of a mouse event relative to a canvas element
@@ -29,35 +29,48 @@ function getMouse(e, canvas) {
   my = e.pageY - offsetY;
 
   // We return a simple javascript object with x and y defined
-  return {x: mx / canvas.scaleX, y: my / canvas.scaleY};
+  return {x: mx / scaleX.current, y: my / scaleY.current};
 }
 
 function clearLayer(context) {
   context.clearRect(0, 0, CanvasSettings.RESOLUTION_WIDTH, CanvasSettings.RESOLUTION_HEIGHT);
 }
 
-export const CanvasElement = (props: {canDraw: boolean}) => {
+const scaleX = {
+  current: null,
+}
+const scaleY = {
+  current: null,
+}
+const mouseLeftIsDown = {
+  current: false,
+}
 
+export const CanvasElement = (props: {canDraw: boolean}) => {
+  const mouseMode = 'pen' // todo
+  const penColour = 'black'
+  const drawWidth = {'pen': 5}
   function inCanvas(mouse) {
     // Re-multiply the scale back in to compare against real width and height
-    var mouseX = mouse.x * element.scaleX;
-    var mouseY = mouse.y * element.scaleY;
+    var mouseX = mouse.x * scaleX.current;
+    var mouseY = mouse.y * scaleY.current;
 
-    return mouseX >= 0 && mouseX < element[0].offsetWidth && mouseY >= 0 && mouseY < element[0].offsetHeight;
+    return mouseX >= 0 && mouseX < parentRef.current.offsetWidth && mouseY >= 0 && mouseY < parentRef.current.offsetHeight;
   }
 
+  const parentRef = React.createRef(null)
   const drawLayerRef = React.createRef(null)
   const previewLayerRef = React.createRef(null)
   const hiddenLayerRef = React.createRef(null)
-  const element = {}
 
   React.useEffect(() => {
-    const windowResize = (e) => {
+    const windowResize = () => {
+      console.log("window resize event")
       const drawCtx = drawLayerRef.current.getContext('2d');
       const previewCtx = previewLayerRef.current.getContext('2d');
       // Aspect ratio
       var aspectRatio = CanvasSettings.RESOLUTION_WIDTH / CanvasSettings.RESOLUTION_HEIGHT;
-      var width = element[0].offsetWidth;
+      var width = parentRef.current.offsetWidth;
       var height = width / aspectRatio;
       drawLayerRef.current.width = width;
       drawLayerRef.current.height = height;
@@ -65,22 +78,22 @@ export const CanvasElement = (props: {canDraw: boolean}) => {
       previewLayerRef.current.height = height;
 
       // Figure out scaling
-      element.scaleX = width / CanvasSettings.RESOLUTION_WIDTH;
-      element.scaleY = height / CanvasSettings.RESOLUTION_HEIGHT;
+      scaleX.current = width / CanvasSettings.RESOLUTION_WIDTH;
+      scaleY.current = height / CanvasSettings.RESOLUTION_HEIGHT;
 
       // Scale
-      drawCtx.scale(element.scaleX, element.scaleY);
-      previewCtx.scale(element.scaleX, element.scaleY);
+      drawCtx.scale(scaleX.current, scaleY.current);
+      previewCtx.scale(scaleX.current, scaleY.current);
 
       // Restore data
-      drawCtx.drawImage(hiddenLayer, 0, 0);
+      drawCtx.drawImage(hiddenLayerRef.current, 0, 0);
 
     }
     window.addEventListener('resize', windowResize);
+    windowResize() // Trigger initial resize after render
     return () => {window.removeEventListener('resize', windowResize)}
-  }, [])
+  }, [drawLayerRef, previewLayerRef])
 
-  const mouseLeftIsDown = React.useRef(false);
   // Last mouse position when dragging
   const lastX = React.useRef(null);
   const lastY = React.useRef(null);
@@ -94,7 +107,7 @@ export const CanvasElement = (props: {canDraw: boolean}) => {
       return;
     }
 
-    var mouse = getMouse(e, drawLayerRef.current);
+    var mouse = getMouse(e, parentRef.current);
 
     if (mouse.x < 0 && mouse.y < 0){
       return;
@@ -107,9 +120,6 @@ export const CanvasElement = (props: {canDraw: boolean}) => {
       x2: mouse.x,
       y2: mouse.y
     };
-    const mouseMode = 'pen' // todo
-    const penColour = 'black'
-    const drawWidth = {'pen': 5}
     if (mouseMode === 'pen') {
       message.lineType = 'pen';
       message.strokeStyle = penColour;
@@ -130,8 +140,7 @@ export const CanvasElement = (props: {canDraw: boolean}) => {
 
   useDocumentBodyListener('mousedown', (e: MouseEvent) => {
     const drawCtx = drawLayerRef.current.getContext('2d');
-    const previewCtx = previewLayerRef.current.getContext('2d');
-    var mouse = getMouse(e, drawLayerRef.current);
+    var mouse = getMouse(e, parentRef.current);
     // If the mouseDown event was left click within the canvas
     if (inCanvas(mouse) && (e.which === MouseConstants.MOUSE_LEFT )) {
       // Prevent the default action of turning into highlight cursor
@@ -152,17 +161,14 @@ export const CanvasElement = (props: {canDraw: boolean}) => {
       lastY.current = mouse.y;
     }
 
-  }, [])
+  }, [drawLayerRef])
 
   useDocumentBodyListener('touchstart', (e: TouchEvent) => {
-    const drawCtx = drawLayerRef.current.getContext('2d');
-    const previewCtx = previewLayerRef.current.getContext('2d');
     // If the touchstart is within the canvas
     if (e.target === previewLayerRef.current) {
       // Prevent page scrolling
       e.preventDefault();
       // Convert touch position to mouse position and trigger the mouse event counterpart
-      var mouse = getMouse(e, drawLayerRef.current);
       var touch = e.touches[0];
       var mouseEvent = new MouseEvent("mousedown", {
         clientX: touch.clientX,
@@ -170,12 +176,11 @@ export const CanvasElement = (props: {canDraw: boolean}) => {
       });
       document.body.dispatchEvent(mouseEvent);
     }
-  }, [], {passive: false})
+  }, [previewLayerRef], {passive: false})
 
   useDocumentBodyListener('mousemove', (e: MouseEvent) => {
-    const drawCtx = drawLayerRef.current.getContext('2d');
     const previewCtx = previewLayerRef.current.getContext('2d');
-    var mouse = getMouse(e, element);
+    var mouse = getMouse(e, parentRef.current);
     // If we started drawing within the canvas, draw the next part of the line
     if (mouseLeftIsDown.current) {
       drawAndEmit(e);
@@ -184,16 +189,16 @@ export const CanvasElement = (props: {canDraw: boolean}) => {
     // Redraw the preview layer to match the new position
     clearLayer(previewCtx);
     if (inCanvas(mouse)) {
-      if (scope.Game.isDrawer(scope.username) || scope.Game.finished) {
-        if (scope.mouseMode === 'pen') {
+      if (props.canDraw) {
+        if (mouseMode === 'pen') {
           // Solid circle with the matching pen colour
           previewCtx.beginPath();
-          previewCtx.arc(mouse.x, mouse.y, (+scope.drawWidth[scope.mouseMode] + 1) / 2, 0, Math.PI * 2);
+          previewCtx.arc(mouse.x, mouse.y, (+drawWidth[mouseMode] + 1) / 2, 0, Math.PI * 2);
 
           // Add outline of most contrasting colour
           // Get the rgb value from html colour name or hex value
           var d = document.createElement("div");
-          d.style.color = scope.penColour;
+          d.style.color = penColour;
           document.body.appendChild(d);
           var rgb = window.getComputedStyle(d).color.replace(/[^\d,]/g, '').split(',');
           document.body.removeChild(d);
@@ -206,12 +211,12 @@ export const CanvasElement = (props: {canDraw: boolean}) => {
           previewCtx.lineWidth = 1;
           previewCtx.stroke();
 
-          previewCtx.fillStyle = scope.penColour;
+          previewCtx.fillStyle = penColour;
           previewCtx.fill();
-        } else if (scope.mouseMode === 'eraser') {
+        } else if (mouseMode === 'eraser') {
           // Empty circle with black outline and white fill
           previewCtx.beginPath();
-          previewCtx.arc(mouse.x, mouse.y, (+scope.drawWidth[scope.mouseMode] + 1) / 2, 0, Math.PI * 2);
+          previewCtx.arc(mouse.x, mouse.y, (+drawWidth[mouseMode] + 1) / 2, 0, Math.PI * 2);
           previewCtx.strokeStyle = '#000';
           previewCtx.lineWidth = 1;
           previewCtx.stroke();
@@ -220,13 +225,11 @@ export const CanvasElement = (props: {canDraw: boolean}) => {
         }
       }
     }
-  }, [])
+  }, [previewLayerRef, parentRef])
 
   useDocumentBodyListener('touchmove', function (e) {
-    const drawCtx = drawLayerRef.current.getContext('2d');
-    const previewCtx = previewLayerRef.current.getContext('2d');
     // If the touchmove is within the canvas
-    if (e.target === previewLayer) {
+    if (e.target === previewLayerRef.current) {
       // Prevent page scrolling
       e.preventDefault();
       // Convert touch position to mouse position and trigger the mouse event counterpart
@@ -237,62 +240,75 @@ export const CanvasElement = (props: {canDraw: boolean}) => {
       });
       document.body.dispatchEvent(mouseEvent);
     }
-  }, [], {passive: false});
+  }, [previewLayerRef], {passive: false});
 
   useDocumentBodyListener('mouseup', function (e) {
-    const drawCtx = drawLayerRef.current.getContext('2d');
-    const previewCtx = previewLayerRef.current.getContext('2d');
     // If we released the left mouse button, stop drawing and finish the line
-    if (mouseLeftIsDown.current && (e.button === MouseConstants.MOUSE_LEFT)) {
+    if (mouseLeftIsDown.current && (e.which === MouseConstants.MOUSE_LEFT)) {
       mouseLeftIsDown.current = false;
       // Final drawAndEmit allows you to make a dot by clicking once and not moving mouse.
       drawAndEmit(e);
     }
-  }, []);
+  }, [drawAndEmit]);
 
   useDocumentBodyListener('touchend', function (e) {
-    const drawCtx = drawLayerRef.current.getContext('2d');
-    const previewCtx = previewLayerRef.current.getContext('2d');
     // If the touchstart is within the canvas
-    if (e.target === previewLayer) {
+    if (e.target === previewLayerRef.current) {
       // Prevent page scrolling
       e.preventDefault();
       // Convert touch position to mouse position and trigger the mouse event counterpart
       var mouseEvent = new MouseEvent("mouseup", {});
       document.body.dispatchEvent(mouseEvent);
     }
-  }, [], {passive: false});
+  }, [previewLayerRef], {passive: false});
 
   const draw = function (message) {
     const drawCtx = drawLayerRef.current.getContext('2d');
-    const previewCtx = previewLayerRef.current.getContext('2d');
     const hiddenCtx = hiddenLayerRef.current.getContext('2d');
     drawOnCtx(message, drawCtx);
     drawOnCtx(message, hiddenCtx);
-  };
+  }
 
-  // Generate a layer for the canvas. Higher zIndex indicates in front
-  const LayerElement = React.forwardRef(({zIndex, width, height}, ref) => {
-    return (
-      <canvas className="dt-drawing-layer" ref={ref} style={{
-        cursor: props.canDraw ? 'none' : 'default',
-        height: height,
-        width: width,
-        zIndex: zIndex,
-      }}/>
-    )
-  })
+  useAddSocketListener('canvasMessage', (message) => {
+    if (Array.isArray(message)) {
+      message.forEach(function (m) {
+        draw(m);
+      });
+    } else {
+      draw(message);
+    }
+  }, [draw])
+
+
 
   return (
-    <div id="drawing-canvas" className="dt-drawing">
-      <LayerElement ref={drawLayerRef} zIndex={0} width={1} height={1}/>
-      <LayerElement ref={previewLayerRef} zIndex={1} width={1} height={1}/>
+    <div ref={parentRef} className="dt-drawing">
+      <canvas className={"dt-drawing-layer"} ref={drawLayerRef} style={{cursor: (props.canDraw ? 'none' : 'default'), zIndex: 1}}/>
+      <canvas className={"dt-drawing-layer"} ref={previewLayerRef} style={{cursor: (props.canDraw ? 'none' : 'default'), zIndex: 0}}/>
       <div style={{visibility: 'hidden'}}>
-        <LayerElement ref={hiddenLayerRef} zIndex={0} width={CanvasSettings.RESOLUTION_WIDTH} height={CanvasSettings.RESOLUTION_HEIGHT}/>
+        <canvas className={"dt-drawing-layer"} ref={hiddenLayerRef} style={{
+          cursor: (props.canDraw ? 'none' : 'default'),
+          zIndex: 0,
+          width: CanvasSettings.RESOLUTION_WIDTH,
+          height: CanvasSettings.RESOLUTION_HEIGHT,
+        }}/>
       </div>
     </div>
   )
 }
+
+// Generate a layer for the canvas. Higher zIndex indicates in front
+const LayerElement = React.forwardRef(({zIndex, width, height, canDraw}, ref) => {
+  return (
+    <canvas className="dt-drawing-layer" ref={ref} style={{
+      cursor: canDraw ? 'none' : 'default',
+      height: height,
+      width: width,
+      zIndex: zIndex,
+    }}/>
+  )
+})
+
 
 const useDocumentBodyListener = (event: string, callback: (e) => void, deps: any[], options={}) => {
   React.useEffect(() => {

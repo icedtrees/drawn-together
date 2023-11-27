@@ -11,7 +11,7 @@ export const currentSocket = {
 export const useAddSocketListener = ((event: string, callback: (x: any) => void, deps: any[]) => {
   React.useEffect(() => {
     currentSocket.socket.addEventListener(event, callback)
-    return (() => currentSocket.socket.removeEventListener(callback))
+    return (() => currentSocket.socket.removeEventListener(event, callback))
   }, deps)
 })
 
