@@ -18,6 +18,8 @@
   gap: 2%;
   justify-content: center;
   padding: 2%;
+  max-height: calc(100vh - 48px);
+  min-height: 533px;
 }
 
 .left-column {
@@ -37,6 +39,7 @@ horizontal space, the dimension should be (100vw - leftcolumn - rightcolumn)
   Max height of the canvas is 100vh - (space taken up by other elements in the middle column)
    */
   max-width: calc(100vh - 230px);
+  min-width: 350px;
 }
 .dt-drawing {
   aspect-ratio: 1; /* Set height to same as width */
