@@ -57,22 +57,21 @@ export const CanvasElement = (props: {canDraw: boolean, mouseMode: string, penCo
 
   const parentRef = React.createRef(null)
   const drawLayerRef = React.createRef(null)
-  const previewLayerRef = React.createRef(null)
+  const previewCursorLayerRef = React.createRef(null)
   const hiddenLayerRef = React.createRef(null)
 
   React.useEffect(() => {
     const windowResize = () => {
-      console.log("window resize event")
       const drawCtx = drawLayerRef.current.getContext('2d');
-      const previewCtx = previewLayerRef.current.getContext('2d');
+      const previewCursorCtx = previewCursorLayerRef.current.getContext('2d');
       // Aspect ratio
       var aspectRatio = CanvasSettings.RESOLUTION_WIDTH / CanvasSettings.RESOLUTION_HEIGHT;
       var width = parentRef.current.offsetWidth;
       var height = width / aspectRatio;
       drawLayerRef.current.width = width;
       drawLayerRef.current.height = height;
-      previewLayerRef.current.width = width;
-      previewLayerRef.current.height = height;
+      previewCursorLayerRef.current.width = width;
+      previewCursorLayerRef.current.height = height;
 
       // Figure out scaling
       scaleX.current = width / CanvasSettings.RESOLUTION_WIDTH;
@@ -80,7 +79,7 @@ export const CanvasElement = (props: {canDraw: boolean, mouseMode: string, penCo
 
       // Scale
       drawCtx.scale(scaleX.current, scaleY.current);
-      previewCtx.scale(scaleX.current, scaleY.current);
+      previewCursorCtx.scale(scaleX.current, scaleY.current);
 
       // Restore data
       drawCtx.drawImage(hiddenLayerRef.current, 0, 0);
@@ -89,7 +88,7 @@ export const CanvasElement = (props: {canDraw: boolean, mouseMode: string, penCo
     window.addEventListener('resize', windowResize);
     windowResize() // Trigger initial resize after render
     return () => {window.removeEventListener('resize', windowResize)}
-  }, [drawLayerRef, previewLayerRef])
+  }, [drawLayerRef, previewCursorLayerRef])
 
   // Last mouse position when dragging
   const lastX = React.useRef(null);
@@ -162,7 +161,7 @@ export const CanvasElement = (props: {canDraw: boolean, mouseMode: string, penCo
 
   useDocumentBodyListener('touchstart', (e: TouchEvent) => {
     // If the touchstart is within the canvas
-    if (e.target === previewLayerRef.current) {
+    if (e.target === previewCursorLayerRef.current) {
       // Prevent page scrolling
       e.preventDefault();
       // Convert touch position to mouse position and trigger the mouse event counterpart
@@ -173,10 +172,10 @@ export const CanvasElement = (props: {canDraw: boolean, mouseMode: string, penCo
       });
       document.body.dispatchEvent(mouseEvent);
     }
-  }, [previewLayerRef], {passive: false})
+  }, [previewCursorLayerRef], {passive: false})
 
   useDocumentBodyListener('mousemove', (e: MouseEvent) => {
-    const previewCtx = previewLayerRef.current.getContext('2d');
+    const previewCursorCtx = previewCursorLayerRef.current.getContext('2d');
     var mouse = getMouse(e, parentRef.current);
     // If we started drawing within the canvas, draw the next part of the line
     if (mouseLeftIsDown.current) {
@@ -184,13 +183,13 @@ export const CanvasElement = (props: {canDraw: boolean, mouseMode: string, penCo
     }
 
     // Redraw the preview layer to match the new position
-    clearLayer(previewCtx);
+    clearLayer(previewCursorCtx);
     if (inCanvas(mouse)) {
       if (props.canDraw) {
         if (props.mouseMode === 'pen') {
           // Solid circle with the matching pen colour
-          previewCtx.beginPath();
-          previewCtx.arc(mouse.x, mouse.y, (+props.drawWidth[props.mouseMode] + 1) / 2, 0, Math.PI * 2);
+          previewCursorCtx.beginPath();
+          previewCursorCtx.arc(mouse.x, mouse.y, (+props.drawWidth[props.mouseMode] + 1) / 2, 0, Math.PI * 2);
 
           // Add outline of most contrasting colour
           // Get the rgb value from html colour name or hex value
@@ -204,29 +203,29 @@ export const CanvasElement = (props: {canDraw: boolean, mouseMode: string, penCo
           var b = rgb[2];
           var luminance = 0.2126*r + 0.7152*g + 0.0722*b;
           // Choose the more contrasting colour (black/white) according to luminance
-          previewCtx.strokeStyle = luminance < 128 ? '#fff' : '#000';
-          previewCtx.lineWidth = 1;
-          previewCtx.stroke();
+          previewCursorCtx.strokeStyle = luminance < 128 ? '#fff' : '#000';
+          previewCursorCtx.lineWidth = 1;
+          previewCursorCtx.stroke();
 
-          previewCtx.fillStyle = props.penColour;
-          previewCtx.fill();
+          previewCursorCtx.fillStyle = props.penColour;
+          previewCursorCtx.fill();
         } else if (props.mouseMode === 'eraser') {
           // Empty circle with black outline and white fill
-          previewCtx.beginPath();
-          previewCtx.arc(mouse.x, mouse.y, (+props.drawWidth[props.mouseMode] + 1) / 2, 0, Math.PI * 2);
-          previewCtx.strokeStyle = '#000';
-          previewCtx.lineWidth = 1;
-          previewCtx.stroke();
-          previewCtx.fillStyle = '#fff';
-          previewCtx.fill();
+          previewCursorCtx.beginPath();
+          previewCursorCtx.arc(mouse.x, mouse.y, (+props.drawWidth[props.mouseMode] + 1) / 2, 0, Math.PI * 2);
+          previewCursorCtx.strokeStyle = '#000';
+          previewCursorCtx.lineWidth = 1;
+          previewCursorCtx.stroke();
+          previewCursorCtx.fillStyle = '#fff';
+          previewCursorCtx.fill();
         }
       }
     }
-  }, [previewLayerRef, parentRef])
+  }, [previewCursorLayerRef, parentRef])
 
   useDocumentBodyListener('touchmove', function (e) {
     // If the touchmove is within the canvas
-    if (e.target === previewLayerRef.current) {
+    if (e.target === previewCursorLayerRef.current) {
       // Prevent page scrolling
       e.preventDefault();
       // Convert touch position to mouse position and trigger the mouse event counterpart
@@ -237,7 +236,7 @@ export const CanvasElement = (props: {canDraw: boolean, mouseMode: string, penCo
       });
       document.body.dispatchEvent(mouseEvent);
     }
-  }, [previewLayerRef], {passive: false});
+  }, [previewCursorLayerRef], {passive: false});
 
   useDocumentBodyListener('mouseup', function (e) {
     // If we released the left mouse button, stop drawing and finish the line
@@ -250,14 +249,14 @@ export const CanvasElement = (props: {canDraw: boolean, mouseMode: string, penCo
 
   useDocumentBodyListener('touchend', function (e) {
     // If the touchstart is within the canvas
-    if (e.target === previewLayerRef.current) {
+    if (e.target === previewCursorLayerRef.current) {
       // Prevent page scrolling
       e.preventDefault();
       // Convert touch position to mouse position and trigger the mouse event counterpart
       var mouseEvent = new MouseEvent("mouseup", {});
       document.body.dispatchEvent(mouseEvent);
     }
-  }, [previewLayerRef], {passive: false});
+  }, [previewCursorLayerRef], {passive: false});
 
   const draw = function (message) {
     const drawCtx = drawLayerRef.current.getContext('2d');
@@ -280,15 +279,18 @@ export const CanvasElement = (props: {canDraw: boolean, mouseMode: string, penCo
 
   return (
     <div ref={parentRef} className="dt-drawing">
-      <canvas className={"dt-drawing-layer"} ref={drawLayerRef} style={{cursor: (props.canDraw ? 'none' : 'default'), zIndex: 1}}/>
-      <canvas className={"dt-drawing-layer"} ref={previewLayerRef} style={{cursor: (props.canDraw ? 'none' : 'default'), zIndex: 0}}/>
+      <canvas className={"dt-drawing-layer"} ref={drawLayerRef} style={{cursor: (props.canDraw ? 'none' : 'default'), zIndex: 0}}/>
+      <canvas className={"dt-drawing-layer"} ref={previewCursorLayerRef} style={{cursor: (props.canDraw ? 'none' : 'default'), zIndex: 1}}/>
       <div style={{visibility: 'hidden'}}>
-        <canvas className={"dt-drawing-layer"} ref={hiddenLayerRef} style={{
-          cursor: (props.canDraw ? 'none' : 'default'),
-          zIndex: 0,
-          width: CanvasSettings.RESOLUTION_WIDTH,
-          height: CanvasSettings.RESOLUTION_HEIGHT,
-        }}/>
+        <canvas
+          className={"dt-drawing-layer"}
+          ref={hiddenLayerRef} style={{
+            cursor: (props.canDraw ? 'none' : 'default'),
+            zIndex: 0,
+          }}
+          width={CanvasSettings.RESOLUTION_WIDTH}
+          height={CanvasSettings.RESOLUTION_HEIGHT}
+        />
       </div>
     </div>
   )

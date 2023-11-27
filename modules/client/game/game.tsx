@@ -536,7 +536,7 @@ const DrawingSection = ({game, topic, user, timerTop, timerBottom, canDraw, mous
           <div className="text-center unselectable">
             {game.currentRound !== undefined && game.numRounds !== undefined && (
               <span>
-                {game.finished ? 'Game over!' : ('Round ' + (game.currentRound + 1) + '/' + game.numRounds + ':')}
+                {game.finished ? 'Game over!' : ('Round ' + (game.currentRound + 1) + '/' + game.numRounds + ': ')}
               </span>
             )}
             {!!game.getDrawers().length && (

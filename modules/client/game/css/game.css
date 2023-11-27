@@ -16,7 +16,6 @@
 .game-page {
   display: flex;
   gap: 2%;
-  height: 85vh;  /* This is kind of arbitrary - ideally we want it to be 100vh - navbar height */
   justify-content: center;
   padding: 2%;
 }
@@ -34,11 +33,13 @@ horizontal space, the dimension should be (100vw - leftcolumn - rightcolumn)
  */
 .middle-column {
   flex-grow: 1; /* Expand to take up remaining space */
-  max-width: 80vh; /* Suppose middle header height is 20vh for now */
+  /* Max width of the middle column is limited by the max height of the canvas, since the aspect ratio must be 1:1.
+  Max height of the canvas is 100vh - (space taken up by other elements in the middle column)
+   */
+  max-width: calc(100vh - 230px);
 }
 .dt-drawing {
   aspect-ratio: 1; /* Set height to same as width */
-  border: 1px solid black;
 }
 
 .right-column {
