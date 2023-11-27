@@ -46,10 +46,7 @@ const mouseLeftIsDown = {
   current: false,
 }
 
-export const CanvasElement = (props: {canDraw: boolean}) => {
-  const mouseMode = 'pen' // todo
-  const penColour = 'black'
-  const drawWidth = {'pen': 5}
+export const CanvasElement = (props: {canDraw: boolean, mouseMode: string, penColour: string, drawWidth: string}) => {
   function inCanvas(mouse) {
     // Re-multiply the scale back in to compare against real width and height
     var mouseX = mouse.x * scaleX.current;
@@ -120,13 +117,13 @@ export const CanvasElement = (props: {canDraw: boolean}) => {
       x2: mouse.x,
       y2: mouse.y
     };
-    if (mouseMode === 'pen') {
+    if (props.mouseMode === 'pen') {
       message.lineType = 'pen';
-      message.strokeStyle = penColour;
-      message.lineWidth = drawWidth[mouseMode];
-    } else if (mouseMode === 'eraser') {
+      message.strokeStyle = props.penColour;
+      message.lineWidth = props.drawWidth[props.mouseMode];
+    } else if (props.mouseMode === 'eraser') {
       message.lineType = 'eraser';
-      message.lineWidth = drawWidth[mouseMode];
+      message.lineWidth = props.drawWidth[props.mouseMode];
     }
     currentSocket.socket.emit('canvasMessage', message);
     draw(message);
@@ -190,15 +187,15 @@ export const CanvasElement = (props: {canDraw: boolean}) => {
     clearLayer(previewCtx);
     if (inCanvas(mouse)) {
       if (props.canDraw) {
-        if (mouseMode === 'pen') {
+        if (props.mouseMode === 'pen') {
           // Solid circle with the matching pen colour
           previewCtx.beginPath();
-          previewCtx.arc(mouse.x, mouse.y, (+drawWidth[mouseMode] + 1) / 2, 0, Math.PI * 2);
+          previewCtx.arc(mouse.x, mouse.y, (+props.drawWidth[props.mouseMode] + 1) / 2, 0, Math.PI * 2);
 
           // Add outline of most contrasting colour
           // Get the rgb value from html colour name or hex value
           var d = document.createElement("div");
-          d.style.color = penColour;
+          d.style.color = props.penColour;
           document.body.appendChild(d);
           var rgb = window.getComputedStyle(d).color.replace(/[^\d,]/g, '').split(',');
           document.body.removeChild(d);
@@ -211,12 +208,12 @@ export const CanvasElement = (props: {canDraw: boolean}) => {
           previewCtx.lineWidth = 1;
           previewCtx.stroke();
 
-          previewCtx.fillStyle = penColour;
+          previewCtx.fillStyle = props.penColour;
           previewCtx.fill();
-        } else if (mouseMode === 'eraser') {
+        } else if (props.mouseMode === 'eraser') {
           // Empty circle with black outline and white fill
           previewCtx.beginPath();
-          previewCtx.arc(mouse.x, mouse.y, (+drawWidth[mouseMode] + 1) / 2, 0, Math.PI * 2);
+          previewCtx.arc(mouse.x, mouse.y, (+props.drawWidth[props.mouseMode] + 1) / 2, 0, Math.PI * 2);
           previewCtx.strokeStyle = '#000';
           previewCtx.lineWidth = 1;
           previewCtx.stroke();

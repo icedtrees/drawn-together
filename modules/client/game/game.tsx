@@ -154,7 +154,17 @@ export const GamePage = ({user, roomName, setPage, setRoomName}) => {
             <PreGameSettings user={user} game={game} setGame={setGame}/>
           )}
           {game.started && (
-            <DrawingSection game={game} canDraw={canDraw} topic={topic} user={user} timerTop={timerTop} timerBottom={timerBottom}/>
+            <DrawingSection
+              game={game}
+              canDraw={canDraw}
+              topic={topic}
+              user={user}
+              timerTop={timerTop}
+              timerBottom={timerBottom}
+              mouseMode={mouseMode}
+              penColour={penColour}
+              drawWidth={drawWidth}
+            />
           )}
         </div>
         <div className="right-column" disabled={!canDraw}>
@@ -508,7 +518,7 @@ const Setting = ({setting, isHost, onChangeSetting, chosen}) => {
   )
 }
 
-const DrawingSection = ({game, topic, user, timerTop, timerBottom, canDraw}) => {
+const DrawingSection = ({game, topic, user, timerTop, timerBottom, canDraw, mouseMode, penColour, drawWidth}) => {
   return (
     <>
       <div className="drawing-header">
@@ -543,7 +553,7 @@ const DrawingSection = ({game, topic, user, timerTop, timerBottom, canDraw}) => 
       {timerBottom && (
         <TimerComponent color={'pink'} gameFinished={game.finished} timer={timerBottom} totalTime={game.timeAfterGuess}/>
       )}
-      <CanvasElement canDraw={canDraw}/>
+      <CanvasElement canDraw={canDraw} mouseMode={mouseMode} penColour={penColour} drawWidth={drawWidth}/>
     </>
   )
 }
