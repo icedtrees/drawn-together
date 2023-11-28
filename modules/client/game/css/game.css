@@ -40,6 +40,11 @@ horizontal space, the dimension should be (100vw - leftcolumn - rightcolumn)
    */
   max-width: calc(100vh - 230px);
   min-width: 350px;
+
+  /* Horizontally center content within the middle column */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .dt-drawing {
   aspect-ratio: 1; /* Set height to same as width */

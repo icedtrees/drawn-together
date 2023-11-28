@@ -3,7 +3,7 @@ import * as GameConfig from '../../shared/game/config/game.shared.game.config'
 import {Game} from '../../shared/game/helpers/game.shared.gamelogic'
 import {Timer, toCommaListIs} from '../../shared/game/helpers/game.shared.utils'
 import {MAX_MSG_LEN, MAX_MESSAGES} from '../../shared/game/config/game.shared.chat.config'
-import {currentSocket, useAddSocketListener} from "../core/services/socket.io.client.service";
+import {connectSocket, currentSocket, useAddSocketListener} from "../core/services/socket.io.client.service";
 import {CanvasElement} from "./canvas";
 
 import './css/chat.css'
@@ -23,8 +23,9 @@ export const GamePage = ({user, roomName, setPage, setRoomName}) => {
   const [timerBottom, setTimerBottom] = React.useState(null)
   const [topic, setTopic] = React.useState(null)
 
+  connectSocket(user) // todo: this should probably be done in a more centralised place
+
   useAddSocketListener('gameState', (state) => {
-    // Game host tells server to start game with chosen settings
     // Set the game state based on what the server tells us it currently is
     console.log("updating game...", state)
     setGame(Object.assign(new Game(), game, state))
@@ -121,6 +122,9 @@ export const GamePage = ({user, roomName, setPage, setRoomName}) => {
     newGame.removeUser(user);
     setGame(newGame)
   }, [game, setGame]);
+  useAddSocketListener('gameFinished', () => {
+    setGame(Object.assign(new Game(), game, {finished: true}))
+  }, [game, setGame])
 
   React.useEffect(() => {
     console.log("requesting state from game.tsx for room", roomName)
@@ -128,12 +132,21 @@ export const GamePage = ({user, roomName, setPage, setRoomName}) => {
     return () => {
       currentSocket.socket.emit('leaveRoom')
     }
-  }, [])
+  }, [roomName])
 
   const canDraw = game.isDrawer(user.username) || game.finished
   const [drawWidth, setDrawWidth] = React.useState({pen: CanvasSettings.DEFAULT_PEN_WIDTH, eraser: CanvasSettings.DEFAULT_ERASER_WIDTH})
   const [penColour, setPenColour] = React.useState(CanvasSettings.DEFAULT_PEN_COLOUR)
   const [mouseMode, setMouseMode] = React.useState('pen')
+  const canvasRef = React.useRef()
+
+  const onClearDrawing = () => {
+    if (game.isDrawer(user.username)) {
+      const message = { type: 'clear' }
+      currentSocket.socket.emit('canvasMessage', message);
+      canvasRef.current.clearCanvas()
+    }
+  };
 
   return (
     <>
@@ -164,10 +177,11 @@ export const GamePage = ({user, roomName, setPage, setRoomName}) => {
               mouseMode={mouseMode}
               penColour={penColour}
               drawWidth={drawWidth}
+              ref={canvasRef}
             />
           )}
         </div>
-        <div className="right-column" disabled={!canDraw}>
+        <div className="right-column toolbox" disabled={!canDraw}>
           <DrawingTools
             canDraw={canDraw}
             gameFinished={game.finished}
@@ -177,6 +191,7 @@ export const GamePage = ({user, roomName, setPage, setRoomName}) => {
             setPenColour={setPenColour}
             mouseMode={mouseMode}
             setMouseMode={setMouseMode}
+            onClearDrawing={onClearDrawing}
           />
         </div>
       </section>
@@ -518,7 +533,7 @@ const Setting = ({setting, isHost, onChangeSetting, chosen}) => {
   )
 }
 
-const DrawingSection = ({game, topic, user, timerTop, timerBottom, canDraw, mouseMode, penColour, drawWidth}) => {
+const DrawingSection = React.forwardRef(({game, topic, user, timerTop, timerBottom, canDraw, mouseMode, penColour, drawWidth}, canvasRef) => {
   return (
     <>
       <div className="drawing-header">
@@ -553,10 +568,10 @@ const DrawingSection = ({game, topic, user, timerTop, timerBottom, canDraw, mous
       {timerBottom && (
         <TimerComponent color={'pink'} gameFinished={game.finished} timer={timerBottom} totalTime={game.timeAfterGuess}/>
       )}
-      <CanvasElement canDraw={canDraw} mouseMode={mouseMode} penColour={penColour} drawWidth={drawWidth}/>
+      <CanvasElement canDraw={canDraw} mouseMode={mouseMode} penColour={penColour} drawWidth={drawWidth} ref={canvasRef}/>
     </>
   )
-}
+})
 
 const TimerComponent = ({gameFinished, color, timer, totalTime}) => {
   const [timeLeft, setTimeLeft] = React.useState(timer.timeLeft())
@@ -577,7 +592,7 @@ const TimerComponent = ({gameFinished, color, timer, totalTime}) => {
 }
 
 
-const DrawingTools = ({mouseMode, setMouseMode, canDraw, drawWidth, setDrawWidth, gameFinished, penColour, setPenColour}) => {
+const DrawingTools = ({mouseMode, setMouseMode, canDraw, drawWidth, setDrawWidth, gameFinished, penColour, setPenColour, onClearDrawing}) => {
   const drawTools = [
     [{type: 'pen', glyph: 'pencil'}, {type: 'eraser', glyph: 'eraser'}]
     //[{type: 'line', glyph: 'arrows-h'}, {type: 'fill', glyph: 'paint-brush'}],
@@ -640,7 +655,7 @@ const DrawingTools = ({mouseMode, setMouseMode, canDraw, drawWidth, setDrawWidth
                   <div
                     key={paletteColour.title}
                     className={'grid-cell palette-colour' + (penColour === paletteColour.value ? ' selected' : '')}
-                    style={{'background-color': paletteColour.value}}
+                    style={{backgroundColor: paletteColour.value}}
                     title={paletteColour.title}
                     onClick={() => {
                       if (canDraw) {
@@ -652,42 +667,17 @@ const DrawingTools = ({mouseMode, setMouseMode, canDraw, drawWidth, setDrawWidth
                 )
               })}
             </div>
-
           )
         })}
-        <div
-          className="custom-palette-colour-wrapper unselectable"
-          ng-click="toolboxUsable() && ((mouseMode = 'pen') && (penColour = penColourCustom))"
-        >
-          <div
-            ng-if="toolboxUsable()"
-            ng-model="selectCustomColour"
-            ng-model-options="{getterSetter: true}"
-            colorpicker=""
-            colorpicker-position="left"
-            colorpicker-parent="true"
-            ng-class="{'grid-cell': true, 'palette-colour': true, 'custom-palette-colour': true, 'selected': penColour === penColourCustom}"
-            ng-style="{'background-color': penColourCustom}"
-            ng-attr-title="{{penColourCustom}}"
-            style={{ cursor: "pointer" }}
-          ></div>
-          <div
-            ng-if="!toolboxUsable()"
-            ng-class="{'grid-cell': true, 'palette-colour': true, 'custom-palette-colour': true, 'selected': penColour === penColourCustom}"
-            ng-style="{'background-color': penColourCustom}"
-            ng-attr-title="{{penColourCustom}}"
-          ></div>
+        <div style={{ marginBottom: 0, marginTop: 12 }}>
+          <button
+            className="btn btn-primary clear-canvas"
+            disabled={!canDraw || gameFinished}
+            onClick={onClearDrawing}
+          >
+            Clear Canvas
+          </button>
         </div>
-        <p className="unselectable">Custom colour</p>
-      </div>
-      <div style={{ marginBottom: 0, marginTop: 12 }}>
-        <button
-          className="btn btn-primary clear-canvas"
-          disabled={!canDraw || gameFinished}
-          ng-click="clearDrawing()"
-        >
-          Clear Canvas
-        </button>
       </div>
     </>
   )

@@ -46,7 +46,7 @@ const mouseLeftIsDown = {
   current: false,
 }
 
-export const CanvasElement = (props: {canDraw: boolean, mouseMode: string, penColour: string, drawWidth: string}) => {
+export const CanvasElement = React.forwardRef((props: {canDraw: boolean, mouseMode: string, penColour: string, drawWidth: string}, canvasRef) => {
   function inCanvas(mouse) {
     // Re-multiply the scale back in to compare against real width and height
     var mouseX = mouse.x * scaleX.current;
@@ -54,6 +54,14 @@ export const CanvasElement = (props: {canDraw: boolean, mouseMode: string, penCo
 
     return mouseX >= 0 && mouseX < parentRef.current.offsetWidth && mouseY >= 0 && mouseY < parentRef.current.offsetHeight;
   }
+
+  React.useImperativeHandle(canvasRef, () => {
+    return {
+      clearCanvas() {
+        draw({type: 'clear'});
+      },
+    }
+  })
 
   const parentRef = React.createRef(null)
   const drawLayerRef = React.createRef(null)
@@ -294,7 +302,7 @@ export const CanvasElement = (props: {canDraw: boolean, mouseMode: string, penCo
       </div>
     </div>
   )
-}
+})
 
 // Generate a layer for the canvas. Higher zIndex indicates in front
 const LayerElement = React.forwardRef(({zIndex, width, height, canDraw}, ref) => {
