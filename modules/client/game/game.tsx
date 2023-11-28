@@ -98,7 +98,7 @@ export const GamePage = ({user, roomName, setPage, setRoomName}) => {
 
   useAddSocketListener('resetGame', () => {
     // The game has finished and is ready to be restarted
-    // $scope.canvas.draw({type: 'clear'});
+    onClearDrawing()
     const newGame = Object.assign(new Game(), game)
     newGame.resetGame();
     setGame(newGame)
@@ -160,7 +160,7 @@ export const GamePage = ({user, roomName, setPage, setRoomName}) => {
             window.state.go('home')
           }}/>
           <PlayerList game={game}/>
-          <MessageSection/>
+          <MessageSection canMessage={!(game.isDrawer(user.username) && game.started)}/>
         </div>
         <div className="middle-column">
           {!game.started && (
@@ -269,7 +269,7 @@ const PlayerList = ({game}) => {
   )
 }
 
-const MessageSection = () => {
+const MessageSection = ({canMessage}) => {
   const [inputMessage, setInputMessage] = React.useState('')
   const [messages, setMessages] = React.useState([])
   const chatContainerRef = React.useRef(null)
@@ -373,7 +373,7 @@ const MessageSection = () => {
             <div className="input-group col-xs-12 col-md-12">
               <input
                 autoComplete="off"
-                ng-disabled="Game.isDrawer(username) && Game.started"
+                disabled={!canMessage}
                 type="text"
                 id="messageText"
                 name="messageText"
@@ -397,11 +397,9 @@ const PreGameSettings = ({game, setGame, user}) => {
     if (topicList) {
       return
     }
-    console.log('fetching topics...')
     fetch('/api/topics').then((response) => {
       return response.json()
     }).then((topics) => {
-      console.log('fetched topics')
       setGame(Object.assign(new Game(), game, {topicListName: topics[0].name}))
       setTopicList(topics)
     })
@@ -411,7 +409,7 @@ const PreGameSettings = ({game, setGame, user}) => {
 
   // Game host updates a setting
   const onChangeSetting = function (setting, option) {
-    if (/*!game.started &&*/isHost) {
+    if (!game.started && isHost) {
       // Send to server so all other players can update this setting
       currentSocket.socket.emit('changeSetting', {setting : setting, option : option});
       setGame(Object.assign(new Game(), game, {[setting]: option}))
