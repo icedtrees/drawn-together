@@ -281,7 +281,7 @@ export const CanvasElement = React.forwardRef((props: {canDraw: boolean, mouseMo
     } else {
       draw(message);
     }
-  }, [draw])
+  })
 
 
 

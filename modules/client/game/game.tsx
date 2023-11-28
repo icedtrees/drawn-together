@@ -26,108 +26,130 @@ export const GamePage = ({user, roomName, setPage, setRoomName}) => {
   connectSocket(user) // todo: this should probably be done in a more centralised place
 
   useAddSocketListener('gameState', (state) => {
-    // Set the game state based on what the server tells us it currently is
-    console.log("updating game...", state)
-    setGame(Object.assign(new Game(), game, state))
-  }, [game, setGame])
+    setGame((game) => {return Object.assign(new Game(), game, state)})
+  })
 
   useAddSocketListener('updateSetting', (change) => {
-    // Server tells client a setting has been updated
-    console.log('updating setting...', change)
-    setGame(Object.assign(new Game(), game, {[change.setting]: change.option}))
-  }, [game, setGame])
+    setGame((game) => {return Object.assign(new Game(), game, {[change.setting]: change.option})})
+  })
 
   useAddSocketListener('startGame', () => {
     // Server tells client the game has started with the given settings
-    const newGame = Object.assign(new Game(), game)
-    newGame.startGame();
-    setGame(newGame)
-
-    const newTimerTop = Object.assign(new Timer(), timerTop)
-    newTimerTop.restart(undefined, game.roundTime * 1000);
-    setTimerTop(newTimerTop)
-
-    setTimerBottom(Object.assign(new Timer(), timerBottom, {delay: game.timeAfterGuess * 1000}))
-  }, [game, setGame])
+    setGame((game) => {
+      const newGame = Object.assign(new Game(), game)
+      newGame.startGame();
+      return newGame
+    })
+    setTimerTop((timerTop) => {
+      const newTimerTop = Object.assign(new Timer(), timerTop)
+      newTimerTop.restart(undefined, game.roundTime * 1000);
+      return newTimerTop
+    })
+    setTimerBottom((timerBottom) => {
+      return Object.assign(new Timer(), timerBottom, {delay: game.timeAfterGuess * 1000})
+    })
+  })
 
 
   // Server tells us what the current topic is (should only happen if we are the drawer now)
-  useAddSocketListener('topic', (t) => { setTopic(t)}, [setTopic])
+  useAddSocketListener('topic', (t) => { setTopic(t)})
 
   useAddSocketListener('updateTime', (serverTimers) => {
     // After the requestState, we get the time left and pausedness of both timers
-    const newTimerTop = new Timer()
-    if (serverTimers.timerTop.paused) {
-      newTimerTop.delay = serverTimers.timerTop.delay;
-    } else {
-      newTimerTop.restart(undefined, serverTimers.timerTop.delay);
-    }
-    setTimerTop(newTimerTop)
+    setTimerTop((timerTop) => {
+      const newTimerTop = new Timer()
+      if (serverTimers.timerTop.paused) {
+        newTimerTop.delay = serverTimers.timerTop.delay;
+      } else {
+        newTimerTop.restart(undefined, serverTimers.timerTop.delay);
+      }
+      return newTimerTop
+    })
 
-    const newTimerBottom = new Timer()
-    if (serverTimers.timerBot.paused) {
-      newTimerBottom.delay = serverTimers.timerBot.delay;
-    } else {
-      newTimerBottom.restart(undefined, serverTimers.timerBot.delay);
-    }
-    setTimerBottom(newTimerBottom)
-  }, [setTimerTop, setTimerBottom])
+    setTimerBottom((timerBottom) => {
+      const newTimerBottom = new Timer()
+      if (serverTimers.timerBot.paused) {
+        newTimerBottom.delay = serverTimers.timerBot.delay;
+      } else {
+        newTimerBottom.restart(undefined, serverTimers.timerBot.delay);
+      }
+      return newTimerBottom
+    })
+  })
 
   useAddSocketListener('switchTimer', () => {
     // First guess has been made, so switch timer to countdown the second one
-    const newTimerTop = Object.assign(new Timer(), timerTop)
-    newTimerTop.pause()
-    setTimerTop(newTimerTop)
-    const newTimerBottom = Object.assign(new Timer(), timerBottom)
-    newTimerBottom.pause()
-    setTimerBottom(newTimerBottom)
-  }, [timerTop, setTimerTop, timerBottom, setTimerBottom])
+    setTimerTop((timerTop) => {
+      const newTimerTop = Object.assign(new Timer(), timerTop)
+      newTimerTop.pause()
+      return newTimerTop
+    })
+    setTimerBottom((timerBottom) => {
+      const newTimerBottom = Object.assign(new Timer(), timerBottom)
+      newTimerBottom.pause()
+      return newTimerBottom
+    })
+  })
 
   useAddSocketListener('advanceRound', () => {
     // A round has finished
-    const newGame = Object.assign(new Game(), game)
-    newGame.advanceRound()
-    setGame(newGame)
-    const newTimerTop = Object.assign(new Timer(), timerTop)
-    newTimerTop.restart(undefined, game.roundTime * 1000)
-    setTimerTop(newTimerTop)
-    const newTimerBottom = Object.assign(new Timer(), timerBottom)
-    newTimerBottom.pause()
-    newTimerBottom.delay = game.timeAfterGuess * 1000
-  }, [game, setGame, timerTop, setTimerTop, timerBottom, setTimerBottom])
+    setGame((game) => {
+      const newGame = Object.assign(new Game(), game)
+      newGame.advanceRound()
+      return newGame
+    })
+    setTimerTop((timerTop) => {
+      const newTimerTop = Object.assign(new Timer(), timerTop)
+      newTimerTop.restart(undefined, game.roundTime * 1000)
+      return newTimerTop
+    })
+    setTimerBottom((timerBottom) => {
+      const newTimerBottom = Object.assign(new Timer(), timerBottom)
+      newTimerBottom.pause()
+      newTimerBottom.delay = game.timeAfterGuess * 1000
+      return newTimerBottom
+    })
+  })
 
   useAddSocketListener('resetGame', () => {
     // The game has finished and is ready to be restarted
     onClearDrawing()
-    const newGame = Object.assign(new Game(), game)
-    newGame.resetGame();
-    setGame(newGame)
-  }, [game, setGame])
+    setGame((game) => {
+      const newGame = Object.assign(new Game(), game)
+      newGame.resetGame();
+      return newGame
+    })
+  })
 
   // Update score when someone guesses correctly
   useAddSocketListener('markCorrectGuess', (username) => {
-    const newGame = Object.assign(new Game(), game)
-    newGame.markCorrectGuess(username);
-    setGame(newGame)
-  }, [game, setGame]);
+    setGame((game) => {
+      const newGame = Object.assign(new Game(), game)
+      newGame.markCorrectGuess(username);
+      return newGame
+    })
+  });
 
   // Another user has connected or disconnected.
   useAddSocketListener('userConnect', (user) => {
-    const newGame = Object.assign(new Game(), game)
-    newGame.addUser(user.username, user.image);
-    setGame(newGame)
-  }, [game, setGame]);
+    setGame((game) => {
+      const newGame = Object.assign(new Game(), game)
+      newGame.addUser(user.username, user.image);
+      return newGame
+    })
+  });
   useAddSocketListener('userDisconnect', (user) => {
-    const newGame = Object.assign(new Game(), game)
-    newGame.removeUser(user);
-    setGame(newGame)
-  }, [game, setGame]);
+    setGame((game) => {
+      const newGame = Object.assign(new Game(), game)
+      newGame.removeUser(user);
+      return newGame
+    })
+  });
   useAddSocketListener('gameFinished', () => {
-    setGame(Object.assign(new Game(), game, {finished: true}))
-  }, [game, setGame])
+    setGame((game) => {return Object.assign(new Game(), game, {finished: true})})
+  })
 
   React.useEffect(() => {
-    console.log("requesting state from game.tsx for room", roomName)
     currentSocket.socket.emit('requestState', roomName)
     return () => {
       currentSocket.socket.emit('leaveRoom')
@@ -291,21 +313,23 @@ const MessageSection = ({canMessage}) => {
     const container = chatContainerRef.current
     const distanceFromBottom = (container.scrollTop - (container.scrollHeight - container.offsetHeight));
     needToScroll.current = -20 < distanceFromBottom && distanceFromBottom < 20
-    const newMessages = [...messages]
-    if (Array.isArray(serverMessages)) {
-      serverMessages.forEach(function (m) {
-        newMessages.push(m)
-      });
-    } else {
-      newMessages.push(serverMessages)
-    }
+    setMessages((messages) => {
+      const newMessages = [...messages]
+      if (Array.isArray(serverMessages)) {
+        serverMessages.forEach(function (m) {
+          newMessages.push(m)
+        });
+      } else {
+        newMessages.push(serverMessages)
+      }
 
-    // delete old messages if MAX_MESSAGES is exceeded
-    while (newMessages.length > MAX_MESSAGES) {
-      newMessages.shift();
-    }
-    setMessages(newMessages)
-  }, [messages, setMessages])
+      // delete old messages if MAX_MESSAGES is exceeded
+      while (newMessages.length > MAX_MESSAGES) {
+        newMessages.shift();
+      }
+      return newMessages
+    })
+  })
 
   React.useEffect(() => {
     if (needToScroll.current) {
@@ -400,7 +424,12 @@ const PreGameSettings = ({game, setGame, user}) => {
     fetch('/api/topics').then((response) => {
       return response.json()
     }).then((topics) => {
-      setGame(Object.assign(new Game(), game, {topicListName: topics[0].name}))
+      setGame((game) => {
+        if (!game.topicListName) {
+          return Object.assign(new Game(), game, {topicListName: topics[0].name})
+        }
+        return game
+      })
       setTopicList(topics)
     })
   }, [game, setGame, topicList, setTopicList])
@@ -412,7 +441,7 @@ const PreGameSettings = ({game, setGame, user}) => {
     if (!game.started && isHost) {
       // Send to server so all other players can update this setting
       currentSocket.socket.emit('changeSetting', {setting : setting, option : option});
-      setGame(Object.assign(new Game(), game, {[setting]: option}))
+      setGame((game) => {return Object.assign(new Game(), game, {[setting]: option})})
     }
   };
 
