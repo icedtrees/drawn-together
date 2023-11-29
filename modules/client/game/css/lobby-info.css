@@ -2,14 +2,11 @@
   text-align: center;
 }
 .lobby-info h4 {
-  margin: 0;
   font-weight: normal;
-}
-.lobby-info h5 {
-  margin-top: 5px;
   margin-bottom: 15px;
 }
 .leave-lobby {
+  margin-top: 5px;
   padding: 7px 14px;
   border: 1px solid #DDDDDD;
   color: #EEEEEE;

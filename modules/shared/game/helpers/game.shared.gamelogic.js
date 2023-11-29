@@ -130,7 +130,7 @@ exports.Game.prototype.allGuessed = function() {
 
 /* Returns true if the game has ended and false otherwise */
 exports.Game.prototype.advanceRound = function () {
-  this.curDrawer = (this.curDrawer + 1) % this.userList.length;
+  this.curDrawer = (this.curDrawer + this.numDrawers) % this.userList.length;
   for (var i = 0; i < this.userList.length; i++) {
     this.users[this.userList[i]].guessedCorrect = false;
   }

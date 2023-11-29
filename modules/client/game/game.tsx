@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as GameConfig from '../../shared/game/config/game.shared.game.config'
 import {Game} from '../../shared/game/helpers/game.shared.gamelogic'
-import {Timer, toCommaListIs} from '../../shared/game/helpers/game.shared.utils'
+import {Timer, toCommaListIs, toCommaList} from '../../shared/game/helpers/game.shared.utils'
 import {MAX_MSG_LEN, MAX_MESSAGES} from '../../shared/game/config/game.shared.chat.config'
 import {connectSocket, currentSocket, useAddSocketListener} from "../core/services/socket.io.client.service";
 import {CanvasElement} from "./canvas";
@@ -177,9 +177,14 @@ export const GamePage = ({user, roomName, setPage}) => {
         className="game-page"
       >
         <div className="left-column">
-          <LobbyInformation topicListName={game.topicListName} roomName={roomName} onLeaveRoom={() => {
-            setPage({view: 'lobby'})
-          }}/>
+          <LobbyInformation
+            onLeaveRoom={() => {
+              setPage({view: 'lobby'})
+            }}
+            roomName={roomName}
+            game={game}
+            topicListName={game.topicListName}
+          />
           <PlayerList game={game}/>
           <MessageSection canMessage={!(game.isDrawer(user.username) && game.started)}/>
         </div>
@@ -220,14 +225,16 @@ export const GamePage = ({user, roomName, setPage}) => {
   )
 }
 
-const LobbyInformation = ({topicListName, roomName, onLeaveRoom}) => {
+const LobbyInformation = ({game, topicListName, roomName, onLeaveRoom}) => {
   return (
     <div className="lobby-info ui-panel unselectable bg-primary">
-      <h4>
-        <span>{roomName}</span>
-      </h4>
+      <h4>{roomName}</h4>
+      <h5>Topic: {topicListName}</h5>
       <h5>
-        Topic: <span>{topicListName}</span>
+        Status:&nbsp;
+        {!game.started && ('Choosing game settings...')}
+        {(game.started && !game.finished) && (`Round ${game.currentRound + 1}/${game.numRounds}`)}
+        {game.finished && 'Game finished!'}
       </h5>
       <button className="btn leave-lobby" onClick={onLeaveRoom}>
         <i className="fa fa-sign-out" style={{ paddingRight: 2 }} /> Leave
@@ -262,7 +269,8 @@ const PlayerList = ({game}) => {
                       className="fa fa-star"
                     />
                   )}
-                  {username}
+                  &nbsp;{username}&nbsp;
+                  {game.isDrawer(username) && (<i className="fa fa-pencil-square" />)}
                 </div>
               </div>
               <div className="player-score">
@@ -371,7 +379,7 @@ const MessageSection = ({canMessage}) => {
                 <li className={"col-xs-12 col-md-12 game-message wordwrap" + ' ' + message.class} key={i}>
                   {message.class !== 'status' && (
                     <span className="username">
-                      {message.username}:
+                      {message.username}:&nbsp;
                     </span>
                   )}
                   {message.class !== 'status' && (
@@ -497,7 +505,7 @@ const PreGameSettings = ({game, setGame, user}) => {
         </div>
         <div style={{ height: "2em" }} />
         {
-          ['numRounds', 'roundTime', 'timeAfterGuess'].map((setting: string) => {
+          ['numDrawers', 'numRounds', 'roundTime', 'timeAfterGuess'].map((setting: string) => {
             const settingsData = GameConfig[setting]
             return (
               <div key={setting}>
@@ -532,12 +540,18 @@ const Setting = ({setting, isHost, onChangeSetting, chosen}) => {
         </div>
       </div>
       <div className="col-xs-8 pregame-group-right">
-        {settingConfig.options.map((option) => {
+        {settingConfig.options.map((option, i) => {
+          let displayName;
+          if (settingConfig.optionDisplayNames) {
+            displayName = settingConfig.optionDisplayNames[i]
+          } else {
+            displayName = option
+          }
           return (
             <div className="btn-group" key={option}>
               {!isHost && (
                 <div className={"btn btn-success pregame-button pregame-display-game unselectable" + (chosen === option ? ' active' : '')}>
-                  {option}
+                  {displayName}
                 </div>
               )}
               {isHost && (
@@ -546,7 +560,7 @@ const Setting = ({setting, isHost, onChangeSetting, chosen}) => {
                   onClick={() => onChangeSetting(setting, option)}
                   btn-radio="option"
                 >
-                  {option}
+                  {displayName}
                 </label>
               )}
             </div>
@@ -573,16 +587,26 @@ const DrawingSection = React.forwardRef(({game, topic, user, timerTop, timerBott
         </div>
         <div className="drawing-header-text vertical-center">
           <div className="text-center unselectable">
-            {game.currentRound !== undefined && game.numRounds !== undefined && (
-              <span>
-                {game.finished ? 'Game over!' : ('Round ' + (game.currentRound + 1) + '/' + game.numRounds + ': ')}
-              </span>
-            )}
-            {!!game.getDrawers().length && (
-              <span>
-                {game.isDrawer(user.username) ? `Draw "${topic}"` : `${toCommaListIs(game.getDrawers())} drawing`}
-              </span>
-            )}
+            {(() => {
+              if (game.finished) {
+                return 'Game over!'
+              }
+              if (!game.isDrawer(user.username)) {
+                return `${toCommaListIs(game.getDrawers())} drawing`
+              }
+
+              let drawerText;
+              if (game.numDrawers === 1) {
+                drawerText = 'You'
+              } else {
+                const otherDrawerNames = game.getDrawers().filter((u) => u != user.username)
+                const allDrawerNames = ['You', ...otherDrawerNames]
+                drawerText = toCommaList(allDrawerNames)
+              }
+              return (<>
+                <b>{drawerText} are drawing!</b> Draw "{topic}"
+              </>)
+            })()}
           </div>
         </div>
       </div>
