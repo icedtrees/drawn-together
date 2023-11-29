@@ -1,5 +1,6 @@
 'use strict';
 import * as React from 'react'
+import * as ReactDOM from 'react-dom'
 import {CanvasSettings, MouseConstants} from './config/game.client.config';
 import {currentSocket, useAddSocketListener} from "../core/services/socket.io.client.service";
 
@@ -165,7 +166,7 @@ export const CanvasElement = React.forwardRef((props: {canDraw: boolean, mouseMo
       lastY.current = mouse.y;
     }
 
-  }, [drawLayerRef])
+  })
 
   useDocumentBodyListener('touchstart', (e: TouchEvent) => {
     // If the touchstart is within the canvas
@@ -180,7 +181,7 @@ export const CanvasElement = React.forwardRef((props: {canDraw: boolean, mouseMo
       });
       document.body.dispatchEvent(mouseEvent);
     }
-  }, [previewCursorLayerRef], {passive: false})
+  }, {passive: false})
 
   useDocumentBodyListener('mousemove', (e: MouseEvent) => {
     const previewCursorCtx = previewCursorLayerRef.current.getContext('2d');
@@ -229,7 +230,7 @@ export const CanvasElement = React.forwardRef((props: {canDraw: boolean, mouseMo
         }
       }
     }
-  }, [previewCursorLayerRef, parentRef])
+  })
 
   useDocumentBodyListener('touchmove', function (e) {
     // If the touchmove is within the canvas
@@ -244,7 +245,7 @@ export const CanvasElement = React.forwardRef((props: {canDraw: boolean, mouseMo
       });
       document.body.dispatchEvent(mouseEvent);
     }
-  }, [previewCursorLayerRef], {passive: false});
+  }, {passive: false});
 
   useDocumentBodyListener('mouseup', function (e) {
     // If we released the left mouse button, stop drawing and finish the line
@@ -253,7 +254,7 @@ export const CanvasElement = React.forwardRef((props: {canDraw: boolean, mouseMo
       // Final drawAndEmit allows you to make a dot by clicking once and not moving mouse.
       drawAndEmit(e);
     }
-  }, [drawAndEmit]);
+  });
 
   useDocumentBodyListener('touchend', function (e) {
     // If the touchstart is within the canvas
@@ -264,7 +265,7 @@ export const CanvasElement = React.forwardRef((props: {canDraw: boolean, mouseMo
       var mouseEvent = new MouseEvent("mouseup", {});
       document.body.dispatchEvent(mouseEvent);
     }
-  }, [previewCursorLayerRef], {passive: false});
+  }, {passive: false});
 
   const draw = function (message) {
     const drawCtx = drawLayerRef.current.getContext('2d');
@@ -316,13 +317,22 @@ const LayerElement = React.forwardRef(({zIndex, width, height, canDraw}, ref) =>
   )
 })
 
+const documentBodyListeners: {[event: string]: (arg: any) => void} = {}
+export const useDocumentBodyListener = ((event: string, callback: (arg: any) => void, options={}) => {
+  documentBodyListeners[event] = callback
 
-const useDocumentBodyListener = (event: string, callback: (e) => void, deps: any[], options={}) => {
+  const runEventCallback = (arg) => {
+    // We need to force render React because callbacks might update React state, and we need subsequent callbacks to
+    // read the latest React state (that may have been updated from previous callbacks or elsewhere).
+    ReactDOM.flushSync(() => {
+      documentBodyListeners[event](arg)  // this works
+    })
+  }
   React.useEffect(() => {
-    document.body.addEventListener(event, callback, options)
-    return (() => {document.body.removeEventListener(event, callback)})
-  }, deps)
-}
+    document.body.addEventListener(event, runEventCallback, options)
+    return (() => document.body.removeEventListener(event, runEventCallback))
+  }, [])
+})
 
 const drawOnCtx = (message, ctx) => {
   switch(message.type) {
