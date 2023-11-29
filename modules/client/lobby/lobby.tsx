@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {connectSocket, currentSocket} from "../core/services/socket.io.client.service";
+import {connectSocket, currentSocket, useAddSocketListener} from "../core/services/socket.io.client.service";
 import './css/lobby.css'
 import * as GameSettings from '../../shared/game/config/game.shared.game.config'
 
@@ -13,47 +13,31 @@ export const LobbyPage = ({user, setPage, setRoomName}) => {
     currentSocket.socket.emit('requestRooms')
   }, [user])
 
-  React.useEffect(() => {
-    const changeRoom = (room) => {
-      // Receive room update from server
-      for (let i = 0; i < rooms.length; i++) {
-        if (rooms[i].name === room.name) {
-          if (room.numPlayers > 0) {
-            const newRooms = [...rooms]
-            newRooms[i] = room;
-            setRooms(newRooms)
-          } else {
-            setRooms(rooms.filter((r) => r.name !== room.name))
-          }
-          return;
+  useAddSocketListener('changeRoom', (room) => {
+    // Receive room update from server
+    for (let i = 0; i < rooms.length; i++) {
+      if (rooms[i].name === room.name) {
+        if (room.numPlayers > 0) {
+          const newRooms = [...rooms]
+          newRooms[i] = room;
+          setRooms(newRooms)
+        } else {
+          setRooms(rooms.filter((r) => r.name !== room.name))
         }
-      }
-      if (room.numPlayers > 0) {
-        setRooms([...rooms, room])
+        return;
       }
     }
-    currentSocket.socket.on('changeRoom', changeRoom)
-    return () => currentSocket.socket.removeEventListener('changeRoom', changeRoom)
-  }, [rooms, setRooms])
-  React.useEffect(() => {
-    const requestRooms = (r) => setRooms(r)
-    currentSocket.socket.on('requestRooms', requestRooms)
-    return () => currentSocket.socket.removeEventListener('requestRooms', requestRooms)
-  }, [setRooms])
-  React.useEffect(() => {
-    const validRoomName = (roomName) => {
-      setPage('game')
-      setRoomName(roomName)
-      window.state.go('game', {roomName: roomName});
+    if (room.numPlayers > 0) {
+      setRooms([...rooms, room])
     }
-    currentSocket.socket.on('validRoomName', validRoomName)
-    return () => currentSocket.socket.removeEventListener('validRoomName', validRoomName)
-  }, [setPage])
-  React.useEffect(() => {
-    const invalidRoomName = (error) => setError(error)
-    currentSocket.socket.on('invalidRoomName', invalidRoomName);
-    return () => currentSocket.socket.removeEventListener('invalidRoomName', invalidRoomName)
-  }, [setError])
+  })
+  useAddSocketListener('requestRooms', (r) => setRooms(r))
+  useAddSocketListener('validRoomName', (roomName) => {
+    setPage('game')
+    setRoomName(roomName)
+    window.state.go('game', {roomName: roomName});
+  })
+  useAddSocketListener('invalidRoomName', (error) => { setError(error) })
 
   const joinRoom = (roomName) => {
     setPage('game')
