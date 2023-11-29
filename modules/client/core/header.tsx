@@ -1,5 +1,4 @@
 import * as React from "react";
-import {menus, shouldRender} from "./services/menus.client.service";
 import './css/bootswatch.css'
 import './css/core.css'
 
@@ -37,12 +36,23 @@ export const Header = ({user, page, setPage}) => {
 }
 
 const MenuItems = ({user, page, setPage}) => {
+  const headerMenu = [
+    {
+      title: user ? 'Lobby' : 'Home',
+      page: {view: 'lobby'},
+    }, {
+      title: 'Rules',
+      page: {view: 'rules'},
+    },
+// Topics page is not implemented yet
+// {
+//   title: 'Topics',
+//   page: {view: 'topics'},
+// },
+  ]
   return (
     <ul className="nav navbar-nav" >
-      {menus['topbar'].items.toSorted((i, j) => i.position - j.position).map((item) => {
-        if (!shouldRender(item, user)) {
-          return null
-        }
+      {headerMenu.map((item) => {
         return (
           <li
             key={item.page.view}
@@ -80,16 +90,7 @@ const AuthHeader = ({user, page, setPage}) => {
   }, [dropdownRef, setDropdownOpen])
 
   if (!user) {
-    return (
-      <ul className="nav navbar-nav navbar-right">
-        <li className="divider-vertical" />
-        <li className={page.view === 'lobby' ? "active" : ''}>
-          <a onClick={() => {
-            setPage({view: 'lobby'})
-          }}>Sign In</a>
-        </li>
-      </ul>
-    )
+    return null
   }
   return (
     <ul className="nav navbar-nav navbar-right">

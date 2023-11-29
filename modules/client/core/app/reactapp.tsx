@@ -2,14 +2,14 @@ import {createRoot} from 'react-dom/client'
 import * as React from 'react'
 import {TopicsPage} from "../../topics/topics";
 import {LobbyPage} from "../../lobby/lobby";
-import {ForbiddenPage, NotFoundPage} from "../error-pages";
+import {NotFoundPage} from "../error-pages";
 import {ReactGlobalState} from "./react-global-state";
 import {Header} from "../header";
 import {SignInPage} from "../../users/signin";
 import {GamePage} from "../../game/game";
 import {RulesPage} from "../../rules/rules";
 
-type Page =
+export type Page =
   | {view: 'topics'}
   | {view: 'not-found'}
   | {view: 'rules'}
