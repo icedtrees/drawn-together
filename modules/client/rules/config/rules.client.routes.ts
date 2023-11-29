@@ -9,7 +9,6 @@ angular.module(rulesModule).config(['$stateProvider',
     $stateProvider
       .state('rules', {
         url: '/rules',
-        templateUrl: 'modules/client/rules/views/rules.client.view.html',
         onEnter: () => ReactGlobalState.setCurrentPage('rules'),
         onExit: () => ReactGlobalState.setCurrentPage(null),
       });
