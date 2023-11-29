@@ -1,12 +1,4 @@
 'use strict';
-import angular from '../../../../node_modules/angular'
-import {gameModule} from "../game.client.module";
-
-// Configuring the Game module
-angular.module(gameModule).run(['Menus',
-  function (Menus) {}
-]);
-
 // Configure settings and constants
 export const CanvasSettings = {
   MIN_DRAW_WIDTH: 3,

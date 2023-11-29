@@ -87,14 +87,22 @@ const addMenuItem = function (menuId, options) {
   return menus[menuId];
 };
 
-//Menu service used for managing  menus
-export const menuService = 'Menus'
-angular.module(coreModule).service(menuService, [
-  function () {
-    // Get the menu object by menu id
-    this.getMenu = fetchMenu
-
-    // Add menu item object
-    this.addMenuItem = addMenuItem
-  }
-]);
+addMenuItem('topbar', {
+  title: 'Lobby',
+  state: 'home',
+  position: 1,
+  roles: ['*']
+});
+addMenuItem('topbar', {
+  title: 'Rules',
+  state: 'rules',
+  position: 3,
+  roles: ['*']
+});
+// Topics page is not implemented yet
+// addMenuItem('topbar', {
+//   title: 'Topics',
+//   state: 'topics',
+//   position: 2,
+//   roles: ['*']
+// });
