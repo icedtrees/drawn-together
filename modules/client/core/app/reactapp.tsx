@@ -17,7 +17,7 @@ export const startReact = () => {
 
 export const ReactApp = () => {
   const [page, setPage] = React.useState<Page>(null)
-  const [user, setUser] = React.useState(null)
+  const [user, setUser] = React.useState(window.user)
   React.useEffect(() => {
     ReactGlobalState.setCurrentPage = (p) => {
       setPage(p)
