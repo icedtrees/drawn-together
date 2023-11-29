@@ -123,26 +123,6 @@ const AuthHeader = ({user, page, setPage}) => {
           <b className="caret" />
         </a>
         <ul className="dropdown-menu" role="menu">
-          <li className={page === 'settings.profile' ? 'active' : ''}>
-            <a onClick={() => {
-              window.state.go("settings.profile")
-              setPage('settings.profile')
-            }}>Change Email</a>
-          </li>
-          <li className={page === 'settings.picture' ? 'active' : ''}>
-            <a onClick={() => {
-              window.state.go("settings.picture")
-              setPage('settings.picture')
-            }}>Change Profile Picture</a>
-          </li>
-          {user.provider === 'local' && (
-            <li className={page === 'settings.remove-password' ? 'active' : ''}>
-              <a onClick={() => {
-                window.state.go("settings.remove-password")
-                setPage('settings.remove-password')
-              }}>Remove Password</a>
-            </li>
-          )}
           <li className="divider" />
           <li>
             <a href="/api/auth/signout" target="_self">
