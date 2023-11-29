@@ -1,41 +1,42 @@
-.game-container {
-  padding-top: 20px;
-  margin: 0;
-  /* leave 50 for top bar and 20 for above padding*/
-  height: calc(100vh - 50px - 20px);
-  min-width: 800px;
-  min-height: 540px;
-}
-
-@media screen and (min-width: 1200px) {
-  .game-container {
-    font-weight: 300;
-  }
-}
-
-.left-sidebar {
+.game-page {
   display: flex;
-  display: -webkit-flex;
-  display: -ms-flex;
-  flex-direction:column;
-  -ms-flex-direction:column;
-  -webkit-flex-direction:column;
-  height: 100%;
-  padding-bottom: 10px;
-  min-width: 370px;
-  max-width: 600px;
+  gap: 2%;
+  justify-content: center;
+  padding: 2%;
+  max-height: calc(100vh - 48px);
+  min-height: 533px;
 }
 
-.right-sidebar {
-  padding-top: 0;
-}
-
-.drawing-container {
-  display: -webkit-flex;
+.left-column {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  padding-bottom: 10px;
+  width: 480px;
+}
+
+/*
+In our UI, all the elements are fixed size except for the 1:1 canvas itself, which flexes based on the screen size.
+If we have enough horizontal space, the dimension should be 100vh - middle header height. If we have not enough
+horizontal space, the dimension should be (100vw - leftcolumn - rightcolumn)
+ */
+.middle-column {
+  flex-grow: 1; /* Expand to take up remaining space */
+  /* Max width of the middle column is limited by the max height of the canvas, since the aspect ratio must be 1:1.
+  Max height of the canvas is 100vh - (space taken up by other elements in the middle column)
+   */
+  max-width: calc(100vh - 230px);
+  min-width: 350px;
+
+  /* Horizontally center content within the middle column */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.dt-drawing {
+  aspect-ratio: 1; /* Set height to same as width */
+}
+
+.right-column {
+  width: 150px;
 }
 
 .col {

@@ -3,7 +3,7 @@ import {connectSocket, currentSocket} from "../core/services/socket.io.client.se
 import './css/lobby.css'
 import * as GameSettings from '../../shared/game/config/game.shared.game.config'
 
-export const LobbyPage = ({user, setPage}) => {
+export const LobbyPage = ({user, setPage, setRoomName}) => {
   const [rooms, setRooms] = React.useState([])
   const [newRoomName, setNewRoomName] = React.useState('')
   const [error, setError] = React.useState()
@@ -43,6 +43,7 @@ export const LobbyPage = ({user, setPage}) => {
   React.useEffect(() => {
     const validRoomName = (roomName) => {
       setPage('game')
+      setRoomName(roomName)
       window.state.go('game', {roomName: roomName});
     }
     currentSocket.socket.on('validRoomName', validRoomName)
@@ -56,6 +57,7 @@ export const LobbyPage = ({user, setPage}) => {
 
   const joinRoom = (roomName) => {
     setPage('game')
+    setRoomName(roomName)
     window.state.go('game', {roomName: roomName});
   };
   const createRoom = () => {
