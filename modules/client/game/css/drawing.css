@@ -1,7 +1,3 @@
-.drawing-container {
-  display: flex;
-  flex-direction: column;
-}
 
 .drawing-header {
   margin-top: 20px;

@@ -1,18 +1,3 @@
-.game-container {
-  padding-top: 20px;
-  margin: 0;
-  /* leave 50 for top bar and 20 for above padding*/
-  height: calc(100vh - 50px - 20px);
-  min-width: 800px;
-  min-height: 540px;
-}
-
-@media screen and (min-width: 1200px) {
-  .game-container {
-    font-weight: 300;
-  }
-}
-
 .game-page {
   display: flex;
   gap: 2%;
@@ -52,32 +37,6 @@ horizontal space, the dimension should be (100vw - leftcolumn - rightcolumn)
 
 .right-column {
   width: 150px;
-}
-
-
-.left-sidebar {
-  display: flex;
-  display: -webkit-flex;
-  display: -ms-flex;
-  flex-direction:column;
-  -ms-flex-direction:column;
-  -webkit-flex-direction:column;
-  height: 100%;
-  padding-bottom: 10px;
-  min-width: 370px;
-  max-width: 600px;
-}
-
-.right-sidebar {
-  padding-top: 0;
-}
-
-.drawing-container {
-  display: -webkit-flex;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding-bottom: 10px;
 }
 
 .col {
