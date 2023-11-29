@@ -246,9 +246,6 @@ module.exports = function (io, socket) {
     if (!checkRoomName(room)) {
       return false;
     }
-    console.log("server joinRoom room ", room)
-    console.log("server joinRoom socket ", socket.id)
-    
 
     // This socket is already part of a room
     if (socket.id in socketToRoom) {
@@ -344,16 +341,13 @@ module.exports = function (io, socket) {
   }
 
   function leaveRoom () {
-    console.log('server leaveRoom socketid:', socket.id)
     var room = socketToRoom[socket.id];
-    console.log('server leaveRoom', room)
     var game = games[room];
     if (!room) {
       return;
     }
 
     game.Game.users[username].connects--;
-    console.log("connects left: ", game.Game.users[username].connects)
     if (game.Game.users[username].connects === 0) {
       // Emit the status event when a socket client is disconnected
       broadcastMessage({
@@ -434,7 +428,7 @@ module.exports = function (io, socket) {
         } else if (words === null || words.length === 0) {
           logger.warn('No topic selected or no words in topic: %s', words);
         } else {
-          logger.info('About to start game');
+          logger.info('About to start game with prompts %s', words);
           game.prompts = words;
           ServerUtils.shuffleWords(game.prompts);
           game.Game.startGame();
