@@ -75,6 +75,7 @@ const addMenuItem = function (menuId, options) {
   menus[menuId].items.push({
     title: options.title || '',
     state: options.state || '',
+    page: options.page || '',
     type: options.type || 'item',
     class: options.class,
     roles: ((options.roles === null || typeof options.roles === 'undefined') ? defaultRoles : options.roles),
@@ -89,13 +90,15 @@ const addMenuItem = function (menuId, options) {
 
 addMenuItem('topbar', {
   title: 'Lobby',
-  state: 'home',
+  state: 'lobby',
+  page: {view: 'lobby'},
   position: 1,
   roles: ['*']
 });
 addMenuItem('topbar', {
   title: 'Rules',
   state: 'rules',
+  page: {view: 'rules'},
   position: 3,
   roles: ['*']
 });
@@ -103,6 +106,7 @@ addMenuItem('topbar', {
 // addMenuItem('topbar', {
 //   title: 'Topics',
 //   state: 'topics',
+//   page: {view: 'topics'},
 //   position: 2,
 //   roles: ['*']
 // });

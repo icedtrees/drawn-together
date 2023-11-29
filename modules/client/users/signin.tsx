@@ -8,7 +8,8 @@ export const SignInPage = ({setPage, setUser}) => {
   const [error, setError] = React.useState(null)
   const [username, setUsername] = React.useState('')
 
-  const onSignIn = function () {
+  const onSignIn = function (e) {
+    e.preventDefault() // Prevent page reload caused by form submit
     if (username.trim().length < 1) {
       setError("Username is required.")
       return
@@ -28,8 +29,7 @@ export const SignInPage = ({setPage, setUser}) => {
     }).then((user) => {
       auth.user = user
       setUser(user)
-      window.state.go('home');
-      setTimeout( () => { setPage('home') })
+      setTimeout( () => { setPage({view: 'lobby'}) })
     })
   }
   return (

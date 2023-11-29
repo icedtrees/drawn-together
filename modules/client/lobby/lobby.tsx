@@ -3,7 +3,7 @@ import {connectSocket, currentSocket, useAddSocketListener} from "../core/servic
 import './css/lobby.css'
 import * as GameSettings from '../../shared/game/config/game.shared.game.config'
 
-export const LobbyPage = ({user, setPage, setRoomName}) => {
+export const LobbyPage = ({user, setPage}) => {
   const [rooms, setRooms] = React.useState([])
   const [newRoomName, setNewRoomName] = React.useState('')
   const [error, setError] = React.useState()
@@ -33,16 +33,12 @@ export const LobbyPage = ({user, setPage, setRoomName}) => {
   })
   useAddSocketListener('requestRooms', (r) => setRooms(r))
   useAddSocketListener('validRoomName', (roomName) => {
-    setPage('game')
-    setRoomName(roomName)
-    window.state.go('game', {roomName: roomName});
+    setPage({view: 'game', roomName})
   })
   useAddSocketListener('invalidRoomName', (error) => { setError(error) })
 
   const joinRoom = (roomName) => {
-    setPage('game')
-    setRoomName(roomName)
-    window.state.go('game', {roomName: roomName});
+    setPage({view: 'game', roomName})
   };
   const createRoom = () => {
     if (newRoomName === '') {

@@ -17,7 +17,7 @@ import './css/range-slider.css'
 import './css/toolbox.css'
 import {CanvasSettings} from "./config/game.client.config";
 
-export const GamePage = ({user, roomName, setPage, setRoomName}) => {
+export const GamePage = ({user, roomName, setPage}) => {
   const [game, setGame] = React.useState(new Game())
   const [timerTop, setTimerTop] = React.useState(null)
   const [timerBottom, setTimerBottom] = React.useState(null)
@@ -177,9 +177,7 @@ export const GamePage = ({user, roomName, setPage, setRoomName}) => {
       >
         <div className="left-column">
           <LobbyInformation topicListName={game.topicListName} roomName={roomName} onLeaveRoom={() => {
-            setRoomName(null)
-            setPage('lobby')
-            window.state.go('home')
+            setPage({view: 'lobby'})
           }}/>
           <PlayerList game={game}/>
           <MessageSection canMessage={!(game.isDrawer(user.username) && game.started)}/>

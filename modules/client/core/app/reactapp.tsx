@@ -9,7 +9,12 @@ import {SignInPage} from "../../users/signin";
 import {GamePage} from "../../game/game";
 import {RulesPage} from "../../rules/rules";
 
-type Page = 'topics' | 'home' | 'not-found' | 'bad-request' | 'forbidden'
+type Page =
+  | {view: 'topics'}
+  | {view: 'not-found'}
+  | {view: 'rules'}
+  | {view: 'lobby'}
+  | {view: 'game', roomName: string}
 
 export const startReact = () => {
   const root = createRoot(document.getElementById('react-root'))
@@ -17,18 +22,28 @@ export const startReact = () => {
 }
 
 export const ReactApp = () => {
-  const [page, setPage] = React.useState<Page>(null)
+  const [page, _setPage] = React.useState<Page>(pathToPage(window.location.pathname))
   const [user, setUser] = React.useState(window.user)
-  React.useEffect(() => {
-    ReactGlobalState.setCurrentPage = (p) => {
-      setPage(p)
-    }
-    return () => ReactGlobalState.setCurrentPage = null
-  }, [setPage])
   React.useEffect(() => {
     ReactGlobalState.setCurrentUser = (p) => setUser(p)
     return () => ReactGlobalState.setCurrentUser = null
   }, [setUser])
+
+  const setPage = (page) => {
+    window.history.pushState({page}, "", pageToPath(page))
+    _setPage(page)
+  }
+  React.useEffect(() => {
+    window.history.replaceState({page}, "", pageToPath(page))
+  }, [])
+  React.useEffect(() => {
+    const goBack = (e) => {
+      _setPage(e.state.page)
+    }
+    window.addEventListener('popstate', goBack)
+    return () => { window.removeEventListener('popstate', goBack) }
+  }, [setPage])
+
   return (
     <>
       <Header user={user} page={page} setPage={setPage}/>
@@ -40,36 +55,60 @@ export const ReactApp = () => {
 };
 
 const Content = ({page, user, setPage, setUser}) => {
-  const roomNameFromURL = window.location.pathname.split('/')[2]
-  const [roomName, setRoomName] = React.useState(roomNameFromURL)
-
-  if (page === 'not-found') {
+  if (page.view === 'not-found') {
     return (<NotFoundPage/>)
   }
-  if (page === 'forbidden') {
-    return (<ForbiddenPage/>)
-  }
-  if (page === 'topics') {
+  if (page.view === 'topics') {
     return (<TopicsPage user={user}/>)
   }
-  if (page === 'rules') {
+  if (page.view === 'rules') {
     return (<RulesPage/>)
   }
   if (!user) {
     return (<SignInPage setUser={setUser} setPage={setPage}/>)
   }
-  if (page === 'home' || page === 'lobby') {
-    return (<LobbyPage user={user} setPage={setPage} setRoomName={setRoomName}/>)
+  if (page.view === 'lobby') {
+    return (<LobbyPage user={user} setPage={setPage}/>)
   }
-  if (page === 'game') {
+  if (page.view === 'game') {
     return (<GamePage
       user={user}
-      roomName={roomName}
+      roomName={page.roomName}
       setPage={setPage}
-      setRoomName={setRoomName}
     />)
   }
   return null
+}
+
+const pathToPage = (path: string): Page => {
+  const gameMatch = /^\/game\/(.*)/i.exec(path)
+  if (gameMatch) {
+    return {view: 'game', roomName: gameMatch[1]}
+  } else if (/^\/$/i.test(path)) {
+    return {view: 'lobby'}
+  } else if (/^\/rules$/i.test(path)) {
+    return {view: 'rules'}
+  } else if (/^\/topics$/i.test(path)) {
+    return {view: 'topics'}
+  } else {
+    return {view: 'not-found'}
+  }
+}
+const pageToPath = (page: Page): string => {
+  if (page.view === 'game') {
+    return `/game/${page.roomName}`
+  } else if (page.view === 'lobby') {
+    return '/'
+  } else if (page.view === 'rules') {
+    return '/rules'
+  } else if (page.view === 'topics') {
+    return '/topics'
+  } else if (page.view === 'not-found') {
+    return window.location.pathname
+  } else {
+    throw Error('Invalid page')
+  }
+
 }
 
 startReact()

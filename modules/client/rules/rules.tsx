@@ -5,7 +5,7 @@ export const RulesPage = () => {
   return (
     <>
       {/* The rules view */}
-      <section className="container" ng-controller="RulesController">
+      <section className="container">
         <div className="row">
           <div className="col-xs-2">
             <div className="rules-nav">

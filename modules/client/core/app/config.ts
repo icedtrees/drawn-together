@@ -17,35 +17,10 @@ const startAngularApp = () => {
   angular.module(applicationModuleName).config(['$locationProvider', '$httpProvider',
     function ($locationProvider, $httpProvider) {
       $locationProvider.html5Mode(true).hashPrefix('!');
-
-      $httpProvider.interceptors.push('authInterceptor');
     }
   ]);
 
   angular.module(applicationModuleName).run(function ($rootScope, $state, Authentication) {
-
-    // Check authentication before changing state
-    $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
-      if (toState.data && toState.data.roles && toState.data.roles.length > 0) {
-        var allowed = false;
-        if (Authentication.user !== undefined) {
-          toState.data.roles.forEach(function (role) {
-            if (Authentication.user.roles !== undefined && Authentication.user.roles.indexOf(role) !== -1
-            ) {
-              allowed = true;
-              return true;
-            }
-          });
-        }
-
-        if (!allowed) {
-          e.preventDefault();
-          if (Authentication.user !== undefined && typeof Authentication.user === 'object') {
-            ReactGlobalState.setCurrentPage('forbidden')
-          }
-        }
-      }
-    });
 
     // Record previous state
     $rootScope.$on('$stateChangeSuccess', function (e, toState, toParams, fromState, fromParams) {

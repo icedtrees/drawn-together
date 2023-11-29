@@ -19,8 +19,7 @@ export const Header = ({user, page, setPage}) => {
             <span className="icon-bar" />
           </button>
           <a className="navbar-brand" onClick={() => {
-            setPage('home')
-            window.state.go('home')
+            setPage({view: 'lobby'})
           }}>
             <i className="fa fa-pencil-square-o" /> Drawn Together
           </a>
@@ -46,17 +45,12 @@ const MenuItems = ({user, page, setPage}) => {
         }
         return (
           <li
-            key={item.state}
-            className={(item.state === page) ? 'active' : ''}
+            key={item.page.view}
+            className={(item.page.view === page.view) ? 'active' : ''}
           >
             <a
               onClick={() => {
-                window.state.go(item.state);
-                // Temporary hack to make sure that setPage runs after the angular code to reset the page state.
-                // Once we are migrated to react we can delete this and make it synchronous
-                setTimeout(() => {
-                  setPage(item.state);
-                })
+                setPage(item.page);
               }}
             >{item.title}</a>
           </li>
@@ -89,14 +83,9 @@ const AuthHeader = ({user, page, setPage}) => {
     return (
       <ul className="nav navbar-nav navbar-right">
         <li className="divider-vertical" />
-        <li className={page === 'authentication.signin' ? "active" : ''}>
+        <li className={page.view === 'lobby' ? "active" : ''}>
           <a onClick={() => {
-            window.state.go("authentication.signin")
-            // Temporary hack to make sure that setPage runs after the angular code to reset the page state.
-            // Once we are migrated to react we can delete this and make it synchronous
-            setTimeout(() => {
-              setPage('authentication.signin')
-            })
+            setPage({view: 'lobby'})
           }}>Sign In</a>
         </li>
       </ul>
