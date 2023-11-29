@@ -3,7 +3,6 @@ import * as React from 'react'
 import {TopicsPage} from "../../topics/topics";
 import {LobbyPage} from "../../lobby/lobby";
 import {NotFoundPage} from "../error-pages";
-import {ReactGlobalState} from "./react-global-state";
 import {Header} from "../header";
 import {SignInPage} from "../../users/signin";
 import {GamePage} from "../../game/game";
@@ -24,10 +23,6 @@ export const startReact = () => {
 export const ReactApp = () => {
   const [page, _setPage] = React.useState<Page>(pathToPage(window.location.pathname))
   const [user, setUser] = React.useState(window.user)
-  React.useEffect(() => {
-    ReactGlobalState.setCurrentUser = (p) => setUser(p)
-    return () => ReactGlobalState.setCurrentUser = null
-  }, [setUser])
 
   const setPage = (page) => {
     window.history.pushState({page}, "", pageToPath(page))

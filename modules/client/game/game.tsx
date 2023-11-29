@@ -6,6 +6,7 @@ import {MAX_MSG_LEN, MAX_MESSAGES} from '../../shared/game/config/game.shared.ch
 import {connectSocket, currentSocket, useAddSocketListener} from "../core/services/socket.io.client.service";
 import {CanvasElement} from "./canvas";
 
+import 'font-awesome/css/font-awesome.css'
 import './css/chat.css'
 import './css/drawing.css'
 import './css/game-shared.css'

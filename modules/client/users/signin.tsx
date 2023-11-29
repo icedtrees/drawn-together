@@ -1,6 +1,4 @@
 import * as React from 'react'
-import {auth} from "./services/authentication.client.service";
-
 import './css/users.css'
 
 export const SignInPage = ({setPage, setUser}) => {
@@ -27,7 +25,6 @@ export const SignInPage = ({setPage, setUser}) => {
       }
       return response.json()
     }).then((user) => {
-      auth.user = user
       setUser(user)
       setTimeout( () => { setPage({view: 'lobby'}) })
     })

@@ -1,6 +1,6 @@
 import * as React from "react";
 import './css/bootswatch.css'
-import './css/core.css'
+import './css/header.css'
 
 export const Header = ({user, page, setPage}) => {
   const [isCollapsed, setIsCollapsed] = React.useState(true)
