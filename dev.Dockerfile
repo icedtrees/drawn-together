@@ -23,7 +23,7 @@ CMD npm install --include=dev && \
     # Transpile all frontend .ts files that are reachable from the application.ts entrypoint
     # Load all the html files and stuff that hasn't been imported
     (node_modules/.bin/esbuild --bundle --outdir=public "application.ts" "modules/client/**/*.png" \
-        --loader:.html=copy --loader:.png=copy \
+        --loader:.png=copy \
         --loader:.ttf=file --loader:.eot=file --loader:.woff=file --loader:.svg=file --loader:.woff2=file \
         --watch=forever & \
     # Run the backend server in parallel, but bring the previous command to the foreground if the backend is killed
