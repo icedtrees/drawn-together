@@ -251,17 +251,18 @@ const PlayerList = ({game}) => {
               <div className="player-image col">
                 <img
                   src={game.getUserProfileImage(username)}
-                  title={user}
+                  title={username}
                   className="game-profile-image"
                 />
               </div>
               <div className="player-names col">
                 <div className={game.isDrawer(username) ? 'game-drawer':''}>
-                  <i
-                    ng-if="Game.getHost() === user"
-                    title="Host"
-                    className="fa fa-star"
-                  />
+                  {game.getHost() === username && (
+                    <i
+                      title="Host"
+                      className="fa fa-star"
+                    />
+                  )}
                   {username}
                 </div>
               </div>
@@ -525,10 +526,7 @@ const PreGameSettings = ({game, setGame, user}) => {
 const Setting = ({setting, isHost, onChangeSetting, chosen}) => {
   const settingConfig = GameConfig[setting]
   return (
-    <div
-      className="pregame-group row"
-      ng-init="value = GameSettings[setting]"
-    >
+    <div className="pregame-group row">
       <div className="col-xs-4 pregame-group-left">
         <div className="pregame-setting-name">
           <span className="unselectable">{settingConfig.settingName}</span>

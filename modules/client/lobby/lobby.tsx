@@ -9,9 +9,7 @@ export const LobbyPage = ({user, setPage, setRoomName}) => {
   const [error, setError] = React.useState()
   const roomNameRef = React.useRef(null)
   React.useEffect(() => {
-    if (!currentSocket.socket) {
-      connectSocket(user)
-    }
+    connectSocket(user)
     currentSocket.socket.emit('requestRooms')
   }, [user])
 
