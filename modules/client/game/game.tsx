@@ -157,18 +157,38 @@ export const GamePage = ({user, roomName, setPage}) => {
     }
   }, [roomName])
 
-  const canDraw = game.isDrawer(user.username) || game.finished
+  // Disable drawing half the time for co-op mode
+  const [disableDrawing, setDisableDrawing] = React.useState(false)
+  React.useEffect(() => {
+    const checkBanDrawing = () => {
+      let disable = false
+      if (game.numDrawers > 1 && game.userList.length > 1 && timerTop && timerTop.timeStarted && !timerTop.paused) {
+        const drawerIndex = game.getDrawers().indexOf(user.username)
+        const timeSinceStart = Date.now() - timerTop.timeStarted
+        const fractionElapsed = timeSinceStart / timerTop.delay
+        const offset = Math.floor(fractionElapsed * 10) % game.numDrawers
+        if (drawerIndex === offset) {
+          disable = true
+        }
+      }
+      setDisableDrawing(disable)
+    }
+    // Every 1 second, check if we should ban drawing based on co-op state
+    checkBanDrawing()
+    const interval = setInterval(checkBanDrawing, 1000)
+    return () => clearInterval(interval)
+  }, [game, timerTop, user, setDisableDrawing])
+  const canDraw = game.finished || (game.isDrawer(user.username) && !disableDrawing)
+
   const [drawWidth, setDrawWidth] = React.useState({pen: CanvasSettings.DEFAULT_PEN_WIDTH, eraser: CanvasSettings.DEFAULT_ERASER_WIDTH})
   const [penColour, setPenColour] = React.useState(CanvasSettings.DEFAULT_PEN_COLOUR)
   const [mouseMode, setMouseMode] = React.useState('pen')
   const canvasRef = React.useRef()
 
   const onClearDrawing = () => {
-    if (game.isDrawer(user.username)) {
-      const message = { type: 'clear' }
-      currentSocket.socket.emit('canvasMessage', message);
-      canvasRef.current.clearCanvas()
-    }
+    const message = { type: 'clear' }
+    currentSocket.socket.emit('canvasMessage', message);
+    canvasRef.current.clearCanvas()
   };
 
   return (
@@ -611,7 +631,7 @@ const DrawingSection = React.forwardRef(({game, topic, user, timerTop, timerBott
         </div>
       </div>
       {timerTop && (
-        <TimerComponent color={'lightgreen'} gameFinished={game.finished} timer={timerTop} totalTime={game.roundTime}/>
+        <TimerComponent color={'lightgreen'} gameFinished={game.finished} timer={timerTop} totalTime={game.roundTime} twoSlices={game.numDrawers > 1 && game.userList.length > 1}/>
       )}
       {timerBottom && (
         <TimerComponent color={'pink'} gameFinished={game.finished} timer={timerBottom} totalTime={game.timeAfterGuess}/>
@@ -621,19 +641,34 @@ const DrawingSection = React.forwardRef(({game, topic, user, timerTop, timerBott
   )
 })
 
-const TimerComponent = ({gameFinished, color, timer, totalTime}) => {
+const TimerComponent = ({gameFinished, color, timer, totalTime, twoSlices}) => {
   const [timeLeft, setTimeLeft] = React.useState(timer.timeLeft())
+  const wrapperRef = React.useRef()
   React.useEffect(() => {
     const interval = setInterval(() => {
       setTimeLeft(timer.timeLeft())
     })
     return () => clearInterval(interval)
   }, [timer])
+  const timeLeftPercentage = timeLeft / 10 / totalTime
+  const style = {'width': timeLeftPercentage + '%'}
+  if (timer.paused) {
+    style.backgroundColor = 'grey'
+  } else if (!twoSlices) {
+    style.backgroundColor = color
+  } else if (!wrapperRef.current) {
+    // wrapper isn't rendered yet
+    style.backgroundColor = color
+  } else {
+    // Alternate 10 slices
+    const sectionWidth = Math.round(wrapperRef.current.offsetWidth / 10)
+    style.background = `repeating-linear-gradient(to right, ${color}, ${color} ${sectionWidth}px, #56d556 ${sectionWidth}px, #56d556 ${sectionWidth*2}px)`
+  }
   return (
-    <div className={'drawing-timer-wrapper' + (gameFinished ? ' game-over': '')}>
+    <div className={'drawing-timer-wrapper' + (gameFinished ? ' game-over': '')} ref={wrapperRef}>
       <div
         className="drawing-timer"
-        style={{'backgroundColor': timer.paused ? 'grey' : color, 'width': timeLeft / 10 / totalTime + '%'}}
+        style={style}
       />
     </div>
   )
