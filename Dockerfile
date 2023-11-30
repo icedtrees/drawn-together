@@ -25,7 +25,7 @@ COPY . .
 # This is for frontend only - the express backend server will serve all the outputs in public/
 # Transpile all frontend .ts files that are reachable from the application.ts entrypoint
 # Load all the html files and stuff that hasn't been imported
-RUN node_modules/.bin/esbuild --bundle --outdir=public "application.ts" "modules/client/**/*.png" \
+RUN node_modules/.bin/esbuild --bundle --outdir=build/public "application.ts" "modules/client/**/*.png" \
     --loader:.png=copy \
     --loader:.ttf=file --loader:.eot=file --loader:.woff=file --loader:.svg=file --loader:.woff2=file
 
@@ -39,4 +39,4 @@ USER node
 EXPOSE 8443
 
 # Run the application.
-CMD node build/src/server.js
+CMD cd build && node src/server.js
