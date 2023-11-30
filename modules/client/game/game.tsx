@@ -87,7 +87,7 @@ export const GamePage = ({user, roomName, setPage}) => {
     })
     setTimerBottom((timerBottom) => {
       const newTimerBottom = Object.assign(new Timer(), timerBottom)
-      newTimerBottom.pause()
+      newTimerBottom.start()
       return newTimerBottom
     })
   })
@@ -634,7 +634,7 @@ const DrawingSection = React.forwardRef(({game, topic, user, timerTop, timerBott
         <TimerComponent color={'lightgreen'} gameFinished={game.finished} timer={timerTop} totalTime={game.roundTime} twoSlices={game.numDrawers > 1 && game.userList.length > 1}/>
       )}
       {timerBottom && (
-        <TimerComponent color={'pink'} gameFinished={game.finished} timer={timerBottom} totalTime={game.timeAfterGuess}/>
+        <TimerComponent color={'pink'} gameFinished={game.finished} timer={timerBottom} totalTime={game.timeAfterGuess} twoSlices={false}/>
       )}
       <CanvasElement canDraw={canDraw} mouseMode={mouseMode} penColour={penColour} drawWidth={drawWidth} ref={canvasRef}/>
     </>
@@ -651,7 +651,7 @@ const TimerComponent = ({gameFinished, color, timer, totalTime, twoSlices}) => {
     return () => clearInterval(interval)
   }, [timer])
   const timeLeftPercentage = timeLeft / 10 / totalTime
-  const style = {'width': timeLeftPercentage + '%'}
+  const style = {width: timeLeftPercentage + '%'}
   if (timer.paused) {
     style.backgroundColor = 'grey'
   } else if (!twoSlices) {
