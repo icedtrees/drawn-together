@@ -4,6 +4,9 @@ generator client {
 
 datasource db {
   provider = "mongodb"
+  // This is only used when running command=line scripts like npx prisma migrate, so you must have the DATABASE_URL
+  // correctly configured in your .env file.
+  // However, during actual runtime, the datasource url will be overridden in the initialisation code.
   url      = env("DATABASE_URL")
 }
 
