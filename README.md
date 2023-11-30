@@ -45,7 +45,7 @@ The actual client is instantiated and configured in `modules/server/prisma.
 ts`, and consumers should import the client from this file.
 
 When running the Prisma CLI, execute it from the Docker container with 
-`docker exec -it drawn-together-db-1 npx prisma format`, for example. Some 
+`docker exec -it drawn-together-server-1 npx prisma format`, for example. Some 
 important commands as a quick reference:
  - `npx prisma format` - auto-format the schema file. Also adds any missing 
    fields that it can automatically figure out, such as missing inverse 

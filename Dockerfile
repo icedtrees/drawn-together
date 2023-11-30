@@ -32,6 +32,9 @@ RUN node_modules/.bin/esbuild --bundle --outdir=build/public "application.ts" "m
 # Build backend
 RUN node esbuild.config.mjs build
 
+# Generate prisma client
+RUN npx prisma generate
+
 # Run the application as a non-root user.
 USER node
 
