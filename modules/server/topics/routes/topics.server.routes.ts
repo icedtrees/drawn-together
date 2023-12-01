@@ -1,8 +1,7 @@
-'use strict';
+import * as topics from "../controllers/topics.server.controller";
+import {Express} from "express";
 
-var topics = require('../controllers/topics.server.controller');
-
-module.exports = function (app) {
+module.exports = function (app: Express) {
   app.route('/api/topics').get(topics.getTopics);
   app.route('/api/topics/:topicName').get(topics.getWords);
 

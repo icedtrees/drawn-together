@@ -428,7 +428,7 @@ module.exports = function (io, socket) {
         } else if (words === null || words.length === 0) {
           logger.warn('No topic selected or no words in topic: %s', words);
         } else {
-          logger.info('About to start game with prompts %s', words);
+          logger.info('About to start game with %s prompts', words.length);
           game.prompts = words;
           ServerUtils.shuffleWords(game.prompts);
           game.Game.startGame();

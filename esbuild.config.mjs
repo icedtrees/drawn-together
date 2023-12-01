@@ -14,9 +14,22 @@ const baseOptions = {
     'config/**/*.js',
     'modules/server/**/*.ts',
     'modules/server/**/*.js',
+    'modules/server/**/*.html',
     'modules/shared/**/*.ts',
     'modules/shared/**/*.js',
+    // For some reason the server depends on assets from the client section
+    'modules/client/**/*.ico',
+    'modules/client/**/*.png',
+    // Serve public assets. Note that these get copied into the same place as the built frontend assets,
+    // which could technically cause name clashes.
+    'public/**/*.*',
   ],
+  loader: {
+    '.html': 'copy',
+    '.ico': 'copy',
+    '.png': 'copy',
+    '.txt': 'copy',
+  },
   bundle: false,
   platform: 'node',
   format: 'cjs',
@@ -28,7 +41,7 @@ if (command === 'watch') {
   const context = await esbuild.context({
     ...baseOptions,
     plugins: command === 'watch' ? [start({
-      script: 'node build/src/server.js',
+      script: 'cd build && node src/server.js',
     })] : [],
   });
   await context.watch();

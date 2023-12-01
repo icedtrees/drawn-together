@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  // This is only used when running command=line scripts like npx prisma migrate, so you must have the DATABASE_URL
+  // correctly configured in your .env file.
+  // However, during actual runtime, the datasource url will be overridden in the initialisation code.
+  url      = env("DATABASE_URL")
+}
+
+model sessions {
+  id      String   @id @map("_id")
+  expires DateTime @db.Date
+  session String
+
+  @@index([expires], map: "expires_1")
+}
+
+model topics {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  name       String   @unique(map: "name_1")
+  popularity Int
+  creator    String?  @db.ObjectId
+  words      String[]
+  created    DateTime @default(now()) @db.Date
+  updated    DateTime @default(now()) @db.Date
+
+  creatorUser users? @relation(fields: [creator], references: [id])
+}
+
+model users {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  username        String   @unique(map: "username_1")
+  email           String?  @unique(map: "email_1")
+  password        String
+  salt            String?
+  profileImageURL String
+  provider        String
+  roles           String[]
+  created         DateTime @default(now()) @db.Date
+
+  topics topics[]
+}

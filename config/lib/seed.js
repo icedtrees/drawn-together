@@ -111,7 +111,7 @@ defaultTopics.forEach(function (defaultTopic) {
     }
 
     if (existingTopic) {
-      logger.info('Topic %s already exists %s', defaultTopic.name, existingTopic);
+      logger.info('Topic %s already exists, skipping initial creation', defaultTopic.name);
     } else {
       var topic = new Topic(defaultTopic);
       topic.save(function (err) {

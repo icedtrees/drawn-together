@@ -17,12 +17,18 @@ USER node
 # Expose the port that the application listens on.
 EXPOSE 8443
 
+# Generate prisma client
+# TODO this only runs once - if you change the prisma schema file, the backend will not hot reload with the changes
+# TODO in order to do this "properly" we can use `npx prisma generate --watch`, but we also need to make
+# TODO `node esbuild.config.mjs watch` reload the backend when the generated client changes...not easy
+RUN npx prisma generate
+
 # Not sure why dev dependencies aren't automatically installed here
 CMD npm install --include=dev && \
     # This is for frontend only - the express backend server will serve all the outputs in public/
     # Transpile all frontend .ts files that are reachable from the application.ts entrypoint
     # Load all the html files and stuff that hasn't been imported
-    (node_modules/.bin/esbuild --bundle --outdir=public "application.ts" "modules/client/**/*.png" \
+    (node_modules/.bin/esbuild --bundle --outdir=build/public "application.ts" "modules/client/**/*.png" \
         --loader:.png=copy \
         --loader:.ttf=file --loader:.eot=file --loader:.woff=file --loader:.svg=file --loader:.woff2=file \
         --watch=forever & \
