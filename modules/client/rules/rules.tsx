@@ -12,22 +12,22 @@ export const RulesPage = () => {
               <h1>Rules</h1>
               <ul className="nav nav-pills nav-stacked">
                 <li>
-                  <a href="#lobby-and-rooms">Lobby and Rooms</a>
+                  <a href="/rules#lobby-and-rooms">Lobby and Rooms</a>
                 </li>
                 <li>
-                  <a href="#game-settings">Game Settings</a>
+                  <a href="/rules#game-settings">Game Settings</a>
                 </li>
                 <li>
-                  <a href="#game-basics">Game Basics</a>
+                  <a href="/rules#game-basics">Game Basics</a>
                 </li>
                 <li>
-                  <a href="#drawing-basics">Drawing Basics</a>
+                  <a href="/rules#drawing-basics">Drawing Basics</a>
                 </li>
                 <li>
-                  <a href="#guessing-basics">Guessing Basics</a>
+                  <a href="/rules#guessing-basics">Guessing Basics</a>
                 </li>
                 <li>
-                  <a href="#using-the-toolbox">Using the Toolbox</a>
+                  <a href="/rules#using-the-toolbox">Using the Toolbox</a>
                 </li>
                 {/*<li><a href="#custom-settings">Custom Settings</a></li>*/}
               </ul>
