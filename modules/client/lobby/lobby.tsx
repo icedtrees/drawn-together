@@ -66,10 +66,7 @@ export const LobbyPage = ({user, setPage}) => {
           {rooms.length === 0 &&
             <tr className="room-listing">
               <td>
-                There aren't any rooms open.{" "}
-                <a href="" onClick={() => roomNameRef.current.focus()}>
-                  Create your own!
-                </a>
+                There aren't any rooms open. Create your own!
               </td>
               <td />
               <td />

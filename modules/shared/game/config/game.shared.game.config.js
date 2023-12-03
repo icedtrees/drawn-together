@@ -23,6 +23,6 @@ exports.roundTime = {
 };
 exports.timeAfterGuess = {
     settingName: "Reserve time",
-    default: 20,
-    options: [10, 20, 30]
+    default: 40,
+    options: [20, 40, 60]
 };

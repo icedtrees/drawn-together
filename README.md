@@ -11,15 +11,17 @@
 1. Clone repository
    1. `git clone https://github.com/icedtrees/drawn-together`
 2. `nvm use`
-3. `npm install` (optional - this will be done in the Docker container)
+3. `nvm install`
+4. `npm install` (optional - this will be done in the Docker container)
 
 # Running locally
 
 Using docker-compose for development:
 
 1. Run `docker compose up --build -d`
-   1. This will start a docker container for mongodb and one for your webserver, and install every dependency you need
-   2. This will run the backend in development mode with hot reload on both 
+   1. This will start a docker container for mongodb and one for your webserver,
+      and install every dependency you need
+   2. This will run the backend in development mode with hot reload on both
       frontend and backend
 2. Access at http://localhost:8443/
 
