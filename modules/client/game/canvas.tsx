@@ -64,10 +64,10 @@ export const CanvasElement = React.forwardRef((props: {canDraw: boolean, mouseMo
     }
   })
 
-  const parentRef = React.createRef(null)
-  const drawLayerRef = React.createRef(null)
-  const previewCursorLayerRef = React.createRef(null)
-  const hiddenLayerRef = React.createRef(null)
+  const parentRef = React.useRef(null)
+  const drawLayerRef = React.useRef(null)
+  const previewCursorLayerRef = React.useRef(null)
+  const hiddenLayerRef = React.useRef(null)
 
   React.useEffect(() => {
     const windowResize = () => {
