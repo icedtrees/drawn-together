@@ -17,7 +17,7 @@ services:
     restart: always
     environment:
       NODE_ENV: production
-      DB_1_PORT_27017_TCP_ADDR: mongodb
+      DB_1_PORT_27017_TCP_ADDR: mongodb:27017
     depends_on:
       - mongodb
     ports:
