@@ -317,15 +317,16 @@ const LayerElement = React.forwardRef(({zIndex, width, height, canDraw}, ref) =>
   )
 })
 
-const documentBodyListeners: {[event: string]: (arg: any) => void} = {}
 export const useDocumentBodyListener = ((event: string, callback: (arg: any) => void, options={}) => {
-  documentBodyListeners[event] = callback
+  // Store the latest callback in a ref, so we do not bind a stale callback to the current closure.
+  const callbackRef = React.useRef()
+  callbackRef.current = callback
 
   const runEventCallback = (arg) => {
-    // We need to force render React because callbacks might update React state, and we need subsequent callbacks to
-    // read the latest React state (that may have been updated from previous callbacks or elsewhere).
+    // We need to force render React because sometimes two events come in without giving
+    // React a chance to update the callback function. This ensures callback will be latest.
     ReactDOM.flushSync(() => {
-      documentBodyListeners[event](arg)  // this works
+      callbackRef.current(arg)  // this works
     })
   }
   React.useEffect(() => {

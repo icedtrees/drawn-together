@@ -6,8 +6,6 @@ export const currentSocket = {
   socket: null,
 }
 
-const eventToCallback: {[event: string]: (arg: any) => void} = {}
-
 export const useAddSocketListener = ((event: string, callback: (x: any) => void) => {
   // Store the latest callback in a ref, so we do not bind a stale callback to the current closure.
   const callbackRef = React.useRef()
