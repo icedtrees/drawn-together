@@ -162,13 +162,24 @@ export const GamePage = ({user, roomName, setPage}) => {
   React.useEffect(() => {
     const checkBanDrawing = () => {
       let disable = false
-      if (game.numDrawers > 1 && game.userList.length > 1 && timerTop && timerTop.timeStarted && !timerTop.paused) {
+      if (game.numDrawers > 1 && game.userList.length > 1) {
         const drawerIndex = game.getDrawers().indexOf(user.username)
-        const timeSinceStart = Date.now() - timerTop.timeStarted
-        const fractionElapsed = timeSinceStart / timerTop.delay
-        const offset = Math.floor(fractionElapsed * 10) % game.numDrawers
-        if (drawerIndex === offset) {
-          disable = true
+
+        let timeSinceStart = null;
+        let fractionElapsed = null;
+        if (timerTop && timerTop.timeStarted && !timerTop.paused) {
+          timeSinceStart = Date.now() - timerTop.timeStarted
+          fractionElapsed = timeSinceStart / timerTop.delay
+        }
+        if (timerBottom && timerBottom.timeStarted && !timerBottom.paused) {
+          timeSinceStart = Date.now() - timerBottom.timeStarted
+          fractionElapsed = timeSinceStart / timerBottom.delay
+        }
+        if (timeSinceStart) {
+          const offset = Math.floor(fractionElapsed * 10) % game.numDrawers
+          if (drawerIndex === offset) {
+            disable = true
+          }
         }
       }
       setDisableDrawing(disable)
@@ -631,17 +642,31 @@ const DrawingSection = React.forwardRef(({game, topic, user, timerTop, timerBott
         </div>
       </div>
       {timerTop && (
-        <TimerComponent color={'lightgreen'} gameFinished={game.finished} timer={timerTop} totalTime={game.roundTime} twoSlices={game.numDrawers > 1 && game.userList.length > 1}/>
+        <TimerComponent
+          color={'lightgreen'}
+          secondDrawerColor={'#56d556'}
+          gameFinished={game.finished}
+          timer={timerTop}
+          totalTime={game.roundTime}
+          twoSlices={game.numDrawers > 1 && game.userList.length > 1
+        }/>
       )}
       {timerBottom && (
-        <TimerComponent color={'pink'} gameFinished={game.finished} timer={timerBottom} totalTime={game.timeAfterGuess} twoSlices={false}/>
+        <TimerComponent
+          color={'pink'}
+          secondDrawerColor={'#cbffc0'}
+          gameFinished={game.finished}
+          timer={timerBottom}
+          totalTime={game.timeAfterGuess}
+          twoSlices={game.numDrawers > 1 && game.userList.length > 1}
+        />
       )}
       <CanvasElement canDraw={canDraw} mouseMode={mouseMode} penColour={penColour} drawWidth={drawWidth} ref={canvasRef}/>
     </>
   )
 })
 
-const TimerComponent = ({gameFinished, color, timer, totalTime, twoSlices}) => {
+const TimerComponent = ({gameFinished, color, secondDrawerColor, timer, totalTime, twoSlices}) => {
   const [timeLeft, setTimeLeft] = React.useState(timer.timeLeft())
   const wrapperRef = React.useRef()
   React.useEffect(() => {
@@ -662,7 +687,13 @@ const TimerComponent = ({gameFinished, color, timer, totalTime, twoSlices}) => {
   } else {
     // Alternate 10 slices
     const sectionWidth = Math.round(wrapperRef.current.offsetWidth / 10)
-    style.background = `repeating-linear-gradient(to right, ${color}, ${color} ${sectionWidth}px, #56d556 ${sectionWidth}px, #56d556 ${sectionWidth*2}px)`
+    style.background = `repeating-linear-gradient(
+      to right,
+      ${color},
+      ${color} ${sectionWidth}px,
+      ${secondDrawerColor} ${sectionWidth}px,
+      ${secondDrawerColor} ${sectionWidth*2}px
+    )`
   }
   return (
     <div className={'drawing-timer-wrapper' + (gameFinished ? ' game-over': '')} ref={wrapperRef}>
