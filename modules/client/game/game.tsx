@@ -176,7 +176,7 @@ export const GamePage = ({user, roomName, setPage}) => {
           fractionElapsed = timeSinceStart / timerBottom.delay
         }
         if (timeSinceStart) {
-          const offset = Math.floor(fractionElapsed * 100 / CO_OP_INTERVAL_COUNT) % game.numDrawers
+          const offset = Math.floor(fractionElapsed * CO_OP_INTERVAL_COUNT) % game.numDrawers
           if (drawerIndex === offset) {
             disable = true
           }
@@ -685,7 +685,7 @@ const TimerComponent = ({gameFinished, color, secondDrawerColor, timer, totalTim
     // wrapper isn't rendered yet
     style.backgroundColor = color
   } else {
-    // Alternate 10 slices
+    // Alternate slices
     const sectionWidth = Math.round(wrapperRef.current.offsetWidth / CO_OP_INTERVAL_COUNT)
     style.background = `repeating-linear-gradient(
       to right,
