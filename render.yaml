@@ -1,4 +1,5 @@
 services:
+  previewsEnabled: true
   - type: web
     name: drawn-together
     runtime: docker

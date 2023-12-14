@@ -16,7 +16,7 @@ import './css/player-list.css'
 import './css/pregame.css'
 import './css/range-slider.css'
 import './css/toolbox.css'
-import {CanvasSettings} from "./config/game.client.config";
+import {CanvasSettings, CO_OP_INTERVAL_COUNT} from "./config/game.client.config";
 
 export const GamePage = ({user, roomName, setPage}) => {
   const [game, setGame] = React.useState(new Game())
@@ -176,7 +176,7 @@ export const GamePage = ({user, roomName, setPage}) => {
           fractionElapsed = timeSinceStart / timerBottom.delay
         }
         if (timeSinceStart) {
-          const offset = Math.floor(fractionElapsed * 10) % game.numDrawers
+          const offset = Math.floor(fractionElapsed * CO_OP_INTERVAL_COUNT) % game.numDrawers
           if (drawerIndex === offset) {
             disable = true
           }
@@ -685,8 +685,8 @@ const TimerComponent = ({gameFinished, color, secondDrawerColor, timer, totalTim
     // wrapper isn't rendered yet
     style.backgroundColor = color
   } else {
-    // Alternate 10 slices
-    const sectionWidth = Math.round(wrapperRef.current.offsetWidth / 10)
+    // Alternate slices
+    const sectionWidth = Math.round(wrapperRef.current.offsetWidth / CO_OP_INTERVAL_COUNT)
     style.background = `repeating-linear-gradient(
       to right,
       ${color},

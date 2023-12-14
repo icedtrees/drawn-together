@@ -19,3 +19,5 @@ export const MouseConstants = {
   MOUSE_MIDDLE: 2,
   MOUSE_RIGHT: 3
 };
+
+export const CO_OP_INTERVAL_COUNT = 6
