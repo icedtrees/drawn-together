@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: server
+    name: drawn-together
     runtime: docker
     repo: https://github.com/icedtrees/drawn-together
     envVars:
