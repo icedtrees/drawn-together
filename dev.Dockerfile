@@ -21,7 +21,9 @@ EXPOSE 8443
 # TODO this only runs once - if you change the prisma schema file, the backend will not hot reload with the changes
 # TODO in order to do this "properly" we can use `npx prisma generate --watch`, but we also need to make
 # TODO `node esbuild.config.mjs watch` reload the backend when the generated client changes...not easy
-RUN npx prisma generate
+
+# TODO figure out why this doesn't use the versions in package-lock.json. For now, hard-coded the right version
+RUN npx prisma@5.6.0 generate
 
 # Not sure why dev dependencies aren't automatically installed here
 CMD npm install --include=dev && \

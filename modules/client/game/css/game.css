@@ -1,16 +1,24 @@
 .game-page {
   display: flex;
-  gap: 2%;
-  justify-content: center;
-  padding: 2%;
   max-height: calc(100vh - 48px);
   min-height: 533px;
 }
-
+.middle-column {
+  /* Horizontally center content within the middle column */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .left-column {
   display: flex;
   flex-direction: column;
-  width: 480px;
+}
+.dt-drawing {
+  aspect-ratio: 1; /* Set height to same as width */
+}
+.all-drawing {
+  display: flex;
+  align-items: center;
 }
 
 /*
@@ -18,25 +26,46 @@ In our UI, all the elements are fixed size except for the 1:1 canvas itself, whi
 If we have enough horizontal space, the dimension should be 100vh - middle header height. If we have not enough
 horizontal space, the dimension should be (100vw - leftcolumn - rightcolumn)
  */
-.middle-column {
-  flex-grow: 1; /* Expand to take up remaining space */
-  /* Max width of the middle column is limited by the max height of the canvas, since the aspect ratio must be 1:1.
-  Max height of the canvas is 100vh - (space taken up by other elements in the middle column)
-   */
-  max-width: calc(100vh - 230px);
-  min-width: 350px;
-
-  /* Horizontally center content within the middle column */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+@media (min-width:600px) {
+  .game-page {
+    gap: 2%;
+    justify-content: center;
+    padding: 2%;
+  }
+  .left-column {
+    width: 480px;
+  }
+  .middle-column {
+    flex-grow: 1; /* Expand to take up remaining space */
+    /* Max width of the middle column is limited by the max height of the canvas, since the aspect ratio must be 1:1.
+    Max height of the canvas is 100vh - (space taken up by other elements in the middle column)
+     */
+    max-width: calc(100vh - 230px);
+    min-width: 350px;
+  }
+  .right-column {
+    width: 150px;
+  }
 }
-.dt-drawing {
-  aspect-ratio: 1; /* Set height to same as width */
-}
 
-.right-column {
-  width: 150px;
+@media (max-width:600px) {
+  .game-page {
+    flex-direction: column-reverse;
+    gap: 5px;
+  }
+  .left-column {
+    width: 100%;
+    flex-grow: 1;
+    overflow: hidden;
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+  .middle-column {
+    flex-grow: 1; /* Expand to take up remaining horizontal space */
+  }
+  .right-column {
+    width: 100px;
+  }
 }
 
 .col {
