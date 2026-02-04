@@ -1,86 +1,6 @@
 'use strict';
 
-var mongoose = require('mongoose'),
-  chalk = require('chalk'),
-  crypto = require('crypto'),
-  logger = require('./log'),
-  User = mongoose.model('User'),
-  Topic = mongoose.model('Topic');
-
-console.log(chalk.bold.red('Warning:  Database seeding is turned on'));
-
-var seedUser = {
-  username: 'user',
-  password: 'User_Password1!',
-  provider: 'local',
-  email: 'user@localhost.com',
-  roles: ['user']
-};
-
-var seedAdmin = {
-  username: 'admin',
-  password: 'Admin_Password1!',
-  provider: 'local',
-  email: 'admin@localhost.com',
-  roles: ['user', 'admin']
-};
-
-
-//If production only seed admin if it does not exist
-if (process.env.NODE_ENV === 'production') {
-  //Add Local Admin
-  User.find({username: 'admin'}, function (err, users) {
-    if (users.length === 0) {
-      var password = crypto.randomBytes(64).toString('hex').slice(1, 20);
-      seedAdmin.password = password;
-      var user = new User(seedAdmin);
-      // Then save the user
-      user.save(function (err) {
-        if (err) {
-          console.log('Failed to add local admin');
-        } else {
-          console.log(chalk.bold.red('Local admin added with password set to ' + password));
-        }
-      });
-    } else {
-      console.log('Admin user exists');
-    }
-  });
-} else {
-  //Add Local User
-  User.find({username: 'user'}).remove(function () {
-    var password = crypto.randomBytes(64).toString('hex').slice(1, 20);
-    seedUser.password = password;
-    var user = new User(seedUser);
-    // Then save the user
-    user.save(function (err) {
-      if (err) {
-        console.log('Failed to add local user');
-      } else {
-        console.log(chalk.bold.red('Local user added with password set to ' + password));
-      }
-    });
-  });
-
-
-  //Add Local Admin
-  User.find({username: 'admin'}).remove(function () {
-    var password = crypto.randomBytes(64).toString('hex').slice(1, 20);
-    seedAdmin.password = password;
-    var user = new User(seedAdmin);
-    // Then save the user
-    user.save(function (err) {
-      if (err) {
-        console.log('Failed to add local admin');
-      } else {
-        console.log(chalk.bold.red('Local admin added with password set to ' + password));
-      }
-    });
-  });
-}
-
-// Add default topics
-var defaultTopics = [
+const defaultTopics = [
   {
     name: 'English (easy)',
     popularity: 100,
@@ -108,25 +28,31 @@ var defaultTopics = [
   }
 ];
 
-defaultTopics.forEach(function (defaultTopic) {
-  Topic.findOne({name: defaultTopic.name}, function (err, existingTopic) {
-    if (err) {
-      logger.warn('Unable to figure out if topic %s exists already', defaultTopic.name);
-      return;
-    }
+const topicsByName = new Map(defaultTopics.map((topic) => [topic.name, topic]));
 
-    let topic = new Topic(defaultTopic);
-    if (existingTopic) {
-      logger.info('Topic %s already exists, updating word list', defaultTopic.name);
-      existingTopic.words = defaultTopic.words;
-      topic = existingTopic;
-    }
-    topic.save(function (err) {
-      if (err) {
-        logger.error('Failed to save topic %s', topic.name);
-      } else {
-        logger.info('Saved topic %s', topic.name);
+const sortedTopics = () =>
+  defaultTopics
+    .slice()
+    .sort((a, b) => {
+      const popularityDiff = (b.popularity || 0) - (a.popularity || 0);
+      if (popularityDiff) {
+        return popularityDiff;
       }
+      return a.name.localeCompare(b.name);
     });
-  });
-});
+
+const listTopics = () => sortedTopics().map((topic) => ({ name: topic.name }));
+
+const getTopic = (name) => topicsByName.get(name) || null;
+
+const getWords = (name) => {
+  const topic = getTopic(name);
+  return topic ? topic.words : null;
+};
+
+module.exports = {
+  defaultTopics,
+  listTopics,
+  getTopic,
+  getWords,
+};

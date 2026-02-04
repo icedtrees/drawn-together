@@ -103,8 +103,6 @@ const AuthHeader = ({user, page, setPage}) => {
           role="button"
         >
           <img
-            /* We restructured the directories but i'm too lazy to figure out how to migrate all the db
-             records so we have this budget migration for now */
             src={user.profileImageURL === 'modules/users/client/img/profile/default.png' ? 'modules/client/users/img/profile/default.png' : user.profileImageURL}
             alt={user.username}
             className="header-profile-image"

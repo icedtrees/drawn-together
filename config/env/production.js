@@ -6,16 +6,7 @@ module.exports = {
     privateKey: './config/sslcerts/key.pem',
     certificate: './config/sslcerts/cert.pem'
   },
-  port: process.env.PORT || 8443,
-  db: {
-    uri: process.env.MONGOHQ_URL || process.env.MONGOLAB_URI || 'mongodb://' + (process.env.DB_1_PORT_27017_TCP_ADDR || 'localhost') + '/mean',
-    options: {
-      user: '',
-      pass: ''
-    },
-    // Enable mongoose debug mode
-    debug: process.env.MONGODB_DEBUG || false
-  },
+  port: process.env.PORT || 3000,
   log: {
     // Can specify one of 'combined', 'common', 'dev', 'short', 'tiny'
     format: 'combined',
@@ -30,5 +21,4 @@ module.exports = {
     clientSecret: process.env.FACEBOOK_SECRET || 'APP_SECRET',
     callbackURL: '/api/auth/facebook/callback'
   },
-  seedDB: process.env.MONGO_SEED || true
 };

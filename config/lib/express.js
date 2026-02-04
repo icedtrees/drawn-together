@@ -8,7 +8,6 @@ var config = require('../config'),
   morgan = require('morgan'),
   bodyParser = require('body-parser'),
   session = require('express-session'),
-  MongoStore = require('connect-mongo')(session),
   multer = require('multer'),
   favicon = require('serve-favicon'),
   compress = require('compression'),
@@ -109,9 +108,8 @@ module.exports.initViewEngine = function (app) {
 /**
  * Configure Express session
  */
-module.exports.initSession = function (app, db) {
-  // Express MongoDB session storage
-  app.use(session({
+module.exports.initSession = function (app) {
+  const sessionMiddleware = session({
     saveUninitialized: true,
     resave: true,
     secret: config.sessionSecret,
@@ -120,20 +118,25 @@ module.exports.initSession = function (app, db) {
       httpOnly: config.sessionCookie.httpOnly,
       secure: config.sessionCookie.secure && config.secure.ssl
     },
-    key: config.sessionKey,
-    store: new MongoStore({
-      mongooseConnection: db.connection,
-      collection: config.sessionCollection
-    })
-  }));
+    key: config.sessionKey
+  });
+
+  app.set('sessionMiddleware', sessionMiddleware);
+  app.use(sessionMiddleware);
+
+  app.use(function (req, res, next) {
+    req.user = req.session ? req.session.user : null;
+    res.locals.user = req.user || null;
+    next();
+  });
 };
 
 /**
  * Invoke modules server configuration
  */
-module.exports.initModulesConfiguration = function (app, db) {
+module.exports.initModulesConfiguration = function (app) {
   config.files.server.configs.forEach(function (configPath) {
-    require(path.resolve(configPath))(app, db);
+    require(path.resolve(configPath))(app);
   });
 };
 
@@ -204,9 +207,9 @@ module.exports.initErrorRoutes = function (app) {
 /**
  * Configure Socket.io
  */
-module.exports.configureSocketIO = function (app, db) {
+module.exports.configureSocketIO = function (app) {
   // Load the Socket.io configuration
-  var server = require('./socket.io')(app, db);
+  var server = require('./socket.io')(app);
 
   // Return server object
   return server;
@@ -215,7 +218,7 @@ module.exports.configureSocketIO = function (app, db) {
 /**
  * Initialize the Express application
  */
-module.exports.init = function (db) {
+module.exports.init = function () {
   // Initialize express app
   var app = express();
 
@@ -229,7 +232,7 @@ module.exports.init = function (db) {
   this.initViewEngine(app);
 
   // Initialize Express session
-  this.initSession(app, db);
+  this.initSession(app);
 
   // Initialize Modules configuration
   this.initModulesConfiguration(app);
@@ -250,7 +253,7 @@ module.exports.init = function (db) {
   this.initErrorRoutes(app);
 
   // Configure Socket.io
-  app = this.configureSocketIO(app, db);
+  app = this.configureSocketIO(app);
 
   return app;
 };

@@ -1,6 +1,6 @@
 /**
  * This is the frontend application entrypoint.
  *
- * It is built via an esbuild command in the Dockerfile.
+ * It is built via an esbuild command in the npm scripts.
  */
 import './modules/client/core/app/reactapp'

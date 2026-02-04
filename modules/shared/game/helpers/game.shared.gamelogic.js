@@ -59,8 +59,6 @@ exports.Game.prototype.removeUser = function (username) {
 
 exports.Game.prototype.getUserProfileImage = function (username) {
   const profileImageURL = this.users[username].profileImageURL;
-  // We restructured the directories but i'm too lazy to figure out how to migrate all the db
-  // records so we have this budget migration for now
   if (profileImageURL === 'modules/users/client/img/profile/default.png') {
     return 'modules/client/users/img/profile/default.png'
   }

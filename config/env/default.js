@@ -26,7 +26,6 @@ module.exports = {
   // sessionKey is set to the generic sessionId key used by PHP applications
   // for obsecurity reasons
   sessionKey: 'sessionId',
-  sessionCollection: 'sessions',
   // email settings
   mailer: {
     from: process.env.MAILER_FROM || 'Drawn Together',
