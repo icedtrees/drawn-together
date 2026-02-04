@@ -1,58 +1,21 @@
 'use strict';
 
 // Load the module dependencies
-var config = require('../config'),
-  path = require('path'),
-  fs = require('fs'),
+var path = require('path'),
   http = require('http'),
-  https = require('https'),
   socketio = require('socket.io');
+
+var rootDir = path.resolve(__dirname, '..', '..');
+
+var socketModules = [
+  path.join(rootDir, 'modules/server/game/sockets/game.server.socket.config.js')
+];
 
 // Define the Socket.io configuration method
 module.exports = function (app) {
-  var server;
-  if (config.secure && config.secure.ssl === true) {
-    // Load SSL key and certificate
-    var privateKey = fs.readFileSync(path.resolve(config.secure.privateKey), 'utf8');
-    var certificate = fs.readFileSync(path.resolve(config.secure.certificate), 'utf8');
-    var options = {
-      key: privateKey,
-      cert: certificate,
-      //  requestCert : true,
-      //  rejectUnauthorized : true,
-      secureProtocol: 'TLSv1_method',
-      ciphers: [
-        'ECDHE-RSA-AES128-GCM-SHA256',
-        'ECDHE-ECDSA-AES128-GCM-SHA256',
-        'ECDHE-RSA-AES256-GCM-SHA384',
-        'ECDHE-ECDSA-AES256-GCM-SHA384',
-        'DHE-RSA-AES128-GCM-SHA256',
-        'ECDHE-RSA-AES128-SHA256',
-        'DHE-RSA-AES128-SHA256',
-        'ECDHE-RSA-AES256-SHA384',
-        'DHE-RSA-AES256-SHA384',
-        'ECDHE-RSA-AES256-SHA256',
-        'DHE-RSA-AES256-SHA256',
-        'HIGH',
-        '!aNULL',
-        '!eNULL',
-        '!EXPORT',
-        '!DES',
-        '!RC4',
-        '!MD5',
-        '!PSK',
-        '!SRP',
-        '!CAMELLIA'
-      ].join(':'),
-      honorCipherOrder: true
-    };
+  // Create a new HTTP server
+  var server = http.createServer(app);
 
-    // Create new HTTPS Server
-    server = https.createServer(options, app);
-  } else {
-    // Create a new HTTP server
-    server = http.createServer(app);
-  }
   // Create a new Socket.io server
   var io = socketio.listen(server);
 
@@ -76,8 +39,8 @@ module.exports = function (app) {
 
   // Add an event listener to the 'connection' event
   io.on('connection', function (socket) {
-    config.files.server.sockets.forEach(function (socketConfiguration) {
-      require(path.resolve(socketConfiguration))(io, socket);
+    socketModules.forEach(function (socketModule) {
+      require(socketModule)(io, socket);
       socket.on('error', function(e) { console.log("socket1 error ", e); });
     });
   });

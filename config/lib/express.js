@@ -3,8 +3,7 @@
 /**
  * Module dependencies.
  */
-var config = require('../config'),
-  express = require('express'),
+var express = require('express'),
   morgan = require('morgan'),
   bodyParser = require('body-parser'),
   session = require('express-session'),
@@ -18,6 +17,56 @@ var config = require('../config'),
   consolidate = require('consolidate'),
   path = require('path');
 
+var rootDir = path.resolve(__dirname, '..', '..');
+
+var resolveEnv = function () {
+  var env = process.env.NODE_ENV || 'development';
+  if (env !== 'development' && env !== 'production') {
+    env = 'development';
+    process.env.NODE_ENV = env;
+  }
+  return env;
+};
+
+var env = resolveEnv();
+var isDevelopment = env === 'development';
+
+var config = {
+  app: {
+    title: isDevelopment ? 'Drawn Together - Development Environment' : 'Drawn Together',
+    description: 'Pictionary online.'
+  },
+  templateEngine: 'swig',
+  // Session Cookie settings
+  sessionCookie: {
+    // session expiration is set by default to 24 hours
+    maxAge: 24 * (60 * 60 * 1000),
+    // httpOnly flag makes sure the cookie is only accessed
+    // through the HTTP protocol and not JS/browser
+    httpOnly: true,
+    // secure cookie should be turned to true to provide additional
+    // layer of security so that the cookie is set only when working
+    // in HTTPS mode.
+    secure: false
+  },
+  // sessionSecret changed for security measures and concerns
+  sessionSecret: '29ToF2W>JWi18a47l~Mt^S',
+  // sessionKey is set to the generic sessionId key used by PHP applications
+  // for obsecurity reasons
+  sessionKey: 'sessionId',
+  livereload: isDevelopment,
+  logo: 'modules/client/core/img/brand/logo.png',
+  favicon: 'modules/client/core/img/brand/favicon.ico'
+};
+
+var moduleConfigs = [];
+var modulePolicies = [];
+var moduleRoutes = [
+  path.join(rootDir, 'modules/server/core/routes/core.server.routes.js'),
+  path.join(rootDir, 'modules/server/auth/routes/auth.server.routes.js'),
+  path.join(rootDir, 'modules/server/topics/routes/topics.server.routes.js')
+];
+
 /**
  * Initialize local variables
  */
@@ -25,12 +74,6 @@ module.exports.initLocalVariables = function (app) {
   // Setting application local variables
   app.locals.title = config.app.title;
   app.locals.description = config.app.description;
-  if (config.secure && config.secure.ssl === true) {
-    app.locals.secure = config.secure.ssl;
-  }
-  app.locals.keywords = config.app.keywords;
-  app.locals.googleAnalyticsTrackingID = config.app.googleAnalyticsTrackingID;
-  app.locals.facebookAppId = config.facebook.clientID;
   app.locals.livereload = config.livereload;
   app.locals.logo = config.logo;
   app.locals.favicon = config.favicon;
@@ -62,7 +105,7 @@ module.exports.initMiddleware = function (app) {
   }));
 
   // Initialize favicon middleware
-  app.use(favicon('./modules/client/core/img/brand/favicon.ico'));
+  app.use(favicon(path.join(rootDir, 'modules/client/core/img/brand/favicon.ico')));
 
   // Environment dependent middleware
   if (process.env.NODE_ENV === 'development') {
@@ -116,7 +159,7 @@ module.exports.initSession = function (app) {
     cookie: {
       maxAge: config.sessionCookie.maxAge,
       httpOnly: config.sessionCookie.httpOnly,
-      secure: config.sessionCookie.secure && config.secure.ssl
+      secure: config.sessionCookie.secure
     },
     key: config.sessionKey
   });
@@ -135,8 +178,8 @@ module.exports.initSession = function (app) {
  * Invoke modules server configuration
  */
 module.exports.initModulesConfiguration = function (app) {
-  config.files.server.configs.forEach(function (configPath) {
-    require(path.resolve(configPath))(app);
+  moduleConfigs.forEach(function (configPath) {
+    require(configPath)(app);
   });
 };
 
@@ -171,9 +214,8 @@ module.exports.initModulesClientRoutes = function (app) {
  * Configure the modules ACL policies
  */
 module.exports.initModulesServerPolicies = function (app) {
-  // Globbing policy files
-  config.files.server.policies.forEach(function (policyPath) {
-    require(path.resolve(policyPath)).invokeRolesPolicies();
+  modulePolicies.forEach(function (policyPath) {
+    require(policyPath).invokeRolesPolicies();
   });
 };
 
@@ -181,9 +223,8 @@ module.exports.initModulesServerPolicies = function (app) {
  * Configure the modules server routes
  */
 module.exports.initModulesServerRoutes = function (app) {
-  // Globbing routing files
-  config.files.server.routes.forEach(function (routePath) {
-    require(path.resolve(routePath))(app);
+  moduleRoutes.forEach(function (routePath) {
+    require(routePath)(app);
   });
 };
 
