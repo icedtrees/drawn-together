@@ -5,6 +5,8 @@ services:
     plan: free
     buildCommand: npm install && npm run build
     startCommand: node build/src/server.js
+    domains:
+      - u-sketch.com
     envVars:
       - key: NODE_VERSION
         value: 21
