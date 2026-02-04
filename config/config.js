@@ -9,6 +9,9 @@ var _ = require('lodash'),
   fs = require('fs'),
   path = require('path');
 
+// Resolve relative to this file so it works from build/ or repo root
+var rootDir = path.resolve(__dirname, '..');
+
 /**
  * Get files by glob patterns
  */
@@ -28,7 +31,10 @@ var getGlobbedPaths = function (globPatterns, excludes) {
     if (urlRegex.test(globPatterns)) {
       output.push(globPatterns);
     } else {
-      var files = glob.sync(globPatterns);
+      var resolvedPattern = path.isAbsolute(globPatterns)
+        ? globPatterns
+        : path.join(rootDir, globPatterns);
+      var files = glob.sync(resolvedPattern);
       if (excludes) {
         files = files.map(function (file) {
           if (_.isArray(excludes)) {
@@ -52,7 +58,7 @@ var getGlobbedPaths = function (globPatterns, excludes) {
  * Validate NODE_ENV existence
  */
 var validateEnvironmentVariable = function () {
-  var environmentFiles = glob.sync('./config/env/' + process.env.NODE_ENV + '.js');
+  var environmentFiles = glob.sync(path.join(rootDir, 'config/env/', process.env.NODE_ENV + '.js'));
   console.log();
   if (!environmentFiles.length) {
     if (process.env.NODE_ENV) {
@@ -98,9 +104,6 @@ var initGlobalConfigFiles = function (config, assets) {
 var initGlobalConfig = function () {
   // Validate NODE_ENV existence
   validateEnvironmentVariable();
-
-  // Resolve relative to this file so it works from build/ or repo root
-  var rootDir = path.resolve(__dirname, '..');
 
   // Get the default assets
   var assets = require(path.join(rootDir, 'config/assets/default'));
