@@ -7,11 +7,8 @@
 
 # Installation
 
-1. Clone repository
-   1. `git clone https://github.com/icedtrees/drawn-together`
-2. `nvm use`
-3. `nvm install`
-4. `npm install`
+1. Clone repository `git clone https://github.com/icedtrees/drawn-together`
+2. `npm install`
 
 # Running locally
 
