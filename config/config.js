@@ -99,14 +99,17 @@ var initGlobalConfig = function () {
   // Validate NODE_ENV existence
   validateEnvironmentVariable();
 
+  // Resolve relative to this file so it works from build/ or repo root
+  var rootDir = path.resolve(__dirname, '..');
+
   // Get the default assets
-  var assets = require(path.join(process.cwd(), 'config/assets/default'));
+  var assets = require(path.join(rootDir, 'config/assets/default'));
 
   // Get the default config
-  var defaultConfig = require(path.join(process.cwd(), 'config/env/default'));
+  var defaultConfig = require(path.join(rootDir, 'config/env/default'));
 
   // Get the current config
-  var environmentConfig = require(path.join(process.cwd(), 'config/env/', process.env.NODE_ENV)) || {};
+  var environmentConfig = require(path.join(rootDir, 'config/env/', process.env.NODE_ENV)) || {};
 
   // Merge config files
   var config = _.merge(defaultConfig, environmentConfig);
