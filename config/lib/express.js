@@ -163,7 +163,8 @@ module.exports.initHelmetHeaders = function (app) {
  */
 module.exports.initModulesClientRoutes = function (app) {
   // Setting the app router and static folder
-  app.use('/', express.static(path.resolve('./public')));
+  // Resolve relative to this file so it works regardless of process.cwd()
+  app.use('/', express.static(path.resolve(__dirname, '../../public')));
 };
 
 /**
