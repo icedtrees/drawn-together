@@ -29,14 +29,28 @@
 .size-triangle {
   width: 0;
   height: 0;
-  border-bottom: 30px solid grey;
-  border-left: 110px solid transparent;
   margin: 0 auto;
 }
-
 .toolbox .size-slider {
   margin: 0 auto;
-  width: 110px;
+}
+@media (min-width: 600px) {
+  .size-triangle {
+    border-bottom: 30px solid grey;
+    border-left: 110px solid transparent;
+  }
+  .toolbox .size-slider {
+    width: 110px;
+  }
+}
+@media (max-width: 600px) {
+  .size-triangle {
+    border-bottom: 20px solid grey;
+    border-left: 60px solid transparent;
+  }
+  .toolbox .size-slider {
+    width: 60px;
+  }
 }
 
 .grid {
@@ -59,25 +73,52 @@
   border: 2px solid lightgrey;
   background-clip:content-box;
   padding: 2px;
-  margin: 3px;
-  width: 55px;
-  height: 55px;
+}
+.draw-tool-content {
+  margin: auto;
+}
+@media (min-width: 600px) {
+  .draw-tool {
+    margin: 3px;
+    width: 55px;
+    height: 55px;
+  }
+  .draw-tool-content {
+    font-size: 33px;
+  }
+}
+@media (max-width: 600px) {
+  .draw-tool {
+    margin: 2px;
+    width: 35px;
+    height: 35px;
+  }
+  .draw-tool-content {
+    font-size: 20px;
+  }
 }
 .draw-tool.selected {
   border: 3px solid black;
 }
-.draw-tool-content {
-  font-size: 33px;
-  margin: auto;
-}
 
 .palette-colour {
   border: 2px solid lightgrey;
-  background-clip:content-box;
+  background-clip: content-box;
   padding: 1px;
-  margin: 3px;
-  width: 35px;
-  height: 35px;
+}
+@media (min-width: 600px) {
+  .palette-colour {
+    margin: 3px;
+    width: 35px;
+    height: 35px;
+  }
+}
+@media (max-width: 600px) {
+  .palette-colour {
+    margin: 2px;
+    width: 20px;
+    height: 20px;
+  }
 }
 .palette-colour.selected {
   border: 3px solid black;

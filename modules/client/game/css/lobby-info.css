@@ -1,6 +1,11 @@
 .lobby-info {
   text-align: center;
 }
+@media (max-width: 600px) {
+  .lobby-info {
+    display: none;
+  }
+}
 .lobby-info h4 {
   font-weight: normal;
   margin-bottom: 15px;

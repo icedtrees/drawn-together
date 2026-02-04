@@ -219,37 +219,39 @@ export const GamePage = ({user, roomName, setPage}) => {
           <PlayerList game={game}/>
           <MessageSection canMessage={!(game.isDrawer(user.username) && game.started)}/>
         </div>
-        <div className="middle-column">
-          {!game.started && (
-            <PreGameSettings user={user} game={game} setGame={setGame}/>
-          )}
-          {game.started && (
-            <DrawingSection
-              game={game}
-              canDraw={canDraw}
-              topic={topic}
-              user={user}
-              timerTop={timerTop}
-              timerBottom={timerBottom}
-              mouseMode={mouseMode}
-              penColour={penColour}
-              drawWidth={drawWidth}
-              ref={canvasRef}
+        <div className="all-drawing">
+          <div className="middle-column">
+            {!game.started && (
+                <PreGameSettings user={user} game={game} setGame={setGame}/>
+            )}
+            {game.started && (
+                <DrawingSection
+                    game={game}
+                    canDraw={canDraw}
+                    topic={topic}
+                    user={user}
+                    timerTop={timerTop}
+                    timerBottom={timerBottom}
+                    mouseMode={mouseMode}
+                    penColour={penColour}
+                    drawWidth={drawWidth}
+                    ref={canvasRef}
+                />
+            )}
+          </div>
+          <div className="right-column toolbox" disabled={!canDraw}>
+            <DrawingTools
+                canDraw={canDraw}
+                gameFinished={game.finished}
+                drawWidth={drawWidth}
+                setDrawWidth={setDrawWidth}
+                penColour={penColour}
+                setPenColour={setPenColour}
+                mouseMode={mouseMode}
+                setMouseMode={setMouseMode}
+                onClearDrawing={onClearDrawing}
             />
-          )}
-        </div>
-        <div className="right-column toolbox" disabled={!canDraw}>
-          <DrawingTools
-            canDraw={canDraw}
-            gameFinished={game.finished}
-            drawWidth={drawWidth}
-            setDrawWidth={setDrawWidth}
-            penColour={penColour}
-            setPenColour={setPenColour}
-            mouseMode={mouseMode}
-            setMouseMode={setMouseMode}
-            onClearDrawing={onClearDrawing}
-          />
+          </div>
         </div>
       </section>
     </>
@@ -789,7 +791,7 @@ const DrawingTools = ({mouseMode, setMouseMode, canDraw, drawWidth, setDrawWidth
             disabled={!canDraw || gameFinished}
             onClick={onClearDrawing}
           >
-            Clear Canvas
+            Clear
           </button>
         </div>
       </div>
