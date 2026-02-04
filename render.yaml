@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: drawn-together
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node build/src/server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 21
