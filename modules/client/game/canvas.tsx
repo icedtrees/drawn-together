@@ -37,6 +37,10 @@ function clearLayer(context) {
   context.clearRect(0, 0, CanvasSettings.RESOLUTION_WIDTH, CanvasSettings.RESOLUTION_HEIGHT);
 }
 
+function getPrimaryTouch(e: TouchEvent) {
+  return e.touches[0] || e.changedTouches[0] || null;
+}
+
 const scaleX = {
   current: null,
 }
@@ -174,7 +178,10 @@ export const CanvasElement = React.forwardRef((props: {canDraw: boolean, mouseMo
       // Prevent page scrolling
       e.preventDefault();
       // Convert touch position to mouse position and trigger the mouse event counterpart
-      var touch = e.touches[0];
+      var touch = getPrimaryTouch(e);
+      if (!touch) {
+        return;
+      }
       var mouseEvent = new MouseEvent("mousedown", {
         clientX: touch.clientX,
         clientY: touch.clientY
@@ -238,7 +245,10 @@ export const CanvasElement = React.forwardRef((props: {canDraw: boolean, mouseMo
       // Prevent page scrolling
       e.preventDefault();
       // Convert touch position to mouse position and trigger the mouse event counterpart
-      var touch = e.touches[0];
+      var touch = getPrimaryTouch(e);
+      if (!touch) {
+        return;
+      }
       var mouseEvent = new MouseEvent("mousemove", {
         clientX: touch.clientX,
         clientY: touch.clientY
@@ -262,9 +272,13 @@ export const CanvasElement = React.forwardRef((props: {canDraw: boolean, mouseMo
       // Prevent page scrolling
       e.preventDefault();
       // Convert touch position to mouse position and trigger the mouse event counterpart
+      var touch = getPrimaryTouch(e);
+      if (!touch) {
+        return;
+      }
       var mouseEvent = new MouseEvent("mouseup", {
-        clientX: e.touches[0].clientX,
-        clientY: e.touches[0].clientY
+        clientX: touch.clientX,
+        clientY: touch.clientY
       });
       document.body.dispatchEvent(mouseEvent);
     }
@@ -385,4 +399,3 @@ const drawOnCtx = (message, ctx) => {
       console.log('Draw message type unknown: ' + message.type);
   }
 }
-
