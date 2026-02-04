@@ -62,9 +62,10 @@ var config = {
 var moduleConfigs = [];
 var modulePolicies = [];
 var moduleRoutes = [
-  path.join(rootDir, 'modules/server/core/routes/core.server.routes.js'),
   path.join(rootDir, 'modules/server/auth/routes/auth.server.routes.js'),
-  path.join(rootDir, 'modules/server/topics/routes/topics.server.routes.js')
+  path.join(rootDir, 'modules/server/topics/routes/topics.server.routes.js'),
+  // Core routes include the /api/* 404 catch-all, so they must be last.
+  path.join(rootDir, 'modules/server/core/routes/core.server.routes.js')
 ];
 
 /**

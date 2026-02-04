@@ -10,12 +10,9 @@ const command = process.argv[2];
 const baseOptions = {
   entryPoints: [
     'src/server.ts',
-    'config/**/*.ts',
     'config/**/*.js',
-    'modules/server/**/*.ts',
     'modules/server/**/*.js',
     'modules/server/**/*.html',
-    'modules/shared/**/*.ts',
     'modules/shared/**/*.js',
     // For some reason the server depends on assets from the client section
     'modules/client/**/*.ico',

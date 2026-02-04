@@ -262,7 +262,10 @@ export const CanvasElement = React.forwardRef((props: {canDraw: boolean, mouseMo
       // Prevent page scrolling
       e.preventDefault();
       // Convert touch position to mouse position and trigger the mouse event counterpart
-      var mouseEvent = new MouseEvent("mouseup", {});
+      var mouseEvent = new MouseEvent("mouseup", {
+        clientX: e.touches[0].clientX,
+        clientY: e.touches[0].clientY
+      });
       document.body.dispatchEvent(mouseEvent);
     }
   }, {passive: false});
